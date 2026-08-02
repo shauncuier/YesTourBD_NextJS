@@ -1,0 +1,14 @@
+/* Google Fonts CDN substitution — no brand font files were provided.
+   Poppins matches the geometric rounded wordmark in the logo; Public Sans is the
+   UI/body workhorse; Lora (italic) echoes the logo's thin serif tagline for editorial
+   accents; IBM Plex Mono is used for booking codes / reference numbers.
+   See readme.md "Visual Foundations > Typography" for the flagged substitution. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Public+Sans:wght@400;500;600;700&family=Lora:ital@0;1&family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+
+:root{
+  /* 'Noto Sans Bengali' carries ৳ and Bangla place names; the Latin faces have neither. */
+  --font-display: 'Poppins', 'Noto Sans Bengali', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Public Sans', 'Noto Sans Bengali', 'Segoe UI', system-ui, sans-serif;
+  --font-accent: 'Lora', 'Noto Sans Bengali', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Noto Sans Bengali', 'Courier New', monospace;
+}
