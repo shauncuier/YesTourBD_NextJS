@@ -23,7 +23,10 @@ describe('website screens', () => {
   it('Search renders every listing as a result', () => {
     render(<SearchScreen />);
     expect(screen.getByText(`${LISTINGS.length} results · prices include VAT`)).toBeInTheDocument();
-    expect(screen.getByText('Filters')).toBeInTheDocument();
+    // "Filters" appears twice by design: the rail heading and the button that opens the
+    // rail as a sheet below 900px. Assert the control, not the ambiguous text.
+    expect(screen.getByRole('button', { name: 'Filters' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Book now' })).toHaveLength(LISTINGS.length);
   });
 
   it('Detail renders the listing it is given', () => {

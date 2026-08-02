@@ -1,0 +1,480 @@
+/* Screen-level layout. Shared by Search, Detail, Request and Account.
+   Breakpoints match styles/layout.module.css — sm 640, md 900, lg 1100. */
+
+/* --- Search ---------------------------------------------------------------- */
+
+.searchBand {
+  background: var(--navy-900);
+  padding-block: var(--space-6);
+}
+
+@media (min-width: 900px) {
+  .searchBand {
+    padding-block: var(--space-8);
+  }
+}
+
+/* Results shell: filter rail beside results from tablet up. */
+.searchLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+  padding-block: var(--space-6);
+}
+
+@media (min-width: 900px) {
+  .searchLayout {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+  }
+}
+
+/* Below 900px the rail is an off-canvas sheet opened by .filterToggle; from 900px it is
+   the sticky sidebar the design system specifies. */
+.filterRail {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.filterRail[data-open='true'] {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (min-width: 900px) {
+  .filterRail,
+  .filterRail[data-open='true'] {
+    display: flex;
+    position: sticky;
+    top: 88px;
+    inset: auto;
+    z-index: auto;
+    overflow: visible;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+}
+
+.filterToggle {
+  display: inline-flex;
+}
+
+@media (min-width: 900px) {
+  .filterToggle,
+  .filterRailClose {
+    display: none;
+  }
+}
+
+.resultsHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+@media (min-width: 900px) {
+  .resultsHeader {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.resultsControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Result row: stacked card on a phone, three columns from tablet. */
+.resultRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.resultMedia {
+  position: relative;
+  background: var(--gray-200);
+  height: 200px;
+}
+
+.resultAside {
+  padding: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--gray-50);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+@media (min-width: 900px) {
+  .resultRow {
+    grid-template-columns: 260px minmax(0, 1fr) 220px;
+  }
+
+  .resultMedia {
+    height: auto;
+  }
+
+  .resultAside {
+    border-top: 0;
+    border-left: 1px solid var(--color-border);
+    align-items: flex-end;
+  }
+}
+
+/* --- Detail ---------------------------------------------------------------- */
+
+/* One image on a phone; the two-up thumbnail column appears from tablet. */
+.gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 10px;
+  height: 220px;
+  margin-bottom: var(--space-5);
+}
+
+.galleryThumbs {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .gallery {
+    height: 280px;
+  }
+}
+
+@media (min-width: 900px) {
+  .gallery {
+    grid-template-columns: 2fr 1fr;
+    height: 340px;
+    margin-bottom: var(--space-6);
+  }
+
+  .galleryThumbs {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+
+/* minmax(0,1fr), not 1fr: a 1fr track has an `auto` minimum, so the nowrap tab strip's
+   min-content width would widen the column past the viewport. The same reason .detailMain
+   needs min-width:0 — a flex/grid item will not shrink below min-content without it. */
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.detailMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .detailLayout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--space-8);
+  }
+}
+
+/* The booking panel is sticky beside the content on desktop. On a phone it sits after the
+   content in normal flow — a sticky panel would eat most of the viewport. */
+.bookingAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: static;
+}
+
+@media (min-width: 1100px) {
+  .bookingAside {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+.detailTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--navy-900);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+@media (min-width: 640px) {
+  .detailTitle {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (min-width: 900px) {
+  .detailTitle {
+    font-size: var(--text-3xl);
+  }
+}
+
+.detailMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pairGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .pairGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+.itineraryRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .itineraryRow {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+/* --- Request --------------------------------------------------------------- */
+
+.requestHero {
+  background: var(--gradient-dusk);
+  padding-block: var(--space-10);
+}
+
+@media (min-width: 900px) {
+  .requestHero {
+    padding-block: var(--space-12);
+  }
+}
+
+.requestTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: #fff;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+@media (min-width: 640px) {
+  .requestTitle {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 900px) {
+  .requestTitle {
+    font-size: var(--text-4xl);
+  }
+}
+
+.requestLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+  padding-block: var(--space-6);
+}
+
+@media (min-width: 1100px) {
+  .requestLayout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+  }
+}
+
+.requestCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 900px) {
+  .requestCard {
+    padding: var(--space-8);
+  }
+}
+
+.requestTypes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 520px) {
+  .requestTypes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .requestTypes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.requestAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: static;
+}
+
+@media (min-width: 1100px) {
+  .requestAside {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+.actionRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .actionRow {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* --- Account --------------------------------------------------------------- */
+
+.accountHeader {
+  background: var(--navy-900);
+  padding-block: var(--space-8) var(--space-10);
+}
+
+@media (min-width: 900px) {
+  .accountHeader {
+    padding-block: var(--space-10) var(--space-12);
+  }
+}
+
+.accountIdentity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 900px) {
+  .accountIdentity {
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: nowrap;
+  }
+}
+
+.accountLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (min-width: 1100px) {
+  .accountLayout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--space-8);
+  }
+}
+
+/* Booking row: stacked on a phone, three columns from tablet. */
+.bookingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  align-items: center;
+}
+
+.bookingThumb {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.bookingActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .bookingRow {
+    grid-template-columns: 120px minmax(0, 1fr) auto;
+    gap: var(--space-5);
+  }
+
+  .bookingThumb {
+    height: 84px;
+  }
+
+  .bookingActions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

@@ -91,29 +91,36 @@ Choose and set up the layer that makes breakpoints possible at all.
 - [x] Listings, reviews, blog teasers 3 → 2 → 1
 - [x] Offer band and trust strip
 
-### M0.6 — Search responsive · M
-- [ ] Search band fields stack
-- [ ] Filter rail → drawer
-- [ ] Result row reflow
-- [ ] View toggles and sort tabs
+### M0.6 — Search responsive · M — **DONE**
+- [x] Search band fields stack
+- [x] Filter rail becomes a full-screen sheet below 900px, opened by a "Filters" button
+- [x] Result row reflows 3-col → stacked card
+- [x] View toggles and sort tabs wrap
 
-### M0.7 — Detail responsive · M
-- [ ] Gallery
-- [ ] Tabs: horizontal scroll or a select
-- [ ] Booking panel → sticky bottom bar
-- [ ] Dialog at mobile width
+### M0.7 — Detail responsive · M — **DONE**
+- [x] Gallery drops the thumbnail column below 900px
+- [x] Tabs scroll horizontally
+- [x] Booking panel drops below the content on a phone rather than sticking
+      (a sticky panel would eat most of a 390px viewport)
+- [x] Dialog fits at mobile width
 
-### M0.8 — Request and Account responsive · M
-- [ ] Request: type picker, two-column field grids, sidebar
-- [ ] Account: header, tabs, booking rows, sidebar
+### M0.8 — Request and Account responsive · M — **DONE**
+- [x] Request: type picker 1 → 2 → 3, field grids pair up from 640px, sidebar unsticks
+- [x] Account: header wraps, tabs scroll, booking rows stack, sidebar unsticks
 
-### M0.9 — Cross-device QA · S
-- [ ] Walk all routes at 390 / 768 / 1024 / 1440
-- [ ] Check no horizontal page scroll anywhere
-- [ ] Keyboard and focus-ring pass
-- [ ] Lighthouse mobile ≥ 90 on performance and accessibility
+### M0.9 — Cross-device QA · S — **MOSTLY DONE**
+- [x] Walk all 7 routes at 360 / 390 / 768 / 1024 / 1440
+- [x] No horizontal page scroll anywhere — verified by measuring `scrollWidth` vs
+      `clientWidth` in a sized frame, not by eye
+- [ ] Keyboard and focus-ring pass — *not yet done*
+- [ ] Lighthouse mobile ≥ 90 on performance and accessibility — *not yet run*
 
 **Done when:** the checks above pass and results are recorded in the PR.
+
+> Two bugs this pass caught, both the same root cause and worth remembering: a `1fr` grid
+> track has an `auto` minimum, so any nowrap content (the detail tab strip, the header nav)
+> widens the track past the viewport. Every track is now `minmax(0, 1fr)` and flex/grid
+> items that hold scrollable content carry `min-width: 0`.
 
 ---
 

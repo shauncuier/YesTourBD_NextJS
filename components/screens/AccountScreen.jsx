@@ -4,6 +4,8 @@ import React from 'react';
 import { Badge, Button, Icon, IconButton, Input, Switch, Tabs, Tooltip } from '../index.js';
 import { useGo } from '../../lib/routes.js';
 import { BOOKINGS } from '../../lib/site-data.js';
+import layout from '../../styles/layout.module.css';
+import c from './screens.module.css';
 
 const STATUS = {
   confirmed: { tone: 'success', label: 'Confirmed' },
@@ -15,9 +17,9 @@ const STATUS = {
 function BookingRow({ b }) {
   const s = STATUS[b.status] || STATUS.confirmed;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: 'var(--space-5)', padding: 'var(--space-4)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)', alignItems: 'center' }}>
+    <div className={c.bookingRow}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={b.img} alt="" style={{ width: '100%', height: 84, objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+      <img className={c.bookingThumb} src={b.img} alt="" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Badge tone={s.tone} dot>{s.label}</Badge>
@@ -29,7 +31,7 @@ function BookingRow({ b }) {
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="users" size={14} />{b.pax}</span>
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+      <div className={c.bookingActions}>
         {b.total != null ? <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', color: 'var(--navy-900)' }}>৳{b.total.toLocaleString('en-US')}</strong> : <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>Quote pending</span>}
         <div style={{ display: 'flex', gap: 8 }}>
           {b.total != null ? <Button size="sm" variant="outline" iconLeft={<Icon name="download" size={15} />}>Voucher</Button> : <Button size="sm" variant="outline">View request</Button>}
@@ -49,8 +51,8 @@ export function AccountScreen() {
 
   return (
     <div style={{ background: 'var(--color-bg-page)', minHeight: '100vh', paddingBottom: 'var(--space-12)' }}>
-      <div style={{ background: 'var(--navy-900)', padding: 'var(--space-10) 0 var(--space-12)' }}>
-        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--space-6)', display: 'flex', alignItems: 'center', gap: 'var(--space-5)' }}>
+      <div className={c.accountHeader}>
+        <div className={`${layout.container} ${c.accountIdentity}`}>
           <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--teal-500)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)' }}>NJ</span>
           <div style={{ flex: 1 }}>
             <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', color: '#fff', letterSpacing: 'var(--tracking-tight)' }}>Nusrat Jahan</h1>
@@ -60,9 +62,9 @@ export function AccountScreen() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 'var(--container-max)', margin: '-32px auto 0', padding: '0 var(--space-6)', display: 'grid', gridTemplateColumns: '1fr 300px', gap: 'var(--space-8)', alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', padding: 'var(--space-6)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }}>
-          <Tabs items={[{ id: 'upcoming', label: 'Upcoming', count: upcoming.length }, { id: 'past', label: 'Past trips' }, { id: 'requests', label: 'Requests', count: requests.length }]} value={tab} onChange={setTab} />
+      <div className={`${layout.container} ${c.accountLayout}`} style={{ marginTop: -32 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }}>
+          <Tabs items={[{ id: 'upcoming', label: 'Upcoming', count: upcoming.length }, { id: 'past', label: 'Past trips' }, { id: 'requests', label: 'Requests', count: requests.length }]} value={tab} onChange={setTab} style={{ overflowX: 'auto' }} />
           {shown.length ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
               {shown.map((b) => <BookingRow key={b.ref} b={b} />)}

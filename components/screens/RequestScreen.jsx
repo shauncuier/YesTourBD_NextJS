@@ -3,6 +3,8 @@
 import React from 'react';
 import { Badge, Button, Checkbox, Icon, Input, Radio, Select, Tag, Toast } from '../index.js';
 import { useGo } from '../../lib/routes.js';
+import layout from '../../styles/layout.module.css';
+import c from './screens.module.css';
 
 const REQUEST_TYPES = [
   { id: 'corporate', icon: 'briefcase', label: 'Corporate tour or event', blurb: 'Retreats, conferences, dealer meets' },
@@ -20,21 +22,21 @@ export function RequestScreen() {
 
   return (
     <div style={{ background: 'var(--color-bg-page)', paddingBottom: 'var(--space-12)' }}>
-      <div style={{ background: 'var(--gradient-dusk)', padding: 'var(--space-12) 0' }}>
-        <div style={{ maxWidth: 'var(--container-narrow)', margin: '0 auto', padding: '0 var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+      <div className={c.requestHero}>
+        <div className={layout.containerNarrow} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
           {/* alignSelf keeps the pill hugging its text — as a flex item in a column it would
               otherwise stretch to the container's full width. */}
           <Badge tone="teal" variant="solid" size="md" style={{ alignSelf: 'flex-start' }}>Request based · no payment now</Badge>
-          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-4xl)', fontWeight: 'var(--weight-bold)', color: '#fff', letterSpacing: 'var(--tracking-tight)', lineHeight: 'var(--leading-tight)' }}>Tell us the trip. We’ll send the quotation.</h1>
+          <h1 className={c.requestTitle}>Tell us the trip. We’ll send the quotation.</h1>
           <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', color: 'var(--navy-200)', lineHeight: 'var(--leading-relaxed)', maxWidth: 560 }}>Some trips are too specific for a booking form — 34 people, three hotels, one bus. Fill this in and a coordinator replies within two working hours.</p>
         </div>
       </div>
 
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-8) var(--space-6)', display: 'grid', gridTemplateColumns: '1fr 320px', gap: 'var(--space-8)', alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', padding: 'var(--space-8)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className={`${layout.container} ${c.requestLayout}`}>
+        <div className={c.requestCard}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>1 · What do you need?</span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--space-3)' }}>
+            <div className={c.requestTypes}>
               {REQUEST_TYPES.map((t) => {
                 const on = t.id === type;
                 return (
@@ -50,7 +52,7 @@ export function RequestScreen() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>2 · The details</span>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+            <div className={c.pairGrid} style={{ gap: 'var(--space-4)' }}>
               <Input label="Destination(s)" required placeholder="e.g. Sylhet + Sreemangal" />
               <Select label="Number of travellers" required placeholder="Select" options={[{ label: '1–9', value: 'a' }, { label: '10–24', value: 'b' }, { label: '25–49', value: 'c' }, { label: '50+', value: 'd' }]} />
               <Input label="Preferred start date" type="date" />
@@ -69,7 +71,7 @@ export function RequestScreen() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>3 · How do we reach you?</span>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+            <div className={c.pairGrid} style={{ gap: 'var(--space-4)' }}>
               <Input label="Your name" required placeholder="Full name" />
               <Input label="Mobile" required iconLeft={<Icon name="phone" size={15} />} placeholder="+880 1XXX-XXXXXX" />
               <Input label="Email" placeholder="you@example.com" helperText="We send the written quotation here." />
@@ -83,14 +85,14 @@ export function RequestScreen() {
               </div>
             </div>
             <Checkbox label="I agree to be contacted about this request." defaultChecked />
-            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
+            <div className={c.actionRow}>
               <Button size="lg" onClick={() => setSent(true)}>Send request</Button>
               <Button size="lg" variant="outline" iconLeft={<Icon name="message-circle" size={17} />}>Send on WhatsApp instead</Button>
             </div>
           </div>
         </div>
 
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', position: 'sticky', top: 88 }}>
+        <aside className={c.requestAside}>
           <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>What happens next</strong>
             {[['1', 'We read it', 'A coordinator, not a bot.'], ['2', 'Quotation in 2 hours', 'Written, itemised, in working hours.'], ['3', 'Adjust freely', 'Swap hotels, dates or transport.'], ['4', 'Pay 30% to hold', 'Balance before departure.']].map(([n, t, b]) => (

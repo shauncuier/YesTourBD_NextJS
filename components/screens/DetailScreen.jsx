@@ -6,6 +6,8 @@ import { Badge, Button, Dialog, Icon, IconButton, Input, Radio, Tabs, Toast } fr
 import { Price, Stars } from '../site/chrome.jsx';
 import { useGo, ROUTES } from '../../lib/routes.js';
 import { IMG, REVIEWS } from '../../lib/site-data.js';
+import layout from '../../styles/layout.module.css';
+import c from './screens.module.css';
 
 export function DetailScreen({ listing }) {
   const go = useGo();
@@ -21,7 +23,7 @@ export function DetailScreen({ listing }) {
 
   return (
     <div style={{ background: 'var(--color-bg-page)', paddingBottom: 'var(--space-12)' }}>
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-6) var(--space-6) 0' }}>
+      <div className={layout.container} style={{ paddingTop: 'var(--space-6)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-4)' }}>
           <Link href={ROUTES.home} style={{ color: 'var(--color-link)', textDecoration: 'none' }}>Home</Link><Icon name="chevron-right" size={12} />
           <Link href={ROUTES.search} style={{ color: 'var(--color-link)', textDecoration: 'none' }}>Houseboat tours</Link><Icon name="chevron-right" size={12} />
@@ -30,11 +32,11 @@ export function DetailScreen({ listing }) {
 
         {/* Row tracks are minmax(0,1fr), not the implicit auto: the <img> children are direct grid
             items whose min-content contribution is their intrinsic height, which otherwise grows
-            the track past the 340px gallery height and overlaps the heading below. */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'minmax(0, 1fr)', gap: 10, height: 340, marginBottom: 'var(--space-6)' }}>
+            the track past the gallery height and overlaps the heading below. */}
+        <div className={c.gallery}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
-          <div style={{ display: 'grid', gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 10 }}>
+          <div className={c.galleryThumbs}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={IMG.marine} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
             <div style={{ position: 'relative' }}>
@@ -47,14 +49,14 @@ export function DetailScreen({ listing }) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 'var(--space-8)', alignItems: 'start' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+        <div className={c.detailLayout}>
+          <div className={c.detailMain}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', gap: 8 }}>
                 <Badge tone="teal" variant="solid">Instant booking</Badge>
                 {l.offer ? <Badge tone="gold" variant="solid">{l.offer}</Badge> : null}
               </div>
-              <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-bold)', color: 'var(--navy-900)', letterSpacing: 'var(--tracking-tight)', lineHeight: 'var(--leading-tight)' }}>{l.title}</h1>
+              <h1 className={c.detailTitle}>{l.title}</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Stars value={l.rating} size={14} /><strong style={{ color: 'var(--navy-800)' }}>{l.rating}</strong>({l.reviews} reviews)</span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="map-pin" size={14} />{l.place}</span>
@@ -63,7 +65,7 @@ export function DetailScreen({ listing }) {
               </div>
             </div>
 
-            <Tabs items={[{ id: 'overview', label: 'Overview' }, { id: 'itinerary', label: 'Itinerary' }, { id: 'included', label: 'What’s included' }, { id: 'policy', label: 'Cancellation' }, { id: 'reviews', label: 'Reviews', count: l.reviews }]} value={tab} onChange={setTab} />
+            <Tabs items={[{ id: 'overview', label: 'Overview' }, { id: 'itinerary', label: 'Itinerary' }, { id: 'included', label: 'What’s included' }, { id: 'policy', label: 'Cancellation' }, { id: 'reviews', label: 'Reviews', count: l.reviews }]} value={tab} onChange={setTab} style={{ overflowX: 'auto' }} />
 
             {tab === 'itinerary' ? (
               <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
@@ -72,7 +74,7 @@ export function DetailScreen({ listing }) {
                   ['12:30 PM', 'Lunch on deck', 'Rice, grilled fish, seasonal vegetables and soft drinks.'],
                   ['3:00 PM', 'Moheshkhali channel & bird watching', 'Roughly 90 minutes of open water and mangrove edges.'],
                   ['5:30 PM', 'Drop off at Kolatoli', 'Back before sunset. Hotel drop-off on request.']].map(([t, h, b]) => (
-                  <li key={t} style={{ display: 'grid', gridTemplateColumns: '86px 1fr', gap: 'var(--space-4)' }}>
+                  <li key={t} className={c.itineraryRow}>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-semibold)', color: 'var(--teal-700)', paddingTop: 3 }}>{t}</span>
                     <div style={{ borderLeft: '2px solid var(--color-border)', paddingLeft: 'var(--space-4)' }}>
                       <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>{h}</div>
@@ -82,7 +84,7 @@ export function DetailScreen({ listing }) {
                 ))}
               </ol>
             ) : tab === 'included' ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
+              <div className={c.pairGrid} style={{ gap: 'var(--space-6)' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {['Return AC transfer from Kolatoli', 'Houseboat cruise, 6 hours', 'Lunch and afternoon snacks', 'Life jackets and safety crew', 'Guide (Bangla / English)'].map((x) => (
                     <span key={x} style={{ display: 'inline-flex', gap: 8, alignItems: 'flex-start', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--gray-800)' }}><span style={{ color: 'var(--teal-600)', marginTop: 2 }}><Icon name="check" size={15} /></span>{x}</span>
@@ -118,7 +120,7 @@ export function DetailScreen({ listing }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
                 <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 'var(--leading-relaxed)', color: 'var(--gray-800)', maxWidth: 640 }}>A full day on the water without the overnight commitment. You leave Kolatoli at nine, board a covered houseboat at Nazirartek, and spend six hours between the channel, the mangrove edge and a long lunch on deck. Back before sunset.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 'var(--space-4)' }}>
+                <div className={layout.grid4}>
                   {[['calendar-check', 'Daily departure', 'Except Fridays in Ramadan'], ['utensils', 'Lunch on board', 'Grilled fish or chicken'], ['baby', 'Family friendly', 'Under 5 travel free'], ['life-buoy', 'Safety certified', 'BIWTA registered boat']].map(([ic, t, s]) => (
                     <div key={t} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 'var(--space-4)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
                       <span style={{ color: 'var(--teal-600)' }}><Icon name={ic} size={18} /></span>
@@ -131,7 +133,7 @@ export function DetailScreen({ listing }) {
             )}
           </div>
 
-          <aside style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <aside className={c.bookingAside}>
             <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <Price amount={unit} was={l.was} />
               <Input label="Travel date" type="date" defaultValue="2026-03-12" />
@@ -167,7 +169,7 @@ export function DetailScreen({ listing }) {
         description={`${l.title} · 12 Mar 2026 · ${pax} ${pax === 1 ? 'adult' : 'adults'}`}
         footer={<><Button variant="ghost" onClick={() => setConfirm(false)}>Back</Button><Button onClick={() => { setConfirm(false); setToast(true); }}>Pay ৳{total.toLocaleString('en-US')}</Button></>}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+          <div className={c.pairGrid}>
             <Input label="Full name" defaultValue="Nusrat Jahan" />
             <Input label="Mobile" iconLeft={<Icon name="phone" size={15} />} defaultValue="+880 1712-345678" />
           </div>

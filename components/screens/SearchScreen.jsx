@@ -6,6 +6,8 @@ import { Price, Stars } from '../site/chrome.jsx';
 import { ListingCard } from './ListingCard.jsx';
 import { useGo } from '../../lib/routes.js';
 import { LISTINGS } from '../../lib/site-data.js';
+import layout from '../../styles/layout.module.css';
+import c from './screens.module.css';
 
 function FilterBlock({ title, children }) {
   return (
@@ -21,8 +23,8 @@ function ResultRow({ l, go }) {
   const [saved, setSaved] = React.useState(false);
   return (
     <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ display: 'grid', gridTemplateColumns: '260px 1fr 220px', gap: 0, background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: hover ? 'var(--shadow-md)' : 'var(--shadow-sm)', transition: 'box-shadow var(--duration-normal) var(--ease-standard)' }}>
-      <div style={{ position: 'relative', background: 'var(--gray-200)' }}>
+      className={c.resultRow} style={{ boxShadow: hover ? 'var(--shadow-md)' : 'var(--shadow-sm)' }}>
+      <div className={c.resultMedia}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6 }}>
@@ -43,7 +45,7 @@ function ResultRow({ l, go }) {
           <Icon name="check-circle" size={14} />Free cancellation up to 48 hours before
         </div>
       </div>
-      <div style={{ padding: 'var(--space-5)', borderLeft: '1px solid var(--color-border)', background: 'var(--gray-50)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', gap: 'var(--space-4)' }}>
+      <div className={c.resultAside}>
         <div style={{ textAlign: 'right' }}>
           <Price amount={l.price} was={l.was} />
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 4 }}>৳{(l.price * 2).toLocaleString('en-US')} total · 2 guests</div>
@@ -62,26 +64,34 @@ export function SearchScreen() {
   const [sort, setSort] = React.useState('popular');
   const [view, setView] = React.useState('list');
   const [instantOnly, setInstantOnly] = React.useState(false);
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [chips, setChips] = React.useState(["Cox's Bazar", '12–14 Mar', '2 adults']);
   const listings = LISTINGS;
 
   return (
     <div style={{ background: 'var(--color-bg-page)', minHeight: '100vh' }}>
-      <div style={{ background: 'var(--navy-900)', padding: 'var(--space-8) 0' }}>
-        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--space-6)', display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr .9fr auto', gap: 'var(--space-4)', alignItems: 'end' }}>
+      <div className={c.searchBand}>
+        <div className={`${layout.container} ${layout.searchGrid}`}>
           <Input label="Destination" labelColor="light" iconLeft={<Icon name="map-pin" size={16} />} defaultValue="Cox's Bazar" />
           <Input label="Check in" labelColor="light" type="date" defaultValue="2026-03-12" />
           <Input label="Check out" labelColor="light" type="date" defaultValue="2026-03-14" />
           <Select label="Guests" labelColor="light" defaultValue="2" options={[{ label: '2 adults', value: '2' }, { label: '4 adults', value: '4' }]} />
-          <Button size="md" variant="secondary" iconLeft={<Icon name="search" size={18} />} style={{ paddingLeft: 'var(--space-6)', paddingRight: 'var(--space-6)' }}>Update</Button>
+          <div className={layout.searchAction}>
+            <Button size="md" variant="secondary" fullWidth iconLeft={<Icon name="search" size={18} />} style={{ paddingLeft: 'var(--space-6)', paddingRight: 'var(--space-6)' }}>Update</Button>
+          </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-8) var(--space-6)', display: 'grid', gridTemplateColumns: '260px 1fr', gap: 'var(--space-8)', alignItems: 'start' }}>
-        <aside style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className={`${layout.container} ${c.searchLayout}`}>
+        <aside className={c.filterRail} data-open={filtersOpen}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>Filters</span>
-            <Button variant="ghost" size="sm" onClick={() => setChips([])}>Clear</Button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Button variant="ghost" size="sm" onClick={() => setChips([])}>Clear</Button>
+              <span className={c.filterRailClose}>
+                <IconButton icon={<Icon name="x" size={18} />} aria-label="Close filters" variant="ghost" size="sm" onClick={() => setFiltersOpen(false)} />
+              </span>
+            </div>
           </div>
           <FilterBlock title="Booking type">
             <Switch label="Instant booking only" checked={instantOnly} onChange={(_, v) => setInstantOnly(v)} />
@@ -101,15 +111,21 @@ export function SearchScreen() {
             <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--leading-normal)' }}>Tell us what you need and we’ll quote it.</p>
             <Button variant="outline" size="sm" fullWidth onClick={() => go('request')}>Request a quote</Button>
           </div>
+          <span className={c.filterRailClose}>
+            <Button variant="secondary" fullWidth onClick={() => setFiltersOpen(false)}>Show {listings.length} results</Button>
+          </span>
         </aside>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 'var(--space-4)' }}>
+          <div className={c.resultsHeader}>
             <div>
               <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)', letterSpacing: 'var(--tracking-tight)' }}>Cox’s Bazar · 12–14 Mar</h1>
               <div style={{ marginTop: 4, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>{listings.length} results · prices include VAT</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className={c.resultsControls}>
+              <span className={c.filterToggle}>
+                <Button variant="outline" size="sm" iconLeft={<Icon name="sliders-horizontal" size={16} />} onClick={() => setFiltersOpen(true)}>Filters</Button>
+              </span>
               <Tabs variant="pill" items={[{ id: 'popular', label: 'Popular' }, { id: 'price', label: 'Price' }, { id: 'rating', label: 'Rating' }]} value={sort} onChange={setSort} />
               <Tooltip label={view === 'grid' ? 'List view' : 'Grid view'}>
                 <IconButton icon={<Icon name={view === 'grid' ? 'list' : 'layout-grid'} size={18} />} aria-label={view === 'grid' ? 'List view' : 'Grid view'}
@@ -136,7 +152,7 @@ export function SearchScreen() {
               <Button variant="outline" size="sm" onClick={() => setView('list')}>Back to results</Button>
             </div>
           ) : view === 'grid' ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--space-4)' }}>
+            <div className={layout.grid3}>
               {listings.map((l) => <ListingCard key={l.id} l={l} />)}
             </div>
           ) : (
