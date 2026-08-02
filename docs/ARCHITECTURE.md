@@ -54,6 +54,50 @@ instant and the plan below absorbs it without restructuring.
 Admin lives at `/admin` inside the same app behind a role guard, reusing the same component
 library. The design system already contains an admin UI kit to port when the backend exists.
 
+## TypeScript 7
+
+**Decision: stay on TypeScript 5.x for now.** Evaluated 3 Aug 2026 against the
+[TS 7.0 announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/).
+
+TypeScript 7 is GA (`typescript@7.0.2` is npm latest) and is a Go rewrite claiming 8–12×
+faster checking. Next.js is not the obstacle — 16.2.12 already ships
+`experimental.useTypeScriptCli`, which runs the project-local `tsc` binary instead of the
+JS compiler API that TS 7 dropped. Verified in `node_modules/next/dist/docs/`.
+
+The blocker is **typescript-eslint**. Its latest release — 8.65.0, which this project
+already has — declares:
+
+```
+"peerDependencies": { "typescript": ">=4.8.4 <6.1.0" }
+```
+
+It does not support TS 6, let alone 7, and it reads the JS compiler API that TS 7 removes.
+There is no newer version to move to. Installing TS 7 today gives a working `next build`
+and a broken `npm run lint`.
+
+Two smaller costs also apply:
+
+- The `plugins: [{ "name": "next" }]` language-service plugin in `tsconfig.json` needs the
+  same JS API, so editor route-type IntelliSense would go dark.
+- This project is on 5.9.3, so it is a two-major jump (5 → 6 → 7); the official migration
+  guide only covers 6 → 7.
+
+The upside is small at this size — the current `next build` spends about 15s in TypeScript
+across ~30 source files. Not worth trading `npm run lint` for.
+
+**Revisit when** typescript-eslint publishes a release whose `typescript` peer range admits
+7.x. Then:
+
+1. `npm i -D typescript@^7 typescript-eslint@<version that supports it>`
+2. Set `experimental.useTypeScriptCli: true` in `next.config.ts`
+3. `tsconfig.json` — TS 7 changes defaults: `types` now defaults to `[]`, so list them
+   explicitly (`["node", "react", "react-dom"]`); `strict` and `module: esnext` become
+   defaults; `rootDir` defaults to `./`. This project uses no `baseUrl`, no `target: es5`,
+   no `downlevelIteration` and no `moduleResolution: node`, so none of the *removed*
+   options apply.
+4. Confirm the Next language-service plugin works, or drop it.
+5. `npm run build && npm run lint && npx tsc --noEmit` must all pass.
+
 ## Data model sketch
 
 Enough to show the shape; not a schema.

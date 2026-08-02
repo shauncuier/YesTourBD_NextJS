@@ -83,6 +83,12 @@ The admin panel (`ui_kits/admin/`) was **not** ported; it is still only in the r
 - **`next lint` was removed.** `npm run lint` invokes `eslint` directly against `eslint.config.mjs` (flat config composing `eslint-config-next/core-web-vitals` + `/typescript`).
 - `next/legacy/image` and `images.domains` are deprecated; use `images.remotePatterns`. (The ported screens use plain `<img>` to match the design system's markup, so this hasn't come up yet.)
 
+## Do not upgrade TypeScript past 5.x yet
+
+Pinned deliberately at `typescript@5.9.3`. TypeScript 7 (the Go rewrite) is GA and Next.js 16.2.12 *does* support it via `experimental.useTypeScriptCli`, but **`npm run lint` would break**: typescript-eslint's latest release (8.65.0, already installed) declares `typescript: ">=4.8.4 <6.1.0"` and depends on the JS compiler API that TS 7 removed. There is no newer typescript-eslint to upgrade to.
+
+Revisit when typescript-eslint publishes a release whose `typescript` peer range admits 7.x. Rationale and the migration checklist are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#typescript-7).
+
 ## Imports
 
 `@/*` maps to the repo root (`tsconfig.json` paths), so `@/app/...`, `@/components/...` resolve from the top level.
