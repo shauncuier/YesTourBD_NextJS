@@ -12,16 +12,22 @@
 
 # testing
 /coverage
+/.nyc_output
 
 # next.js
 /.next/
 /out/
+.turbo
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 *.pem
 
 # debug
@@ -29,9 +35,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
+logs
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — never commit secrets (DB URLs, SSLCommerz keys, SMS/email tokens)
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +50,31 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# AI / agent tooling — local developer setup, not project source.
+# .claude/settings.json is the exception: it carries the git guard rails and the
+# commit-attribution setting, so it is shared deliberately.
+.claude/*
+!.claude/settings.json
+.claude/settings.local.json
+.agents/
+.codex/
+.cursor/
+.aider*
+
+# graphify — generated knowledge graph and its AST cache, rebuilt with `graphify update .`
+graphify-out/
+
+# local scratch
+/tmp
+/temp
+*.local

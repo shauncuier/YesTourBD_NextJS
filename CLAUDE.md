@@ -19,21 +19,59 @@ No test runner is configured — there are no test files, no test script, and no
 
 ## Stack
 
-Next.js 16.2.12 (App Router) · React 19.2.4 · TypeScript 5 (`strict`) · Tailwind CSS v4 via `@tailwindcss/postcss`.
+Next.js 16.2.12 (App Router) · React 19.2.4 · TypeScript 5 (`strict`) · lucide-react.
 
-The app itself is still the `create-next-app` scaffold: `app/layout.tsx` (root layout, Geist fonts as CSS variables), `app/page.tsx`, `app/globals.css`, static SVGs in `public/`. There is no `src/` directory — the App Router lives at `app/` in the repo root.
+There is no `src/` directory — the App Router lives at `app/` in the repo root.
 
-## design-system/
+**Tailwind is installed but unused.** `app/globals.css` does not `@import "tailwindcss"`, so there is no preflight and no utility classes. Every component styles itself with inline `style={{…}}` reading CSS custom properties, which is how the design system ships them. Don't add Tailwind classes to these components — a partial migration would fight the token layer.
 
-Imported from the "YesTourBD Design System" Claude Design project (`fa383159-158a-4964-b64e-77c4f9b5bd7c`) via the DesignSync tool. **Not yet wired into the Next.js app** — `app/globals.css` still uses only Tailwind's own theme.
+## Git rules
 
-- `readme.md` — the brand contract: booking-mode split (instant = teal / request = navy), copy rules, color/type/spacing/motion/interaction-state rules. Read this before designing any YesTourBD screen.
-- `styles.css` + `tokens/*.css` — 133 CSS custom properties. Reference the semantic aliases (`--color-brand-primary`, `--color-text-secondary`, `--color-border`), never the raw scales (`--navy-800`, `--gray-600`).
-- `_adherence.oxlintrc.json` — oxlint rules enforcing the above: no raw hex, no raw px, only the five approved font families, and per-component prop/enum whitelists. Not hooked into `npm run lint` (that runs ESLint); run oxlint against it separately if you want the checks.
-- `_ds_manifest.json` / `_ds_bundle.js` — machine artifacts for the Design System pane (component index, cards, compiled previews). Generated; don't hand-edit.
-- `SKILL.md` — agent-skill front matter for the design project.
+These override any default git behaviour, including the built-in commit-message template.
 
-The component sources (`components/`), UI kits, and brand assets live in the remote project and were **not** imported. Pull them with DesignSync `get_file` if needed.
+- **Never commit, push, merge, rebase, tag or open a PR unless the user asks for it in that turn.** Blanket approval from an earlier turn does not carry forward. `.claude/settings.json` puts these behind `ask` rules, so each one prompts — treat the prompt as the check, not a formality.
+- **No AI attribution in commits or PRs.** No `Co-Authored-By: Claude`, no "Generated with Claude Code" footer, no session links. `attribution.commit` and `attribution.pr` are set to `""` in `.claude/settings.json`, which suppresses them; do not reintroduce a trailer by hand.
+- Write commit messages in the project's existing voice — Conventional Commits prefix, imperative subject, bullets for the body (see `git log`).
+- Never use `--no-verify` or skip signing.
+
+## docs/
+
+- `docs/REQUIREMENTS.md` — the client brief restated, with the twelve-service catalogue and its booking modes. Assumptions and open questions are marked inline rather than silently resolved.
+- `docs/STATUS.md` — what is actually built vs. the brief. Read before estimating anything. Two structural gaps documented there: the site is **desktop-only** (no `@media` queries exist; inline styles can't express them), and four of six "instant" services need third-party inventory.
+- `docs/ARCHITECTURE.md` — proposed stack, data model and phasing for the parts that don't exist (no database, API, auth or payments yet).
+- `docs/MILESTONES.md` — the phases broken into ~45 small shippable milestones, each with a task list and an observable "Done when". Starts with a table of blocking business decisions (D1–D8) that gate specific milestones.
+
+## Design system
+
+Two halves, and the split matters:
+
+**`design-system/`** — synced from the "YesTourBD Design System" Claude Design project (`fa383159-158a-4964-b64e-77c4f9b5bd7c`) via the DesignSync tool. Reference material and the token source of truth; ESLint ignores it.
+
+- `readme.md` — the brand contract: the instant (teal) vs request (navy) booking-mode split, copy rules, color/type/spacing/motion/interaction-state rules. **Read this before designing any new screen.**
+- `tokens/*.css` — 133 custom properties. `app/globals.css` imports four of the five directly, so edits here reach the app. Reference the semantic aliases (`--color-brand-primary`, `--color-text-secondary`, `--color-border`), never the raw scales (`--navy-800`, `--gray-600`).
+- `tokens/fonts.css` is **not** imported — it pulls the Google Fonts CDN. `app/layout.tsx` self-hosts the same five families through `next/font/google` and `globals.css` binds `--font-display` / `--font-body` / `--font-accent` / `--font-mono` to them. Keep Noto Sans Bengali in every stack; it is what renders `৳`.
+- `_adherence.oxlintrc.json` — oxlint rules encoding the above (no raw hex, no raw px, five approved fonts, per-component prop/enum whitelists). Not wired into `npm run lint`, which runs ESLint.
+- `_ds_bundle.js` / `_ds_manifest.json` — generated artifacts for the Design System pane. Don't hand-edit.
+
+**`components/`** — the live React port. `components/index.js` is the barrel; import from there, not from component internals (the adherence config enforces this).
+
+- `foundation/`, `forms/`, `data-display/`, `overlays/` — the 15 design-system components, ported verbatim except where noted under "Port deviations" below. All are `'use client'`.
+- `site/chrome.jsx` — header, footer, contact dock, and the shared `SectionHead` / `Stars` / `Price` helpers. Header and footer render once in `app/layout.tsx`.
+- `screens/` — the five website screens from the design system's `ui_kits/website/`. Route files under `app/` are thin wrappers around these.
+
+`lib/site-data.js` holds placeholder content (remote Unsplash imagery — replace before launch). `lib/routes.js` maps the UI kit's `go('<screen>')` callback onto real routes so the ported screens keep their original call sites.
+
+### Port deviations
+
+The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where the port had to differ:
+
+- **`Icon`** reads from an explicit `REGISTRY` of lucide-react imports instead of a CDN `window.lucide` global, and renders via `React.createElement`. Same props. A glyph not in the registry renders nothing and warns in dev — add it to the registry.
+- **`Checkbox`** tracks its own state when uncontrolled. The original passed `checked` and `defaultChecked` to the same input and only rendered the tick from `checked`, so `defaultChecked` boxes never appeared ticked.
+- **`Input` / `Select` / `Switch` / `Checkbox`** fall back to `React.useId()` rather than the label text for element ids.
+- **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
+- `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.
+
+The admin panel (`ui_kits/admin/`) was **not** ported; it is still only in the remote project.
 
 ## Conventions that differ from older Next.js
 
@@ -43,9 +81,18 @@ The component sources (`components/`), UI kits, and brand assets live in the rem
 - **`middleware` → `proxy`.** Use `proxy.ts` with an exported `proxy` function. The proxy runtime is `nodejs` only (no edge). Config flags renamed too: `skipMiddlewareUrlNormalize` → `skipProxyUrlNormalize`.
 - **Turbopack is the default bundler** for both `dev` and `build`. Turbopack config goes in `turbopack` at the top level of `next.config.ts`, not under `experimental`.
 - **`next lint` was removed.** `npm run lint` invokes `eslint` directly against `eslint.config.mjs` (flat config composing `eslint-config-next/core-web-vitals` + `/typescript`).
-- **Tailwind v4 is CSS-first.** There is no `tailwind.config.js`; theme tokens are declared in `app/globals.css` under `@theme inline`. Add design tokens there, not in a JS config.
-- `next/legacy/image` and `images.domains` are deprecated; use `images.remotePatterns`.
+- `next/legacy/image` and `images.domains` are deprecated; use `images.remotePatterns`. (The ported screens use plain `<img>` to match the design system's markup, so this hasn't come up yet.)
 
 ## Imports
 
 `@/*` maps to the repo root (`tsconfig.json` paths), so `@/app/...`, `@/components/...` resolve from the top level.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

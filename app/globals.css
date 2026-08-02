@@ -1,26 +1,48 @@
-@import "tailwindcss";
+/* Design-system tokens. These files are the ones synced from the Claude Design project —
+   edit them there (or in design-system/tokens/) rather than redeclaring values here.
+   tokens/fonts.css is deliberately not imported: it pulls the Google Fonts CDN, and the
+   four font tokens are instead bound to self-hosted next/font faces in app/layout.tsx. */
+@import "../design-system/tokens/colors.css";
+@import "../design-system/tokens/typography.css";
+@import "../design-system/tokens/spacing.css";
+@import "../design-system/tokens/radius-shadow.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-display: var(--font-poppins), var(--font-noto-bengali), 'Segoe UI', system-ui, sans-serif;
+  --font-body: var(--font-public-sans), var(--font-noto-bengali), 'Segoe UI', system-ui, sans-serif;
+  --font-accent: var(--font-lora), var(--font-noto-bengali), Georgia, serif;
+  --font-mono: var(--font-ibm-plex-mono), var(--font-noto-bengali), 'Courier New', monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base layer, matching the UI kit's own page chrome. */
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-link);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--teal-200);
 }
