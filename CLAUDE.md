@@ -23,7 +23,30 @@ Next.js 16.2.12 (App Router) · React 19.2.4 · TypeScript 5 (`strict`) · lucid
 
 There is no `src/` directory — the App Router lives at `app/` in the repo root.
 
-**Tailwind is installed but unused.** `app/globals.css` does not `@import "tailwindcss"`, so there is no preflight and no utility classes. Every component styles itself with inline `style={{…}}` reading CSS custom properties, which is how the design system ships them. Don't add Tailwind classes to these components — a partial migration would fight the token layer.
+**No Tailwind, no CSS framework.** Components style themselves with inline `style={{…}}` reading CSS custom properties, which is how the design system ships them.
+
+## Responsive: where styles go
+
+Inline styles cannot express a media query. So there is a split, and it is the rule to follow when touching any layout:
+
+| Concern | Where it lives |
+|---|---|
+| Colour, type, spacing, radius, shadow, state (hover/focus) | Inline `style={{…}}` on the component, reading `var(--token)` |
+| Anything that changes at a breakpoint — grids, containers, flex direction, display, font-size ramps | A CSS Module |
+
+Shared primitives are in **`styles/layout.module.css`**: `.container`, `.containerNarrow`, `.section`, `.grid2/3/4`, `.searchGrid`, `.heroTitle`, `.offerBand`. Site chrome has its own **`components/site/chrome.module.css`**. Import as `import s from '../../styles/layout.module.css'` and compose with `className={\`${s.container} ${s.section}\`}`.
+
+**Mobile-first**: base rules are the phone layout; `min-width` queries widen from there.
+
+**Breakpoints — 640 / 900 / 1100.** CSS cannot parameterise a media query, so these are literals repeated in every module. Keep them in sync; do not invent new ones without updating this table.
+
+| | Width | Meaning |
+|---|---|---|
+| sm | 640px | large phone / small tablet |
+| md | 900px | tablet |
+| lg | 1100px | small desktop |
+
+Never reintroduce a hard-coded desktop grid (`repeat(4,1fr)`, `260px 1fr`) in an inline style — that is exactly the debt Phase 0 is paying off. Verify with a real reflow check, not a screenshot: no route may scroll horizontally at 360px.
 
 ## Git rules
 

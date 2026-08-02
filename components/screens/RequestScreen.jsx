@@ -22,7 +22,9 @@ export function RequestScreen() {
     <div style={{ background: 'var(--color-bg-page)', paddingBottom: 'var(--space-12)' }}>
       <div style={{ background: 'var(--gradient-dusk)', padding: 'var(--space-12) 0' }}>
         <div style={{ maxWidth: 'var(--container-narrow)', margin: '0 auto', padding: '0 var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <Badge tone="teal" variant="solid" size="md">Request based · no payment now</Badge>
+          {/* alignSelf keeps the pill hugging its text — as a flex item in a column it would
+              otherwise stretch to the container's full width. */}
+          <Badge tone="teal" variant="solid" size="md" style={{ alignSelf: 'flex-start' }}>Request based · no payment now</Badge>
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-4xl)', fontWeight: 'var(--weight-bold)', color: '#fff', letterSpacing: 'var(--tracking-tight)', lineHeight: 'var(--leading-tight)' }}>Tell us the trip. We’ll send the quotation.</h1>
           <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', color: 'var(--navy-200)', lineHeight: 'var(--leading-relaxed)', maxWidth: 560 }}>Some trips are too specific for a booking form — 34 people, three hotels, one bus. Fill this in and a coordinator replies within two working hours.</p>
         </div>

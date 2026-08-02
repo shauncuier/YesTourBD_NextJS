@@ -6,7 +6,7 @@ import {
   Check, ChevronDown, ChevronRight, CircleAlert, CircleCheck, CircleHelp, CircleMinus,
   CirclePlus, CircleX, Clock, Download, Ellipsis, EllipsisVertical, Fish, Headset,
   Heart, Images, LayoutDashboard, LayoutGrid, LifeBuoy, List, Lock, Luggage, Map,
-  MapPin, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
+  MapPin, Menu, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
   Plus, Route, Sailboat, Search, ShieldCheck, Ship, Stamp, Star, Sun, Ticket, Users,
   Utensils, X, Zap,
 } from 'lucide-react';
@@ -19,7 +19,7 @@ const REGISTRY = {
   Check, ChevronDown, ChevronRight, CircleAlert, CircleCheck, CircleHelp, CircleMinus,
   CirclePlus, CircleX, Clock, Download, Ellipsis, EllipsisVertical, Fish, Headset,
   Heart, Images, LayoutDashboard, LayoutGrid, LifeBuoy, List, Lock, Luggage, Map,
-  MapPin, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
+  MapPin, Menu, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
   Plus, Route, Sailboat, Search, ShieldCheck, Ship, Stamp, Star, Sun, Ticket, Users,
   Utensils, X, Zap,
 };

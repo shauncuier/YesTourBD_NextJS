@@ -35,20 +35,22 @@ engineering ones.
 The site is desktop-only today. Everything built before this gets rebuilt after it, so it
 goes first. See [STATUS.md](./STATUS.md#structural-gap-1--the-site-is-desktop-only).
 
-### M0.0 — Quick corrections · S
+### M0.0 — Quick corrections · S — **DONE**
 Small pending items, cleared before real work starts.
-- [ ] Fix the `/request` hero badge stretching full-width (`alignSelf: 'flex-start'`)
-- [ ] Apply decision **D2** to `lib/site-data.js` service modes, if it changes them
-- [ ] Remove the unused Tailwind dependencies and `postcss.config.mjs`, or document why they stay
+- [x] Fix the `/request` hero badge stretching full-width (`alignSelf: 'flex-start'`)
+- [ ] Apply decision **D2** to `lib/site-data.js` service modes, if it changes them — *still blocked on D2*
+- [x] Remove the unused Tailwind dependencies and `postcss.config.mjs`
 
 **Done when:** `npm run build` and `npm run lint` pass and the request hero badge hugs its text.
 
-### M0.1 — Test runner · S
+### M0.1 — Test runner · S — **DONE**
 There is no test runner in the repo. Adding one after the backend exists means backfilling.
-- [ ] Install and configure Vitest + React Testing Library
-- [ ] Add `test` and `test:watch` scripts
-- [ ] One smoke test per screen: renders without throwing
-- [ ] Wire into CI
+- [x] Install and configure Vitest + React Testing Library
+- [x] Add `test`, `test:watch` and `typecheck` scripts
+- [x] One smoke test per screen: renders without throwing
+- [x] Port the design system's 15 `.d.ts` files — the components had no prop types, so
+      `tsc --noEmit` failed the moment tests consumed them from `.tsx`
+- [ ] Wire into CI — *no CI configured yet*
 
 **Done when:** `npm test` runs green in CI on a pull request.
 
@@ -66,27 +68,28 @@ Not code. Decide and write down what each layout becomes on small screens.
 
 **Done when:** a written spec (or artboards) exists covering all nine, agreed with the client.
 
-### M0.3 — Responsive mechanism · M
+### M0.3 — Responsive mechanism · M — **DONE**
 Choose and set up the layer that makes breakpoints possible at all.
-- [ ] Pick the approach — CSS Modules is the recommendation in STATUS.md
-- [ ] Add breakpoint custom properties / a shared module
-- [ ] Migrate one screen section as a reference implementation
-- [ ] Document the pattern in CLAUDE.md so the rest is mechanical
+- [x] Approach: CSS Modules, mobile-first, breakpoints 640 / 900 / 1100
+- [x] Shared primitives in `styles/layout.module.css`
+- [x] Migrated Home as the reference implementation
+- [x] Documented in CLAUDE.md ("Responsive: where styles go")
 
 **Done when:** one section reflows correctly at all breakpoints and the pattern is written down.
 
-### M0.4 — Global chrome responsive · M
-- [ ] Header: mobile nav
-- [ ] Footer: stacking
-- [ ] Contact dock: verify it does not cover primary CTAs on small screens
+### M0.4 — Global chrome responsive · M — **MOSTLY DONE**
+- [x] Header: hamburger disclosure nav below 900px, phone number hidden below 1100px
+      (the fixed contact dock carries it), closes on navigation
+- [x] Footer: 1 → 2 → 4 columns, payment row stacks
+- [ ] Contact dock: verify it does not cover primary CTAs on small screens — *not yet checked*
 
 **Done when:** header, footer and dock are usable at 390px on every route.
 
-### M0.5 — Home responsive · M
-- [ ] Hero and hero search widget
-- [ ] Service grid 4 → 2 → 1
-- [ ] Listings, reviews, blog teasers 3 → 2 → 1
-- [ ] Offer band and trust strip
+### M0.5 — Home responsive · M — **DONE**
+- [x] Hero title ramp (3xl → 4xl → 5xl) and hero search widget stacking
+- [x] Service grid 4 → 2 → 1
+- [x] Listings, reviews, blog teasers 3 → 2 → 1
+- [x] Offer band and trust strip
 
 ### M0.6 — Search responsive · M
 - [ ] Search band fields stack

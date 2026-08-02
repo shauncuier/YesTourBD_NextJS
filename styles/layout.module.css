@@ -1,0 +1,200 @@
+/*
+ * Shared responsive layout primitives.
+ *
+ * Why this file exists: the design system styles components with inline `style={{…}}`,
+ * which cannot express a media query. Colour, type, spacing and radius stay inline on the
+ * components (reading the same CSS custom properties); only *layout* — the things that need
+ * breakpoints — lives here.
+ *
+ * Mobile-first: base rules are the phone layout, `min-width` queries widen from there.
+ *
+ * Breakpoint scale (keep these literals in sync across every module — CSS cannot
+ * parameterise a media query):
+ *   sm  640px   large phone / small tablet
+ *   md  900px   tablet
+ *   lg  1100px  small desktop
+ *   xl  1200px  container max, matches --container-max
+ */
+
+/* Page-width wrapper. Replaces the repeated
+   `maxWidth: var(--container-max); margin: 0 auto; padding: 0 var(--space-6)`. */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: var(--space-6);
+  }
+}
+
+/* Narrow measure for prose — request intro, blog body. */
+.containerNarrow {
+  composes: container;
+  max-width: var(--container-narrow);
+}
+
+/* Vertical rhythm between marketing sections. The design system specifies space-16 (64px);
+   that is too much air on a phone, so it steps up. */
+.section {
+  margin-top: var(--space-10);
+}
+
+@media (min-width: 640px) {
+  .section {
+    margin-top: var(--space-12);
+  }
+}
+
+@media (min-width: 900px) {
+  .section {
+    margin-top: var(--space-16);
+  }
+}
+
+/* --- Responsive grids ------------------------------------------------------
+   Named for their widest column count, which is what the design system specifies:
+   `.grid4` is the 4-up service grid, `.grid3` the 3-up listing grids. */
+
+.grid2,
+.grid3,
+.grid4 {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid2,
+  .grid3,
+  .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .grid3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Display type. The design system specifies --text-5xl for the hero headline, which is
+   sized for a 1280px artboard; at 390px it runs to four lines. The ramp steps down rather
+   than changing the desktop value. */
+.heroTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .heroTitle {
+    font-size: var(--text-4xl);
+  }
+}
+
+@media (min-width: 900px) {
+  .heroTitle {
+    font-size: var(--text-5xl);
+  }
+}
+
+/* The hero / search-band field row. Five controls sit inline on desktop; on a phone they
+   stack full-width so the tap targets stay at their designed height. */
+.searchGrid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+  align-items: end;
+}
+
+@media (min-width: 640px) {
+  .searchGrid {
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .searchGrid {
+    grid-template-columns: 1.4fr 1fr 1fr 0.9fr auto;
+  }
+}
+
+/* The search button is the last cell: full-width until the row goes inline. */
+.searchAction {
+  display: grid;
+}
+
+@media (min-width: 640px) {
+  .searchAction {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1100px) {
+  .searchAction {
+    grid-column: auto;
+  }
+}
+
+/* Promotional band. Copy over the photo on a phone, side by side from tablet up. */
+.offerBand {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-brand);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.offerBandImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  flex: 0 0 auto;
+}
+
+@media (min-width: 900px) {
+  .offerBand {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-10);
+  }
+
+  .offerBandImage {
+    width: 320px;
+    height: 200px;
+  }
+}
+
+/* Wider gutters for the trust strip, which is text-only and needs more separation. */
+.gridWideGap {
+  gap: var(--space-6);
+}
+
+@media (min-width: 900px) {
+  .gridWideGap {
+    gap: var(--space-8);
+  }
+}

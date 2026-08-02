@@ -1,0 +1,196 @@
+/* Site chrome layout. Breakpoints match styles/layout.module.css — sm 640, md 900, lg 1100. */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 64px;
+}
+
+@media (min-width: 900px) {
+  .headerInner {
+    height: 72px;
+    gap: var(--space-8);
+  }
+}
+
+/* Desktop nav — replaced by the disclosure panel below 900px. */
+.nav {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin-right: auto;
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+@media (min-width: 900px) {
+  .headerActions {
+    margin-left: 0;
+  }
+}
+
+/* The header phone number is redundant on a phone — the fixed contact dock carries the
+   same affordance and is always in reach. */
+.phoneLink {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .phoneLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--teal-700);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-brand-primary);
+  cursor: pointer;
+}
+
+.menuButton:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+@media (min-width: 900px) {
+  .menuButton {
+    display: none;
+  }
+}
+
+/* Disclosure panel: the nav links stacked under the bar on small screens. */
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) 0 var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 900px) {
+  .mobileNav {
+    display: none;
+  }
+}
+
+.mobileNavLink {
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.mobileNavLinkActive {
+  composes: mobileNavLink;
+  color: var(--navy-800);
+  font-weight: var(--weight-semibold);
+  background: var(--navy-50);
+}
+
+.mobileNavPhone {
+  composes: mobileNavLink;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--teal-700);
+  font-weight: var(--weight-semibold);
+}
+
+/* --- Footer --------------------------------------------------------------- */
+
+.footer {
+  background: var(--gradient-dusk);
+  color: #fff;
+  margin-top: var(--space-16);
+}
+
+@media (min-width: 900px) {
+  .footer {
+    margin-top: var(--space-20);
+  }
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  padding-block: var(--space-10) var(--space-8);
+}
+
+@media (min-width: 640px) {
+  .footerGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .footerGrid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: var(--space-10);
+    padding-block: var(--space-16) var(--space-8);
+  }
+}
+
+.footerBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--navy-200);
+}
+
+@media (min-width: 640px) {
+  .footerBar {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+}
+
+.footerPayments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

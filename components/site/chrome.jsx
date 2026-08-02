@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button, Icon } from '../index.js';
 import { ROUTES } from '../../lib/routes.js';
+import layout from '../../styles/layout.module.css';
+import c from './chrome.module.css';
 
 const NAV = [
   { id: 'home', label: 'Home', href: ROUTES.home },
@@ -29,13 +31,23 @@ export function Logo({ height = 34, reverse = false }) {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [open, setOpen] = React.useState(false);
   const isOn = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
+  // Close the disclosure panel on navigation, otherwise it stays open over the new page.
+  // Adjusted during render rather than in an effect — this is the React-recommended way to
+  // reset state when a value changes, and it covers back/forward as well as link clicks.
+  const [lastPath, setLastPath] = React.useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
+
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--color-border)' }}>
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--space-6)', height: 72, display: 'flex', alignItems: 'center', gap: 'var(--space-8)' }}>
+    <header className={c.header}>
+      <div className={`${layout.container} ${c.headerInner}`}>
         <Link href={ROUTES.home} style={{ textDecoration: 'none' }}><Logo /></Link>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)', marginRight: 'auto' }}>
+        <nav className={c.nav}>
           {NAV.map((n) => {
             const on = isOn(n.href);
             return (
@@ -44,15 +56,39 @@ export function SiteHeader() {
             );
           })}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-          <a href="tel:+8801000000000" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--teal-700)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+        <div className={c.headerActions}>
+          <a href="tel:+8801000000000" className={c.phoneLink}>
             <Icon name="phone-call" size={16} />+880 1XXX-XXXXXX
           </a>
           <Link href={ROUTES.account} style={{ textDecoration: 'none' }}>
             <Button variant="outline" size="sm" style={{ whiteSpace: 'nowrap' }}>Sign in</Button>
           </Link>
+          <button
+            type="button"
+            className={c.menuButton}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="site-mobile-nav"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <Icon name={open ? 'x' : 'menu'} size={20} />
+          </button>
         </div>
       </div>
+      {open ? (
+        <div id="site-mobile-nav" className={layout.container}>
+          <nav className={c.mobileNav}>
+            {NAV.map((n) => (
+              <Link key={n.id} href={n.href} className={isOn(n.href) ? c.mobileNavLinkActive : c.mobileNavLink}>
+                {n.label}
+              </Link>
+            ))}
+            <a href="tel:+8801000000000" className={c.mobileNavPhone}>
+              <Icon name="phone-call" size={16} />+880 1XXX-XXXXXX
+            </a>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -86,8 +122,8 @@ export function SiteFooter() {
     </div>
   );
   return (
-    <footer style={{ background: 'var(--gradient-dusk)', color: '#fff', marginTop: 'var(--space-20)' }}>
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-16) var(--space-6) var(--space-8)', display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr', gap: 'var(--space-10)' }}>
+    <footer className={c.footer}>
+      <div className={`${layout.container} ${c.footerGrid}`}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <Logo reverse />
           <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', lineHeight: 'var(--leading-relaxed)', color: 'var(--navy-200)', maxWidth: 300 }}>Every major travel service in Bangladesh, booked or quoted in one place. Talk to a human any time on WhatsApp.</p>
@@ -102,9 +138,9 @@ export function SiteFooter() {
         {col('Company', ['About YesTourBD', 'Travel guides', 'Offers', 'Contact & support', 'Refund policy', 'Terms'])}
       </div>
       <div style={{ borderTop: '1px solid rgba(255,255,255,.12)' }}>
-        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: 'var(--space-5) var(--space-6)', display: 'flex', justifyContent: 'space-between', gap: 'var(--space-4)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--navy-200)' }}>
+        <div className={`${layout.container} ${c.footerBar}`}>
           <span>© 2026 YesTourBD. All rights reserved.</span>
-          <span style={{ display: 'flex', gap: 'var(--space-4)' }}><span>bKash</span><span>Nagad</span><span>Visa</span><span>Mastercard</span><span>SSLCommerz</span></span>
+          <span className={c.footerPayments}><span>bKash</span><span>Nagad</span><span>Visa</span><span>Mastercard</span><span>SSLCommerz</span></span>
         </div>
       </div>
     </footer>

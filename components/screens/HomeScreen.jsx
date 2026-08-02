@@ -7,6 +7,7 @@ import { SectionHead, Stars } from '../site/chrome.jsx';
 import { ListingCard } from './ListingCard.jsx';
 import { useGo, ROUTES } from '../../lib/routes.js';
 import { IMG, LISTINGS, POSTS, REVIEWS, SERVICES } from '../../lib/site-data.js';
+import s from '../../styles/layout.module.css';
 
 const SEARCH_TABS = [
   { id: 'hotels', label: 'Hotels', icon: <Icon name="bed-double" size={15} /> },
@@ -21,13 +22,15 @@ function HeroSearch({ go }) {
   const [tab, setTab] = React.useState('hotels');
   return (
     <div style={{ background: 'var(--color-bg-surface)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', padding: 'var(--space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-      <Tabs items={SEARCH_TABS} value={tab} onChange={setTab} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr .9fr auto', gap: 'var(--space-4)', alignItems: 'end' }}>
+      <Tabs items={SEARCH_TABS} value={tab} onChange={setTab} style={{ overflowX: 'auto' }} />
+      <div className={s.searchGrid}>
         <Input key={tab} label={tab === 'hotels' ? 'Destination or property' : 'Route'} iconLeft={<Icon name="map-pin" size={16} />} defaultValue={tab === 'hotels' ? "Cox's Bazar" : 'Teknaf → Saint Martin'} />
         <Input label="Check in" type="date" defaultValue="2026-03-12" />
         <Input label="Check out" type="date" defaultValue="2026-03-14" />
         <Select label="Guests" options={[{ label: '2 adults', value: '2' }, { label: '2 adults, 1 child', value: '3' }, { label: '4 adults', value: '4' }]} defaultValue="2" />
-        <Button size="md" iconLeft={<Icon name="search" size={18} />} onClick={() => go('search')} style={{ paddingLeft: 'var(--space-6)', paddingRight: 'var(--space-6)' }}>Search</Button>
+        <div className={s.searchAction}>
+          <Button size="md" fullWidth iconLeft={<Icon name="search" size={18} />} onClick={() => go('search')} style={{ paddingLeft: 'var(--space-6)', paddingRight: 'var(--space-6)' }}>Search</Button>
+        </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginRight: 4 }}>Popular:</span>
@@ -45,12 +48,12 @@ function Hero({ go }) {
         <img src={IMG.hero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(5,30,61,.82) 0%, rgba(5,30,61,.62) 45%, rgba(247,249,251,1) 100%)' }} />
       </div>
-      <div style={{ position: 'relative', maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--space-6)' }}>
+      <div className={s.container} style={{ position: 'relative' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxWidth: 720, marginBottom: 'var(--space-10)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, alignSelf: 'flex-start', padding: '6px 12px', borderRadius: 'var(--radius-full)', background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.22)', color: '#fff', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-semibold)', letterSpacing: 'var(--tracking-wide)' }}>
             <Icon name="shield-check" size={14} />12 travel services · one account
           </span>
-          <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-5xl)', fontWeight: 'var(--weight-bold)', lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tight)', color: '#fff' }}>Book the whole trip, not just the ticket.</h1>
+          <h1 className={s.heroTitle}>Book the whole trip, not just the ticket.</h1>
           <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-md)', lineHeight: 'var(--leading-relaxed)', color: 'rgba(255,255,255,.86)', maxWidth: 560 }}>Hotels, houseboats, ship and air tickets you can confirm right now — plus corporate tours, packages and visa help handled by a real person.</p>
         </div>
         <HeroSearch go={go} />
@@ -77,10 +80,10 @@ function ServiceTile({ s }) {
 
 function ServiceGrid() {
   return (
-    <section style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--space-6)', marginTop: 'var(--space-12)' }}>
+    <section className={`${s.container} ${s.section}`}>
       <SectionHead eyebrow="Everything we do" title="Twelve services, two ways to book"
         action={<span style={{ display: 'flex', gap: 8 }}><Badge tone="teal" variant="solid">Instant</Badge><Badge tone="brand" variant="outline">On request</Badge></span>} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 'var(--space-4)' }}>
+      <div className={s.grid4}>
         {SERVICES.map((s) => (
           <Link key={s.id} href={s.mode === 'instant' ? ROUTES.search : ROUTES.request} style={{ textDecoration: 'none' }}>
             <ServiceTile s={s} />
@@ -93,8 +96,8 @@ function ServiceGrid() {
 
 function OfferBand({ go }) {
   return (
-    <section style={{ maxWidth: 'var(--container-max)', margin: 'var(--space-16) auto 0', padding: '0 var(--space-6)' }}>
-      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-xl)', background: 'var(--gradient-brand)', padding: 'var(--space-10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-8)' }}>
+    <section className={`${s.container} ${s.section}`}>
+      <div className={s.offerBand}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', maxWidth: 560, position: 'relative' }}>
           <Badge tone="gold" variant="solid" size="md">Eid offer · ends 20 Mar</Badge>
           <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-bold)', color: '#fff', lineHeight: 'var(--leading-tight)', letterSpacing: 'var(--tracking-tight)' }}>Up to 25% off Cox’s Bazar resorts + free houseboat day tour</h3>
@@ -105,7 +108,7 @@ function OfferBand({ go }) {
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={IMG.sunset} alt="" style={{ width: 320, height: 200, objectFit: 'cover', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', flex: '0 0 auto' }} />
+        <img className={s.offerBandImage} src={IMG.sunset} alt="" />
       </div>
     </section>
   );
@@ -113,9 +116,9 @@ function OfferBand({ go }) {
 
 function Reviews() {
   return (
-    <section style={{ maxWidth: 'var(--container-max)', margin: 'var(--space-16) auto 0', padding: '0 var(--space-6)' }}>
+    <section className={`${s.container} ${s.section}`}>
       <SectionHead eyebrow="Reviews" title="What travellers say" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--space-4)' }}>
+      <div className={s.grid3}>
         {REVIEWS.map((r) => (
           <div key={r.name} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
             <Stars value={r.rating} />
@@ -136,9 +139,9 @@ function Reviews() {
 
 function BlogTeasers() {
   return (
-    <section style={{ maxWidth: 'var(--container-max)', margin: 'var(--space-16) auto 0', padding: '0 var(--space-6)' }}>
+    <section className={`${s.container} ${s.section}`}>
       <SectionHead eyebrow="Travel guides" title="Plan before you pay" action={<Button variant="outline" size="sm" iconRight={<Icon name="arrow-right" size={15} />}>All guides</Button>} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--space-4)' }}>
+      <div className={s.grid3}>
         {POSTS.map((p) => (
           <Card key={p.title} image={p.img} imageHeight={150} padding="sm" href="#" onClick={(e) => e.preventDefault()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--teal-700)', fontWeight: 'var(--weight-semibold)', letterSpacing: 'var(--tracking-wide)' }}>{p.cat}<span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>· {p.read} read</span></div>
@@ -158,8 +161,8 @@ function TrustStrip() {
     { icon: 'headset', title: 'Humans on WhatsApp', body: 'Same team that took the booking answers the questions.' },
   ];
   return (
-    <section style={{ maxWidth: 'var(--container-max)', margin: 'var(--space-16) auto 0', padding: 'var(--space-8) var(--space-6)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 'var(--space-8)' }}>
+    <section className={`${s.container} ${s.section}`} style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', paddingBlock: 'var(--space-8)' }}>
+      <div className={`${s.grid4} ${s.gridWideGap}`}>
         {items.map((i) => (
           <div key={i.title} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span style={{ color: 'var(--teal-600)' }}><Icon name={i.icon} size={22} /></span>
@@ -178,9 +181,9 @@ export function HomeScreen() {
     <div>
       <Hero go={go} />
       <ServiceGrid />
-      <section style={{ maxWidth: 'var(--container-max)', margin: 'var(--space-16) auto 0', padding: '0 var(--space-6)' }}>
+      <section className={`${s.container} ${s.section}`}>
         <SectionHead eyebrow="Booked most this week" title="Popular right now" action={<Button variant="outline" size="sm" onClick={() => go('search')} iconRight={<Icon name="arrow-right" size={15} />}>See all</Button>} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'var(--space-4)' }}>
+        <div className={s.grid3}>
           {LISTINGS.slice(0, 3).map((l) => <ListingCard key={l.id} l={l} />)}
         </div>
       </section>
