@@ -52,6 +52,14 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} ${publicSans.variable} ${lora.variable} ${ibmPlexMono.variable} ${notoSansBengali.variable}`}
     >
+      {/* Every photograph is still a placeholder served from the Unsplash CDN (see
+          lib/site-data.js), so the LCP image costs a fresh DNS + TLS handshake to a third
+          party. Warming the connection buys back part of that until real, self-hosted
+          imagery lands. */}
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body>
         <SiteHeader />
         {children}

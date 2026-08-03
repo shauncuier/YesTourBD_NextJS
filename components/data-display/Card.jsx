@@ -40,7 +40,7 @@ export function Card({
       {image ? (
         <div style={{ position: 'relative', height: imageHeight, flex: '0 0 auto', overflow: 'hidden', background: 'var(--gray-200)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={imageAlt} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hover && interactive ? 'scale(1.04)' : 'none', transition: 'transform var(--duration-slow) var(--ease-out)' }} />
+          <img src={image} alt={imageAlt} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hover && interactive ? 'scale(1.04)' : 'none', transition: 'transform var(--duration-slow) var(--ease-out)' }} />
           {badge ? <div style={{ position: 'absolute', top: 'var(--space-3)', left: 'var(--space-3)' }}>{badge}</div> : null}
         </div>
       ) : null}

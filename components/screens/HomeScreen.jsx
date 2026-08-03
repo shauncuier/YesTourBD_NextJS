@@ -44,8 +44,15 @@ function Hero({ go }) {
   return (
     <section style={{ position: 'relative', paddingTop: 'var(--space-16)', paddingBottom: 'var(--space-12)' }}>
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        {/* The hero image is the LCP element on every viewport, so it is fetched at high
+            priority and sized down for phones — the 1600px original is four times the pixels
+            a 390px screen can use. Both are attributes on the design system's own markup, not
+            a change of markup. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={IMG.hero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src={IMG.hero} alt="" fetchPriority="high" decoding="async"
+          srcSet={`${IMG.hero.replace('w=1600', 'w=800')} 800w, ${IMG.hero} 1600w`}
+          sizes="100vw"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(5,30,61,.82) 0%, rgba(5,30,61,.62) 45%, rgba(247,249,251,1) 100%)' }} />
       </div>
       <div className={s.container} style={{ position: 'relative' }}>
@@ -108,7 +115,7 @@ function OfferBand({ go }) {
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={s.offerBandImage} src={IMG.sunset} alt="" />
+        <img className={s.offerBandImage} src={IMG.sunset} alt="" loading="lazy" decoding="async" />
       </div>
     </section>
   );

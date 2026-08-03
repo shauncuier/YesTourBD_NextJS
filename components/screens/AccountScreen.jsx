@@ -19,7 +19,7 @@ function BookingRow({ b }) {
   return (
     <div className={c.bookingRow}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={c.bookingThumb} src={b.img} alt="" />
+      <img className={c.bookingThumb} src={b.img} alt="" loading="lazy" decoding="async" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Badge tone={s.tone} dot>{s.label}</Badge>

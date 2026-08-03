@@ -35,13 +35,13 @@ export function DetailScreen({ listing }) {
             the track past the gallery height and overlaps the heading below. */}
         <div className={c.gallery}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+          <img src={l.img} alt="" fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
           <div className={c.galleryThumbs}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG.marine} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+            <img src={IMG.marine} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
             <div style={{ position: 'relative' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={IMG.sunset} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)', display: 'block' }} />
+              <img src={IMG.sunset} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)', display: 'block' }} />
               <button type="button" style={{ position: 'absolute', inset: 0, border: 'none', borderRadius: 'var(--radius-lg)', background: 'rgba(5,30,61,.55)', color: '#fff', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Icon name="images" size={18} />+14 photos
               </button>
