@@ -4,7 +4,7 @@ import React from 'react';
 import { Icon } from '../foundation/Icon.jsx';
 
 /** Checkbox with label — trip add-ons, terms acceptance, filter facets. */
-export function Checkbox({ label, checked, defaultChecked, onChange, disabled = false, style, id }) {
+export function Checkbox({ label, checked, defaultChecked, onChange, disabled = false, style, id, name, value }) {
   const [focus, setFocus] = React.useState(false);
   const reactId = React.useId();
   const boxId = id || reactId;
@@ -15,7 +15,7 @@ export function Checkbox({ label, checked, defaultChecked, onChange, disabled = 
     <label htmlFor={boxId} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, fontFamily: 'var(--font-body)', ...style }}>
       <span style={{ position: 'relative', display: 'inline-flex', width: 20, height: 20, flex: '0 0 auto' }}>
         <input
-          id={boxId} type="checkbox" checked={isOn} disabled={disabled}
+          id={boxId} name={name} value={value} type="checkbox" checked={isOn} disabled={disabled}
           onChange={(e) => { if (!isControlled) setInternal(e.target.checked); if (onChange) onChange(e); }}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
           style={{ position: 'absolute', inset: 0, opacity: 0, margin: 0, cursor: 'inherit' }}

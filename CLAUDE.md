@@ -39,6 +39,18 @@ Prisma 7 differs from what you probably remember:
   the dev server's module re-evaluation does not exhaust the connection limit.
 - `npx prisma dev` runs a local Postgres with no Docker, which is how this was developed.
 
+**Writes go through server actions**, one file per route (`app/request/actions.ts`). The
+pattern: parse `FormData` with the route's Zod schema in `lib/*`, check the rate limit, write,
+and return a discriminated union the screen renders — `sent` / `invalid` / `error`. Screens
+take the action as a **prop** rather than importing it, so they can be tested without a
+server; the page supplies the real one. Never trust the client to have validated: the same
+schema runs server-side regardless.
+
+References (`REQ-XXXX`, `YTB-XXXXXX`) come from Postgres sequences with a column default, not
+from application code — two concurrent submissions can generate the same value but cannot draw
+the same sequence number. Prisma cannot declare sequences, so they are hand-written in the
+migration and referenced from the schema with `dbgenerated`.
+
 `prisma/seed.ts` upserts the twelve services from `lib/site-data.js` on `slug`, so that array
 stays the source of truth for the catalogue and re-seeding never duplicates rows. Screens read
 data through `lib/*.ts` helpers (`lib/services.ts`), which map rows onto the shapes the ported
@@ -126,6 +138,7 @@ The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where t
 - **`Input` / `Select` / `Switch` / `Checkbox`** fall back to `React.useId()` rather than the label text for element ids.
 - **`Switch`** names itself with `aria-labelledby` pointing at its label text. The original relied on the wrapping `<label htmlFor>`, which names nothing: `htmlFor` only applies to labelable form elements, and the control is a `<span role="switch">`. Lighthouse failed all three `/account` switches on `aria-toggle-field-name`.
 - **`Dialog`** implements what `aria-modal` claims: focus moves into the surface on open, Tab is trapped inside it, focus returns to whatever opened it on close, and the page behind stops scrolling. The original added the attribute and an Escape handler only. Browsers implement none of this for a `role="dialog"` div.
+- **`Input` / `Select` / `Checkbox`** accept `name` (and `Input` also `autoComplete` and `inputMode`), passed to the underlying element. The UI kit never submitted a form, so it had no way to name a field; `/request` posts real FormData.
 - **`Card`** marks its image `loading="lazy" decoding="async"`. Every card in this app is below the fold and the images are full-size remote JPEGs.
 - **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
 - `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.

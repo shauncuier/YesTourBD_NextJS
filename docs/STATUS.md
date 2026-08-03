@@ -28,7 +28,7 @@ not be able to operate**.
 | Home page | Hero + search widget, 12-service grid, popular listings, offer band, trust strip, reviews, blog teasers |
 | Search page | Navy search band, sticky filter rail, list / grid / map toggle, sort tabs, removable chips |
 | Detail page | Gallery, five content tabs, sticky booking panel, guest stepper, confirm dialog, success toast |
-| Request page | Five request types, three-step form, "what happens next" rail, success toast |
+| Request page | Five request types, three-step form, "what happens next" rail. **Submits for real**: validated server-side, rate-limited, persisted, and the toast shows the reference the database issued |
 | Account page | Upcoming / past / requests tabs, booking rows, profile form, notification switches |
 | WhatsApp + call dock | Fixed bottom-right, present on every page |
 | SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |
@@ -45,7 +45,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 | Requirement | Notes |
 |---|---|
 | Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
-| API layer | No route handlers, no server actions |
+| API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
 | Auth / user accounts | "Sign in" is a link to `/account`; the account page shows a hard-coded customer |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
 | Media storage | Every image is a remote Unsplash URL |

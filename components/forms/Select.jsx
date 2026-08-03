@@ -4,7 +4,7 @@ import React from 'react';
 import { Icon } from '../foundation/Icon.jsx';
 
 /** Native styled select — dropdowns for city, service type, sort order, passenger count. */
-export function Select({ label, helperText, error, disabled = false, value, defaultValue, onChange, options = [], placeholder, required = false, labelColor = 'default', style, id }) {
+export function Select({ label, helperText, error, disabled = false, value, defaultValue, onChange, options = [], placeholder, required = false, labelColor = 'default', style, id, name }) {
   const [focus, setFocus] = React.useState(false);
   const reactId = React.useId();
   const selectId = id || reactId;
@@ -18,6 +18,8 @@ export function Select({ label, helperText, error, disabled = false, value, defa
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <select
           id={selectId}
+          name={name}
+          required={required}
           disabled={disabled}
           value={value}
           defaultValue={defaultValue}

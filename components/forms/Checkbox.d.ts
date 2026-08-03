@@ -8,5 +8,9 @@ export interface CheckboxProps {
   disabled?: boolean;
   style?: React.CSSProperties;
   id?: string;
+  /** Submitted as this key when the box sits inside a form. */
+  name?: string;
+  /** Value submitted when ticked. @default 'on' */
+  value?: string;
 }
 export function Checkbox(props: CheckboxProps): React.JSX.Element;

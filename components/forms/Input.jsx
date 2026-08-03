@@ -6,6 +6,7 @@ import React from 'react';
 export function Input({
   label, placeholder, helperText, error, disabled = false, type = 'text',
   value, defaultValue, onChange, iconLeft, required = false, labelColor = 'default', style, id,
+  name, autoComplete, inputMode,
 }) {
   const [focus, setFocus] = React.useState(false);
   const reactId = React.useId();
@@ -21,7 +22,11 @@ export function Input({
         {iconLeft && <span style={{ position: 'absolute', left: 12, display: 'flex', color: 'var(--color-text-muted)' }}>{iconLeft}</span>}
         <input
           id={inputId}
+          name={name}
           type={type}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          required={required}
           placeholder={placeholder}
           disabled={disabled}
           value={value}

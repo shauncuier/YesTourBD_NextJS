@@ -16,5 +16,7 @@ export interface SelectProps {
   labelColor?: 'default' | 'light';
   style?: React.CSSProperties;
   id?: string;
+  /** Submitted as this key when the select sits inside a form. */
+  name?: string;
 }
 export function Select(props: SelectProps): React.JSX.Element;

@@ -5,10 +5,11 @@ can confirm right now, plus corporate tours, custom packages and visa help handl
 coordinator.
 
 **Status: front end plus the first slice of a backend.** The design language, component
-library and five customer screens are real, responsive and tested. Postgres is now wired in
-and the home page reads its service catalogue from it; everything else — accounts, quote
-requests, payments, admin — does not exist yet, and the rest of the content is still
-hard-coded in `lib/site-data.js`. See [docs/STATUS.md](docs/STATUS.md) before estimating
+library and five customer screens are real, responsive and tested. Postgres is wired in: the
+home page reads its service catalogue from it, and `/request` genuinely submits — validated,
+rate-limited, persisted, with a real reference back. Everything else — accounts, quotations,
+payments, admin — does not exist yet, and the rest of the content is still hard-coded in
+`lib/site-data.js`. See [docs/STATUS.md](docs/STATUS.md) before estimating
 anything.
 
 ---
@@ -67,7 +68,7 @@ array stays the single source of truth for the twelve services.
 | `/` | Home — hero search, 12-service grid, popular listings, offers, reviews |
 | `/search` | Search results — filter rail, list / grid / map toggle, sort |
 | `/tours/[slug]` | Detail — gallery, content tabs, booking panel, confirm dialog |
-| `/request` | Quote request form for the request-based services |
+| `/request` | Quote request form — validated, rate-limited and persisted, returning a real `REQ-XXXX` |
 | `/account` | Bookings, requests and profile |
 | `/tickets`, `/guides` | Aliases the UI kit never designed; they render Search and Home |
 

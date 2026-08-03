@@ -14,11 +14,24 @@ const REQUEST_TYPES = [
   { id: 'car', icon: 'car-front', label: 'Rent a car', blurb: 'Chader Gari, microbus, sedan' },
 ];
 
-export function RequestScreen() {
+const NEEDS = ['Need transport', 'Need hotel', 'Need meals', 'Need event setup', 'Need guide'];
+
+const CONTACT_LABEL = { whatsapp: 'WhatsApp', call: 'a phone call', email: 'email' };
+
+const IDLE = { status: 'idle' };
+
+// `action` is the server action from app/request/page.tsx. It is a prop rather than an import
+// so this screen can be rendered in a test without a server or a database; the default is a
+// no-op that leaves the form in its idle state.
+export function RequestScreen({ action = async () => IDLE }) {
   const go = useGo();
+  const [state, submit, pending] = React.useActionState(action, IDLE);
+  const errors = state.status === 'invalid' ? state.errors : {};
   const [type, setType] = React.useState('corporate');
-  const [sent, setSent] = React.useState(false);
   const [contact, setContact] = React.useState('whatsapp');
+  const [needs, setNeeds] = React.useState([]);
+  const toggleNeed = (need) =>
+    setNeeds((current) => (current.includes(need) ? current.filter((n) => n !== need) : [...current, need]));
   // The notes field is a bare <textarea> rather than a design-system component, so it has to
   // carry Input's focus treatment itself — it suppresses the UA outline and would otherwise
   // show a keyboard user nothing at all.
@@ -37,9 +50,11 @@ export function RequestScreen() {
       </div>
 
       <div className={`${layout.container} ${c.requestLayout}`}>
-        <div className={c.requestCard}>
+        <form action={submit} className={c.requestCard} noValidate>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>1 · What do you need?</span>
+            {/* The picker is a row of buttons, so the chosen id rides along as a hidden field. */}
+            <input type="hidden" name="requestType" value={type} />
             <div className={c.requestTypes}>
               {REQUEST_TYPES.map((t) => {
                 const on = t.id === type;
@@ -57,46 +72,55 @@ export function RequestScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>2 · The details</span>
             <div className={c.pairGrid} style={{ gap: 'var(--space-4)' }}>
-              <Input label="Destination(s)" required placeholder="e.g. Sylhet + Sreemangal" />
-              <Select label="Number of travellers" required placeholder="Select" options={[{ label: '1–9', value: 'a' }, { label: '10–24', value: 'b' }, { label: '25–49', value: 'c' }, { label: '50+', value: 'd' }]} />
-              <Input label="Preferred start date" type="date" />
-              <Input label="Nights" type="number" placeholder="3" />
-              <Select label="Budget per person" placeholder="Optional" options={[{ label: 'Under ৳5,000', value: '1' }, { label: '৳5,000–15,000', value: '2' }, { label: '৳15,000+', value: '3' }]} />
-              <Input label="Company / institution" placeholder="Optional" />
+              <Input label="Destination(s)" name="destinations" required placeholder="e.g. Sylhet + Sreemangal" error={errors.destinations} />
+              <Select label="Number of travellers" name="paxBand" required placeholder="Select" error={errors.paxBand}
+                options={[{ label: '1–9', value: '1-9' }, { label: '10–24', value: '10-24' }, { label: '25–49', value: '25-49' }, { label: '50+', value: '50+' }]} />
+              <Input label="Preferred start date" name="startDate" type="date" error={errors.startDate} />
+              <Input label="Nights" name="nights" type="number" placeholder="3" error={errors.nights} />
+              <Select label="Budget per person" name="budgetBand" placeholder="Optional" error={errors.budgetBand}
+                options={[{ label: 'Under ৳5,000', value: 'under-5k' }, { label: '৳5,000–15,000', value: '5k-15k' }, { label: '৳15,000+', value: '15k-plus' }]} />
+              <Input label="Company / institution" name="org" placeholder="Optional" error={errors.org} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label htmlFor="request-notes" style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--gray-700)' }}>Anything else we should plan around?</label>
-              <textarea id="request-notes" rows={4} placeholder="Transport from Dhaka, one vegetarian meal per day, conference room for 40 on the second morning…"
+              <textarea id="request-notes" name="notes" rows={4} placeholder="Transport from Dhaka, one vegetarian meal per day, conference room for 40 on the second morning…"
                 onFocus={() => setNotesFocus(true)} onBlur={() => setNotesFocus(false)}
                 style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--color-text-primary)', padding: '10px 12px', border: `1px solid ${notesFocus ? 'var(--teal-500)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-md)', outline: 'none', boxShadow: notesFocus ? 'var(--shadow-focus)' : 'none', transition: 'all var(--duration-fast) var(--ease-standard)', resize: 'vertical', background: 'var(--color-bg-surface)' }} />
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {['Need transport', 'Need hotel', 'Need meals', 'Need event setup', 'Need guide'].map((x) => <Tag key={x} label={x} onClick={() => {}} />)}
+              {NEEDS.map((x) => <Tag key={x} label={x} selected={needs.includes(x)} onClick={() => toggleNeed(x)} />)}
             </div>
+            {/* Tags are spans, so each selected one contributes its own hidden field. */}
+            {needs.map((need) => <input key={need} type="hidden" name="needs" value={need} />)}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>3 · How do we reach you?</span>
             <div className={c.pairGrid} style={{ gap: 'var(--space-4)' }}>
-              <Input label="Your name" required placeholder="Full name" />
-              <Input label="Mobile" required iconLeft={<Icon name="phone" size={15} />} placeholder="+880 1XXX-XXXXXX" />
-              <Input label="Email" placeholder="you@example.com" helperText="We send the written quotation here." />
+              <Input label="Your name" name="name" required placeholder="Full name" autoComplete="name" error={errors.name} />
+              <Input label="Mobile" name="phone" required iconLeft={<Icon name="phone" size={15} />} placeholder="+880 1XXX-XXXXXX"
+                type="tel" inputMode="tel" autoComplete="tel" error={errors.phone} />
+              <Input label="Email" name="email" type="email" placeholder="you@example.com" autoComplete="email"
+                helperText="We send the written quotation here." error={errors.email} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--gray-700)' }}>Reply on</span>
                 <div style={{ display: 'flex', gap: 'var(--space-5)' }}>
-                  <Radio name="reply" value="whatsapp" label="WhatsApp" checked={contact === 'whatsapp'} onChange={() => setContact('whatsapp')} />
-                  <Radio name="reply" value="call" label="Phone call" checked={contact === 'call'} onChange={() => setContact('call')} />
-                  <Radio name="reply" value="email" label="Email" checked={contact === 'email'} onChange={() => setContact('email')} />
+                  <Radio name="contactPref" value="whatsapp" label="WhatsApp" checked={contact === 'whatsapp'} onChange={() => setContact('whatsapp')} />
+                  <Radio name="contactPref" value="call" label="Phone call" checked={contact === 'call'} onChange={() => setContact('call')} />
+                  <Radio name="contactPref" value="email" label="Email" checked={contact === 'email'} onChange={() => setContact('email')} />
                 </div>
               </div>
             </div>
-            <Checkbox label="I agree to be contacted about this request." defaultChecked />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <Checkbox name="consent" label="I agree to be contacted about this request." defaultChecked />
+              {errors.consent ? <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>{errors.consent}</span> : null}
+            </div>
             <div className={c.actionRow}>
-              <Button size="lg" onClick={() => setSent(true)}>Send request</Button>
+              <Button size="lg" type="submit" disabled={pending}>{pending ? 'Sending…' : 'Send request'}</Button>
               <Button size="lg" variant="outline" iconLeft={<Icon name="message-circle" size={17} />}>Send on WhatsApp instead</Button>
             </div>
           </div>
-        </div>
+        </form>
 
         <aside className={c.requestAside}>
           <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
@@ -120,12 +144,17 @@ export function RequestScreen() {
         </aside>
       </div>
 
-      {sent ? (
+      {state.status === 'sent' ? (
         <div style={{ position: 'fixed', right: 20, bottom: 92, zIndex: 60 }}>
-          <Toast tone="success" icon={<Icon name="check-circle" size={18} />} title="Request sent — REQ-2261"
-            message="A coordinator will reply on WhatsApp within two working hours."
-            action={<Button size="sm" variant="outline" onClick={() => { setSent(false); go('account'); }}>Track request</Button>}
-            onClose={() => setSent(false)} />
+          <Toast tone="success" icon={<Icon name="check-circle" size={18} />} title={`Request sent — ${state.ref}`}
+            message={`A coordinator will reply on ${CONTACT_LABEL[contact]} within two working hours.`}
+            action={<Button size="sm" variant="outline" onClick={() => go('account')}>Track request</Button>} />
+        </div>
+      ) : null}
+
+      {state.status === 'error' ? (
+        <div style={{ position: 'fixed', right: 20, bottom: 92, zIndex: 60 }}>
+          <Toast tone="danger" icon={<Icon name="alert-circle" size={18} />} title="Not sent" message={state.message} />
         </div>
       ) : null}
     </div>

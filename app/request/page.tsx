@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RequestScreen } from "@/components/screens/RequestScreen.jsx";
+import { submitQuoteRequest } from "./actions";
 
 export const metadata: Metadata = {
   title: "Request a quote — YesTourBD",
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <RequestScreen />;
+  return <RequestScreen action={submitQuoteRequest} />;
 }

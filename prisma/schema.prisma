@@ -24,6 +24,34 @@ enum Role {
   admin
 }
 
+/// The five things the /request form can be about, matching its type picker.
+enum RequestType {
+  corporate
+  group
+  visa
+  package
+  car
+}
+
+enum ContactPref {
+  whatsapp
+  call
+  email
+}
+
+/// docs/ARCHITECTURE.md#request-pipeline. The customer sees a simplified view of this —
+/// "Awaiting quotation" covers everything up to `quoted`.
+enum QuoteStatus {
+  submitted
+  reviewing
+  quoted
+  negotiating
+  accepted
+  booked
+  expired
+  lost
+}
+
 /// Phone is the identity here — Bangladesh is a phone-first market and OTP is the planned
 /// primary sign-in (M2.1). Email is optional and secondary.
 model User {
@@ -36,7 +64,49 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  quoteRequests QuoteRequest[]
+
   @@map("users")
+}
+
+/// A trip too specific for a booking form: 34 people, three hotels, one bus. Submitted by
+/// anyone, signed in or not, which is why the contact fields are on the row itself and
+/// `user` is optional until accounts exist (M2.x).
+model QuoteRequest {
+  id     String @id @default(uuid())
+  /// REQ-XXXX, the shape the design system's content rules fix. Filled by a Postgres
+  /// sequence so two concurrent submissions cannot collide — see the migration.
+  ref    String @unique @default(dbgenerated("('REQ-'::text || nextval('quote_request_ref_seq'::regclass))"))
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  requestType  RequestType @map("request_type")
+  destinations String
+  paxBand      String      @map("pax_band")
+  startDate    DateTime?   @map("start_date") @db.Date
+  nights       Int?
+  budgetBand   String?     @map("budget_band")
+  org          String?
+  needs        String[]
+  notes        String?
+
+  name        String
+  phone       String
+  email       String?
+  contactPref ContactPref @map("contact_pref")
+
+  status QuoteStatus @default(submitted)
+
+  /// SHA-256 of the submitter's IP. Rate limiting needs to recognise a repeat sender
+  /// without the database holding an address that identifies one.
+  ipHash    String?  @map("ip_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([phone, createdAt])
+  @@map("quote_requests")
 }
 
 /// The twelve-service catalogue from the brief. `slug` carries the ids the front end has

@@ -198,15 +198,28 @@ product.
 *Verified:* changing a service name in the database and rebuilding put that name in the
 prerendered `/` markup; restoring the seed took it back out.
 
-### M1.2 — Quote request persistence · M
-- [ ] `QuoteRequest` schema and migration
-- [ ] Server action with server-side validation (Zod)
-- [ ] Wire the `/request` form to it
-- [ ] `REQ-XXXX` reference generation
-- [ ] Rate-limit the public endpoint
-- [ ] Success state shows the real reference
+### M1.2 — Quote request persistence · M — **DONE**
+- [x] `QuoteRequest` schema and migration, with `RequestType`, `ContactPref` and the
+      `QuoteStatus` pipeline from ARCHITECTURE as enums
+- [x] Server action with server-side validation (Zod). The rules live in
+      `lib/quote-requests.ts` so the admin side can reuse them and so they are unit-testable
+      without a database
+- [x] Wire the `/request` form to it — a real `<form>` posting FormData through
+      `useActionState`, which needed a `name` prop on `Input`, `Select` and `Checkbox`
+- [x] `REQ-XXXX` from a Postgres sequence starting at 2261, not from application code: a
+      generate-then-insert can collide under concurrent submissions and a sequence cannot
+- [x] Rate limit: 5 per IP and 3 per phone per hour, counted from the table itself rather
+      than from process memory, because serverless instances do not share memory. The IP is
+      stored as a SHA-256 hash. It is a floor, not a wall — noted in `lib/rate-limit.ts`
+- [x] Success state shows the real reference
 
 **Done when:** a submitted form creates a row and the toast shows its actual reference.
+*Verified* by driving the built app in a browser against the database: an invalid phone came
+back with the server's message and wrote nothing; a valid submission wrote a row and the
+toast read "Request sent — REQ-2262"; the fourth submission from the same number in an hour
+was refused. One real bug came out of the unit tests — the phone rule rejected
+`01712-345678`, the exact format the field's own placeholder shows, because it validated
+before stripping separators.
 
 ### M1.3 — Transactional email · S
 - [ ] Email provider configured

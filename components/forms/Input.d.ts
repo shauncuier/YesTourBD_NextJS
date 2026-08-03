@@ -18,5 +18,9 @@ export interface InputProps {
   labelColor?: 'default' | 'light';
   style?: React.CSSProperties;
   id?: string;
+  /** Submitted as this key when the input sits inside a form. */
+  name?: string;
+  autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
 }
 export function Input(props: InputProps): React.JSX.Element;
