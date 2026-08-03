@@ -51,6 +51,16 @@ X", the record has to be able to answer, and a status column alone cannot say wh
 why. Actor names are denormalised onto the event so history still reads correctly after
 someone leaves.
 
+## Money
+
+Whole taka, held as **integers**. No floats anywhere near a number a customer will be asked to
+pay, and no decimals — the design system quotes ৳3,200, not ৳3,200.00. `lib/quotation.ts` owns
+the arithmetic; deposits round up and deposit + balance always equals the total exactly.
+
+A quotation's line items are **snapshotted as JSON**, not related rows, so it keeps reading as
+it was sent after prices move. Revising a price writes a new quotation and supersedes the old
+one — quotations are never edited in place.
+
 ## The two-working-hour SLA
 
 The brief promises a reply within two working hours, and `lib/sla.ts` is the only place that

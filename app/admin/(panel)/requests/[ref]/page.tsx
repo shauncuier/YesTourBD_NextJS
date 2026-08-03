@@ -7,7 +7,10 @@ import { prisma } from '@/lib/db';
 import { requireStaff } from '@/lib/staff';
 import { formatDuration, slaStateFor } from '@/lib/sla';
 import { STATUS_LABEL, nextStatuses, type RequestStatus } from '@/lib/request-pipeline';
+import { QuotationBuilder } from '@/components/admin/QuotationBuilder.jsx';
+import { defaultValidUntil, formatTaka } from '@/lib/quotation';
 import { addNote, changeStatus, toggleAssignment } from './actions';
+import { sendQuotation } from './quotation-actions';
 
 // Staff act on this page, so it must never be served from a cache: a stale status is how two
 // coordinators end up quoting the same customer twice.
@@ -71,6 +74,7 @@ export default async function RequestDetailPage(props: PageProps<'/admin/request
     include: {
       assignedTo: { select: { id: true, name: true } },
       events: { orderBy: { createdAt: 'desc' } },
+      quotations: { orderBy: { createdAt: 'desc' } },
     },
   });
   if (!request) notFound();
@@ -150,6 +154,36 @@ export default async function RequestDetailPage(props: PageProps<'/admin/request
           </div>
         </Panel>
 
+        <Panel title="Quotation">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+            {request.quotations.length ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                {request.quotations.map((quotation) => (
+                  <div key={quotation.id} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 'var(--space-4)', flexWrap: 'wrap', padding: 'var(--space-3)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: quotation.status === 'superseded' ? 'var(--gray-50)' : 'var(--color-bg-surface)' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>{formatTaka(quotation.total)}</span>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
+                      {quotation.depositPercent}% to hold ({formatTaka(quotation.depositAmount)}) · valid to{' '}
+                      {quotation.validUntil.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Dhaka' })}
+                    </span>
+                    <Badge tone={quotation.status === 'superseded' ? 'neutral' : quotation.status === 'accepted' ? 'success' : 'teal'}>
+                      {quotation.status}
+                    </Badge>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                      {quotation.createdByName} · {dateTime(quotation.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <QuotationBuilder
+              refId={request.ref}
+              defaultValidUntil={defaultValidUntil()}
+              action={sendQuotation}
+            />
+          </div>
+        </Panel>
+
         <Panel title={`History — ${request.events.length} ${request.events.length === 1 ? 'entry' : 'entries'}`}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <NoteForm refId={request.ref} action={addNote} />
@@ -158,15 +192,17 @@ export default async function RequestDetailPage(props: PageProps<'/admin/request
               {request.events.map((event) => (
                 <li key={event.id} style={{ display: 'flex', gap: 'var(--space-3)', paddingBottom: 'var(--space-3)', borderBottom: '1px solid var(--color-border)' }}>
                   <span style={{ flex: '0 0 auto', width: 28, height: 28, borderRadius: '50%', background: 'var(--navy-50)', color: 'var(--navy-700)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={event.type === 'note' ? 'message-circle' : event.type === 'assigned' ? 'users' : 'check-circle'} size={15} />
+                    <Icon name={event.type === 'note' ? 'message-circle' : event.type === 'assigned' ? 'users' : event.type === 'quotation_sent' ? 'ticket' : 'check-circle'} size={15} />
                   </span>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--navy-900)' }}>
                       {event.type === 'status_changed' && event.fromStatus && event.toStatus
                         ? `${STATUS_LABEL[event.fromStatus as RequestStatus]} → ${STATUS_LABEL[event.toStatus as RequestStatus]}`
-                        : event.type === 'assigned'
-                          ? event.body
-                          : 'Note'}
+                        : event.type === 'quotation_sent'
+                          ? 'Quotation sent'
+                          : event.type === 'assigned'
+                            ? event.body
+                            : 'Note'}
                     </div>
                     {event.type !== 'assigned' && event.body ? (
                       <div style={{ marginTop: 3, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--leading-relaxed)', whiteSpace: 'pre-wrap' }}>{event.body}</div>

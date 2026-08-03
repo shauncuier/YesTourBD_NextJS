@@ -21,7 +21,7 @@ engineering ones.
 |---|---|---|
 | D1 | Confirm booking mode for Marine Drive Tour and Houseboat Day Tour (unclassified in the brief) | M3.1 |
 | D2 | Confirm the v1 instant/request split proposed in ARCHITECTURE.md — especially whether hotel inventory exists today | M0.0, M3.x, M5.x |
-| D3 | Is "Pay 30% to hold, balance before departure" a real policy? | M1.8 |
+| D3 | Is "Pay 30% to hold, balance before departure" a real policy? — **no longer blocking**: the deposit is a per-quotation field defaulting to 30%, so an answer changes a default rather than a schema | M1.8 |
 | D4 | Mobile layout behaviour for the five screens — needs design, no mobile artboards exist | M0.2 onward |
 | D5 | ~~ORM choice: Prisma or Drizzle~~ — **decided: Prisma**, for the migration ergonomics while the schema is still churning | M1.1 |
 | D6 | ~~Hosting target~~ — **decided: Vercel, with Neon for Postgres**; Neon's branching gives each preview deploy its own database | M1.1 |
@@ -310,13 +310,33 @@ This pass found a real bug in a ported component: the design system's `Button` d
 and `value`, so every status button submitted an empty field and the pipeline could not move
 at all. Fixed and covered by a test.
 
-### M1.7 — Quotation builder · L · needs D3
-- [ ] `Quotation` schema with line items
-- [ ] Build, edit, total, validity date
-- [ ] Deposit terms per D3
-- [ ] Send to customer, and record when it was sent
+### M1.7 — Quotation builder · L — **MOSTLY DONE**
+- [x] `Quotation` schema with line items. Line items are snapshotted as JSON rather than
+      related rows: a quotation must keep reading exactly as it was sent, even after prices
+      move underneath it
+- [x] Build, total, validity date. The arithmetic runs as the coordinator types — quoting 34
+      people should not involve mental multiplication while the customer waits — and the
+      server recomputes all of it, because a total posted by a browser is a suggestion
+- [x] Deposit terms. **D3 no longer blocks anything**: the deposit is a per-quotation
+      percentage defaulting to 30, so confirming the policy changes a default rather than a
+      schema. Deposits round up — asking for ৳333.67 is not a thing — and deposit plus
+      balance always equals the total exactly
+- [x] Record when it was sent, by whom, and for how much. Revising a price writes a **new**
+      quotation and supersedes the old one instead of editing it, so what was sent on which
+      day stays answerable
+- [ ] Send to customer — the delivery itself is M1.3 and needs an email provider. Everything
+      up to the transport is done: the row, the status move to `quoted` and the history entry
+      are all real, so nothing is redone when a provider is chosen
+
+Money is whole taka held as integers. Floating point has no business near a number a customer
+is asked to pay, and the design system quotes in whole taka anyway (৳3,200, no decimals).
 
 **Done when:** a quotation can be built, sent, and read by the customer from the email.
+*Half met.* Verified in a browser: an itemised quotation totalled ৳106,000 live as it was
+typed, a past expiry date was refused by the server, sending recorded ৳100,000 after discount
+with a ৳30,000 deposit, the request moved to `quoted`, the history named who sent it and for
+how much, and a revision appeared alongside the original with the original marked superseded.
+The customer cannot read it yet — that is the email.
 
 ### M1.8 — Customer request tracking · M
 - [ ] Public status page reachable by reference

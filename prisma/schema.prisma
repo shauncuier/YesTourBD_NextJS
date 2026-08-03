@@ -71,6 +71,7 @@ model User {
   quoteRequests QuoteRequest[]
   assignedRequests QuoteRequest[] @relation("assignedStaff")
   requestEvents QuoteRequestEvent[]
+  quotations    Quotation[]
 
   @@map("users")
 }
@@ -106,7 +107,8 @@ model QuoteRequest {
   assignedToId String?     @map("assigned_to_id")
   assignedTo   User?       @relation("assignedStaff", fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  events QuoteRequestEvent[]
+  events     QuoteRequestEvent[]
+  quotations Quotation[]
 
   /// SHA-256 of the submitter's IP. Rate limiting needs to recognise a repeat sender
   /// without the database holding an address that identifies one.
@@ -125,6 +127,53 @@ enum RequestEventType {
   status_changed
   assigned
   note
+  quotation_sent
+}
+
+enum QuotationStatus {
+  draft
+  sent
+  accepted
+  expired
+  superseded
+}
+
+/// A written, itemised price for one request. Several can exist for the same request — a
+/// customer who negotiates gets a new one rather than an edited old one, so what was sent on
+/// which day stays answerable.
+model Quotation {
+  id        String       @id @default(uuid())
+  requestId String       @map("request_id")
+  request   QuoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  /// [{ description, quantity, unitPrice, amount }] — whole taka, no decimals, which is how
+  /// the business quotes. Snapshotted rather than related, because a quotation must keep
+  /// reading as it was sent even after prices move.
+  lineItems Json
+
+  subtotal Int
+  discount Int @default(0)
+  total    Int
+
+  /// Per quotation, not a global policy: the "30% to hold" in the brief is unconfirmed (D3).
+  depositPercent Int @map("deposit_percent") @default(30)
+  depositAmount  Int @map("deposit_amount")
+
+  validUntil DateTime        @map("valid_until") @db.Date
+  notes      String?
+  status     QuotationStatus @default(draft)
+
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdByName String @map("created_by_name")
+
+  sentAt     DateTime? @map("sent_at")
+  acceptedAt DateTime? @map("accepted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([requestId, createdAt])
+  @@map("quotations")
 }
 
 /// Append-only history: who did what to a request and when. Nothing here is ever updated or
