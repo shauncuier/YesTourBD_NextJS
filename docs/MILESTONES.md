@@ -10,6 +10,19 @@ one developer already familiar with the repo. They are estimates, not commitment
 A milestone is finished when its Done-when check passes on a deployed preview, not on a
 laptop.
 
+## Where things stand — 4 Aug 2026
+
+**Phases 0, 1 and 2 are done**, except for two things that need credentials rather than code:
+M1.3's email provider key, and one live SMS test. Both are marked in place below.
+
+**Next up: Phase 3 — instant booking**, which is the first phase that touches money and needs
+**D8** (an SSLCommerz merchant account). Nothing in it can start without that.
+
+If D8 is not ready, the useful unblocked work is **M0.10** (real imagery, which is what holds
+Lighthouse performance at 79–85) or the customer-facing gaps in Phase 4.
+
+See [STATUS.md](./STATUS.md) for what actually runs today and what is waiting on whom.
+
 ---
 
 ## Blocking decisions

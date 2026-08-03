@@ -1,98 +1,128 @@
 # Implementation status
 
 What exists in this repo today, measured against [REQUIREMENTS.md](./REQUIREMENTS.md).
-Last verified: 3 Aug 2026, against a passing `npm run build` and a browser walkthrough of
-every route.
+
+**Last verified: 4 Aug 2026** — against a passing `npm run build`, 137 tests, and browser
+walkthroughs of every flow described below (not screenshots; scripted checks against the built
+app and a real database).
 
 ## Summary
 
-The repo is a **static front-end shell**. The design language, component library and five
-customer-facing screens are real and working. Everything behind them — data, accounts,
-payments, admin — does not exist yet. No database, no API routes, no auth, no server state
-of any kind. All content is hard-coded in `lib/site-data.js`.
+Phases 0, 1 and 2 of [MILESTONES.md](./MILESTONES.md) are complete, with two things waiting on
+credentials rather than code.
 
-Two gaps were structural rather than "not started yet", and they are called out in full
-below. The first — **the site is desktop-only** — was closed in Phase 0; the site is now
-responsive, keyboard-usable and free of horizontal scroll on every route, with two residual
-items (no mobile artboards, and three brand tokens below WCAG AA contrast) noted there. The
-second stands: **four of the six instant-booking services need integrations the business may
-not be able to operate**.
+The repo is no longer a front-end shell. A customer can ask for a quote, follow it without an
+account, sign in with a phone code, and see their own history; staff can sign in, work a queue
+against a two-working-hour SLA, move a request through a pipeline with an audit trail, and
+send an itemised quotation. Postgres, Auth.js, server actions, encryption at rest and CI all
+exist.
+
+**The one thing that does not work end to end is delivery.** Emails and SMS are composed,
+triggered and recorded, but nothing leaves the building without provider keys — see
+[Waiting on you](#waiting-on-you).
+
+Everything to do with **money is unbuilt**: no payments, no bookings, no vouchers. That is
+Phase 3 and it needs an SSLCommerz merchant account (**D8**).
+
+## Where the code lives
+
+| | |
+|---|---|
+| Branch | `main`, pushed to `github.com/shauncuier/YesTourBD_NextJS` |
+| CI | GitHub Actions on every push and PR: lint, typecheck, test, build, on Node 22 and 24, against a real `postgres:17` service container |
+| Tests | 137, `npm test` |
+| Local database | `npx prisma dev` (local Postgres, no Docker). It has wedged mid-session a few times with "Connection terminated unexpectedly" — `npx prisma dev stop yestourbd` then `npx prisma dev -d -n yestourbd` fixes it and the data survives |
+| Sample data | `npm run db:seed:dev` — staff, customers and requests spread across the pipeline (`-- --clean` removes them) |
+
+**A running dev server never picks up a regenerated Prisma client.** After any migration,
+stop it, `Remove-Item -Recurse -Force .next`, and start again. `npm run dev` runs
+`prisma generate` first, which covers generation but not a process already running. Two
+separate debugging sessions were lost to this.
 
 ## Built
 
 | Area | State |
 |---|---|
-| Design tokens | 133 custom properties wired into the app from `design-system/tokens/` |
+| Design tokens | 133 custom properties wired in from `design-system/tokens/` |
 | Component library | 15 components (`components/index.js`), ported from the design system |
-| Fonts | Poppins / Public Sans / Lora / IBM Plex Mono / Noto Sans Bengali, self-hosted via `next/font` |
-| Home page | Hero + search widget, 12-service grid, popular listings, offer band, trust strip, reviews, blog teasers |
-| Search page | Navy search band, sticky filter rail, list / grid / map toggle, sort tabs, removable chips |
-| Detail page | Gallery, five content tabs, sticky booking panel, guest stepper, confirm dialog, success toast |
-| Request page | Five request types, three-step form, "what happens next" rail. **Submits for real**: validated server-side, rate-limited, persisted, and the toast shows the reference the database issued |
-| Request tracking | `/track` — a customer follows their request with its reference and the mobile they used, sees the itemised quotation, and accepts it or asks for changes. No account needed (M1.8) |
-| Account page | Requests tab reads the signed-in customer's real rows (M2.3); upcoming/past bookings, the profile form and notification switches are still placeholder, and say so |
-| WhatsApp + call dock | Fixed bottom-right, present on every page |
-| SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |
-| Responsive layer | CSS Modules, mobile-first, breakpoints 640 / 900 / 1100 (`styles/layout.module.css`, `components/site/chrome.module.css`, `components/screens/screens.module.css`) |
-| Tests | Vitest + React Testing Library, 20 tests: component behaviour, one smoke test per screen, and the keyboard/focus contracts in `test/keyboard.test.tsx` |
-| CI | GitHub Actions: lint, typecheck, test and build on every push to `main` and every PR, on Node 22 and 24 |
+| Responsive layer | CSS Modules, mobile-first, breakpoints 640 / 900 / 1100. No route scrolls horizontally at 360px |
+| Home page | Hero, 12-service grid **read from the database**, listings, offers, reviews, blog teasers |
+| Search page | Renders; filters and results are **not** wired to data |
+| Detail page | Gallery, tabs, booking panel, confirm dialog — all still placeholder data |
+| Request page | Submits for real: Zod validation server-side, rate-limited, persisted, `REQ-XXXX` from a Postgres sequence |
+| Request tracking | `/track` — reference **plus** the mobile used; shows the itemised quotation; accept or ask for changes. No account needed |
+| Customer sign-in | `/signin` — phone + six-digit code (Auth.js `phone-otp`), argon2-hashed codes, expiry, attempt cap, resend cooldown, per-phone and per-IP limits |
+| Account | Requests tab reads the customer's own rows, including ones sent before the account existed; profile editable (name, email, notification choices, NID/passport **encrypted at rest**). Bookings remain placeholder and say why |
+| Staff sign-in | `/admin/login` — email + password, argon2id, 8-hour JWT sessions. Accounts via `npm run staff:create`; no credentials in the repo |
+| Admin shell | Ported from the design system's admin kit; 244px rail becomes a drawer below 900px. Unbuilt sections name the milestone that brings them instead of 404ing |
+| Request queue | `/admin/requests` — status filters, sort, search by ref/name/phone, overdue flag against the SLA, all driven by the URL |
+| Request pipeline | Detail page: claim, move through statuses, internal notes, **append-only audit trail** of who did what |
+| Quotation builder | Itemised lines, live totals, discount, deposit split, expiry. Revising supersedes rather than edits |
+| Email | Three templates (acknowledgement, desk notification, quotation), every attempt recorded in `email_messages`. **Not delivered** — no provider key |
+| SMS | BulkSMSBD wired, `Your YesTourBD OTP is …` per the gateway's required format, recorded in `sms_messages` |
+| Encryption at rest | AES-256-GCM for identity documents (`lib/field-crypto.ts`) |
+| CI | lint, typecheck, test, build on Node 22 and 24 with a real Postgres |
 
 ## Not built
 
-Nothing in this section is started. Ordered roughly by how much else depends on it.
+Ordered by how much else depends on it.
 
-### Foundation
+### Money — the whole of Phase 3
 
 | Requirement | Notes |
 |---|---|
-| Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
-| API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
-| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. `/account` shows the signed-in customer's own requests, including any sent before the account existed (matched by phone at sign-in). The profile is editable and persists — name, email, notification choices, and an NID/passport encrypted at rest (M2.4). Bookings are still placeholder: there is nothing to book until Phase 3 |
-| Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
-| Media storage | Every image is a remote Unsplash URL |
+| Payments | Nothing. The detail page's "Pay ৳6,520" still sets a React flag. Needs **D8** (SSLCommerz merchant account) |
+| Bookings | No `Booking`, `Departure`, `Payment` or `Voucher` tables. An accepted quotation records intent and stops there |
+| Instant availability | No inventory, no departures, no seat counts — see [structural gap 2](#structural-gap-2--instant-booking-needs-integrations) |
+| Refunds / cancellations | Not started |
 
 ### Customer-facing
 
 | Requirement | Notes |
 |---|---|
-| Real search + filters | The filter rail renders but is not wired; results are a fixed array of 6 |
-| Booking history | Three hard-coded bookings |
+| Real search + filters | The rail renders but is not wired; results are a fixed array of 6 |
+| Media storage | Every image is still a remote Unsplash URL. This is what holds Lighthouse performance at 79–85 (M0.10) |
+| Service landing pages | Twelve services, no per-service page — tiles link to `/search` or `/request` |
+| Blog / travel guides | `/guides` renders the home page as a stub |
 | Contact & support page | No route |
 | Photo gallery | The detail page's "+14 photos" button is inert |
-| Blog / travel guides | `/guides` renders the home page as a stub |
-| Promotional offers | The offer band is static; no promo code engine |
-| Reviews & testimonials | Three hard-coded reviews; no submission path |
-| Service landing pages | Twelve services, no per-service page — tiles link to `/search` or `/request` |
+| Reviews, offers | Hard-coded; no submission path, no promo engine |
 
 ### Admin
 
-**The shell, the sign-in, the queue and the pipeline exist (M1.4–M1.6)**: staff can sign in at
-`/admin/login`; `/admin/requests` lists real quote requests with status filters, search by
-reference/name/phone, and an overdue flag against the two-working-hour SLA; and each request
-opens onto a detail page where it can be claimed, moved through the status pipeline,
-annotated, and **quoted** — an itemised quotation with a deposit split and an expiry date,
-recorded with who sent it. All of it sits behind an append-only history of who did what. The
-one thing missing from that loop is **delivery**: acknowledgements, desk notifications and
-quotation emails are all written and recorded in `email_messages`, but nothing leaves the
-building until an email provider key exists (M1.3). That is a config change, not a build. Every other screen is still unbuilt —
-the nav links say which milestone brings each one. The remaining admin screens
-(`DashboardScreen`, `BookingsScreen`, `RequestsScreen`, `ServicesScreen`) are in the remote
-Claude Design project and can be pulled with DesignSync as their milestones land.
+Everything past the request pipeline. `DashboardScreen`, `BookingsScreen` and `ServicesScreen`
+exist in the remote Claude Design project and can be pulled with DesignSync as their
+milestones land. Customers, payments, reports, banners, blog, offers and staff management are
+all placeholder pages naming their milestone.
+
+## Waiting on you
+
+Nothing below is blocked on engineering.
+
+| # | Needed | Unblocks |
+|---|---|---|
+| — | **Email provider key** (`RESEND_API_KEY`) | Customers actually receive acknowledgements and quotations. Everything else is done |
+| — | **A live SMS test** — one message to a number you name | Confirms BulkSMSBD end to end. Never attempted: development refuses to send |
+| **D8** | SSLCommerz merchant account | All of Phase 3 |
+| **D4** | Sign-off on mobile layouts | They were decided in code; no artboards exist |
+| **D9** | Three brand tokens fail WCAG AA for small text | The only accessibility failure left. A Design project change, not a repo one |
+| **D2** | Whether hotel inventory exists today | `lib/site-data.js` still marks air, bus and ship `instant`, painting "Book now" on services that would be request-based |
+| — | **Real photography** | Lighthouse performance ≥ 90 (M0.10) |
+
+Two housekeeping notes: the BulkSMSBD API key was pasted into a chat transcript, so rotate it
+when convenient; and `STAFF_PASSWORD` in `.env` must be at least 12 characters or
+`npm run staff:create` refuses it.
 
 ## Structural gap 1 — the site is desktop-only — **CLOSED in Phase 0**
 
-> **Resolved.** Approach (1) below was taken: layout moved to CSS Modules, mobile-first, with
-> breakpoints at 640 / 900 / 1100. All 7 routes reflow and none scrolls horizontally at 360px
-> — measured, per width, not eyeballed. The fixed contact dock no longer covers any control.
-> A keyboard pass fixed four real defects (focus ring, filter sheet, `Dialog`, header nav).
-> Lighthouse mobile: accessibility 96 on every route, performance 79–85 against the ≥ 90 gate
-> — the shortfall is placeholder imagery, tracked as M0.10 in MILESTONES.md.
+> **Resolved.** Layout moved to CSS Modules, mobile-first, breakpoints 640 / 900 / 1100. All 7
+> routes reflow and none scrolls horizontally at 360px — measured per width, not eyeballed.
+> The fixed contact dock no longer covers any control. A keyboard pass fixed four real
+> defects. Lighthouse mobile: accessibility 96 everywhere; performance 79–85 against the ≥ 90
+> gate, the shortfall being placeholder imagery (M0.10).
 >
-> Two things the phase did **not** resolve. The mobile layouts were decided in code rather
-> than designed: there are still no mobile artboards, so decision **D4** stands and the
-> client has not signed off on what each screen becomes on a phone. And three brand tokens
-> fail WCAG AA for small text (**D9**) — the only accessibility failure left, and a Design
-> project change rather than a repo one.
+> Two things it did **not** resolve: mobile layouts were decided in code rather than designed
+> (**D4**), and three brand tokens fail WCAG AA (**D9**).
 >
 > The rest of this section is the original finding, kept because it explains why the fix had
 > to be a mechanism change rather than an edit.
@@ -111,30 +141,14 @@ Verified by inspection at the time: there were **zero `@media` queries** anywher
 - `260px 1fr` / `1fr 360px` / `1fr 320px` / `1fr 300px` — page shells with sticky rails
 - `1.4fr 1fr 1fr 1fr` — footer
 
-On a phone these do not reflow; they overflow or crush. The header nav has no mobile
-treatment either — five links, a phone number and a button on one 72px row.
+On a phone these do not reflow; they overflow or crush. The header nav had no mobile treatment
+either — five links, a phone number and a button on one 72px row.
 
-This is not an oversight in the port. The design system's UI kit was authored as fixed
+This was not an oversight in the port. The design system's UI kit was authored as fixed
 desktop artboards (1280×760 for the website, 1440×820 for admin), and its components style
 themselves with inline `style={{…}}`. **Inline styles cannot express a media query at all** —
-so responsiveness cannot be retrofitted by editing values. It needs a mechanism change.
-
-Three viable approaches, in my order of preference:
-
-1. **Move layout to CSS Modules / a stylesheet, keep tokens.** Components keep their inline
-   token-driven styling for colour, type and spacing; the page-level grids move to real CSS
-   classes with breakpoints. Most faithful to the design system, and the layout code is the
-   part that actually needs breakpoints.
-2. **Container queries.** Fits a component library well and avoids viewport coupling, but
-   still needs a stylesheet — same mechanism change as (1), with a steeper learning curve.
-3. **A `useMediaQuery` hook driving inline styles.** Keeps everything in JS, but costs a
-   hydration mismatch risk and re-renders on resize, and puts breakpoints in fifteen
-   different files. Least attractive of the three.
-
-Whichever route is chosen, the mobile layouts themselves are **undesigned** — the design
-system has no mobile artboards. Someone has to decide what the search widget, the filter
-rail, the result row and the booking panel become on a 390px screen. That is a design task
-before it is an engineering one.
+so responsiveness could not be retrofitted by editing values. It needed a mechanism change,
+which is what `styles/layout.module.css` and the `*.module.css` files beside each screen are.
 
 ## Structural gap 2 — instant booking needs integrations
 
@@ -145,26 +159,19 @@ without third-party inventory:
 |---|---|
 | Air tickets | A GDS or consolidator (Amadeus / Sabre / Travelport), or an airline aggregator |
 | Bus tickets | Per-operator APIs or a local aggregator |
-| Saint Martin ship | Operator APIs (Karnaphuli, Bay One, Keari Sindbad) — these are typically phone/agent bookings in practice |
+| Saint Martin ship | Operator APIs (Karnaphuli, Bay One, Keari Sindbad) — typically phone/agent bookings in practice |
 | Hotels | Either owned contracted inventory, or a bed bank / channel manager |
 
-Two are genuinely feasible in-house because YesTourBD controls the inventory: **houseboat
-day tours** and **Radiant Fish World tickets**. Marine Drive tours likewise, if confirmed as
-a fixed-departure product.
+Two are genuinely feasible in-house because YesTourBD controls the inventory: **houseboat day
+tours** and **Radiant Fish World tickets**. Marine Drive tours likewise, if confirmed as a
+fixed-departure product.
 
-The brief already supplies the answer to this: *"If a feature is too complex or not practical
-for the initial version, it should be implemented as an informative page with a
-request/quotation form."* Applying that rule shrinks v1 enormously. See
-[ARCHITECTURE.md](./ARCHITECTURE.md#booking-mode-per-service-v1) for the concrete proposal.
+The brief already supplies the answer: *"If a feature is too complex or not practical for the
+initial version, it should be implemented as an informative page with a request/quotation
+form."* Applying that rule shrinks v1 enormously, and the request pipeline that would serve it
+is now **built and working**. See
+[ARCHITECTURE.md](./ARCHITECTURE.md#booking-mode-per-service-v1).
 
-Note the knock-on: `lib/site-data.js` currently marks air, bus and ship as `mode: 'instant'`,
-which paints teal "Book now" CTAs on services that would be request-based in that v1. That
-data needs to change with the decision — it is a one-line edit per service, but it changes
-what the homepage promises.
-
-## Known cosmetic issue
-
-The `/request` hero badge stretches to full width instead of hugging its text. The design
-system's source omits `alignSelf: 'flex-start'` there, where the home hero includes it. Left
-faithful to the source pending a call; it is a one-line fix in
-`components/screens/RequestScreen.jsx`.
+Knock-on, still outstanding: `lib/site-data.js` marks air, bus and ship as `mode: 'instant'`,
+which paints teal "Book now" CTAs on services that would be request-based in that v1. One line
+per service, but it changes what the homepage promises — blocked on **D2**.
