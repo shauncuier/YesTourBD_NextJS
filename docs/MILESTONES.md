@@ -221,12 +221,32 @@ was refused. One real bug came out of the unit tests — the phone rule rejected
 `01712-345678`, the exact format the field's own placeholder shows, because it validated
 before stripping separators.
 
-### M1.3 — Transactional email · S
-- [ ] Email provider configured
-- [ ] Customer "we received your request" template
-- [ ] Internal new-request notification
+### M1.3 — Transactional email · S — **MOSTLY DONE**
+- [ ] Email provider configured — **the one thing left, and it needs an account key.** Set
+      `RESEND_API_KEY` and messages start going out; the Resend branch in `lib/email/send.ts`
+      is already written. Another provider is a second branch in the same function and
+      nothing else changes
+- [x] Customer "we received your request" template
+- [x] Internal new-request notification, with everything the desk needs to act without
+      opening anything, and a link straight to the request
+- [x] Quotation email (M1.7's missing half), itemised, with the deposit split and the expiry
+- [x] Every message is written to `email_messages` whether it was delivered or not, so "did
+      the customer get their quotation?" is answerable from our own database rather than a
+      third party's dashboard
 
-**Done when:** submitting a request delivers both emails.
+Two design points. **Mail never fails a customer's action**: it is sent after the row is
+committed, and `sendEmail` records a failure rather than throwing, so a mail outage cannot
+lose a request. And with no key configured the transport is `console` — the copy, the
+triggering, the audit trail and the tests are all real now, so choosing a provider is a
+config change rather than a build.
+
+**Done when:** submitting a request delivers both emails. *Not met — nothing is delivered
+until a provider key exists.* Everything up to that line is verified: submitting through the
+public form wrote a customer acknowledgement and a desk notification, and sending a quotation
+wrote the customer's itemised copy, all three with the right content and reference.
+
+The templates are plain text. An HTML version needs brand email artwork that does not exist,
+and a plain-text quotation that arrives beats a styled one that waits for a designer.
 
 ### M1.4 — Staff auth and admin shell · M — **DONE**
 - [x] Staff login. Auth.js v5 with a credentials provider, argon2id hashes, JWT sessions

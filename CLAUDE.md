@@ -51,6 +51,25 @@ X", the record has to be able to answer, and a status column alone cannot say wh
 why. Actor names are denormalised onto the event so history still reads correctly after
 someone leaves.
 
+## Email
+
+`lib/email/send.ts` is the only seam to a provider. With no `RESEND_API_KEY` set the transport
+is `console`: every message is still written to `email_messages` and logged, so copy and
+triggering are testable without an account. Adding a provider is a branch in `deliver()`.
+
+Two rules:
+
+- **Mail never fails the action that triggered it.** Send after the row is committed, and let
+  `sendEmail` record a failure rather than throw. A mail outage must not lose a customer's
+  request.
+- **Every attempt is recorded**, delivered or not. "Did the customer get their quotation?"
+  should be answerable from our own database, not a third party's dashboard.
+
+Templates live in `lib/email/templates.ts` and are plain text. The design system's content
+rules apply there too — sentence case, no emoji, ৳ with comma grouping, day-first dates — and
+`test/email-templates.test.ts` asserts them, because nobody reviews an email the way they
+review a screen.
+
 ## Money
 
 Whole taka, held as **integers**. No floats anywhere near a number a customer will be asked to

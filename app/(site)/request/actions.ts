@@ -4,6 +4,9 @@ import { headers } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { parseQuoteRequest, type FieldErrors } from '@/lib/quote-requests';
 import { checkQuoteRequestRate, clientIpFrom, hashIp } from '@/lib/rate-limit';
+import { deskAddresses, sendEmail } from '@/lib/email/send';
+import { quoteRequestInternal, quoteRequestReceived } from '@/lib/email/templates';
+import { siteUrl } from '@/lib/site-url';
 
 export type QuoteRequestState =
   | { status: 'idle' }
@@ -40,6 +43,36 @@ export async function submitQuoteRequest(
       },
       select: { ref: true },
     });
+
+    // Mail goes out after the row is safely written, and its failure is never the
+    // customer's problem — sendEmail records the attempt and swallows the error.
+    await Promise.all([
+      sendEmail({
+        to: input.email,
+        contextRef: created.ref,
+        template: quoteRequestReceived({
+          ref: created.ref,
+          name: input.name,
+          destinations: input.destinations,
+          contactPref: input.contactPref,
+        }),
+      }),
+      sendEmail({
+        to: deskAddresses(),
+        contextRef: created.ref,
+        template: quoteRequestInternal({
+          ref: created.ref,
+          name: input.name,
+          phone: input.phone,
+          email: input.email ?? null,
+          requestType: input.requestType,
+          destinations: input.destinations,
+          paxBand: input.paxBand,
+          notes: input.notes ?? null,
+          queueUrl: `${siteUrl()}/admin/requests/${created.ref}`,
+        }),
+      }),
+    ]);
 
     return { status: 'sent', ref: created.ref };
   } catch (error) {

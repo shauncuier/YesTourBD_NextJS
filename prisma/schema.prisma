@@ -130,6 +130,37 @@ enum RequestEventType {
   quotation_sent
 }
 
+enum EmailStatus {
+  queued
+  sent
+  failed
+}
+
+/// Every message the app tries to send, kept whether it succeeded or not. Without this, "did
+/// the customer get their quotation?" is answerable only from a third party's dashboard —
+/// and not at all before a provider exists.
+model EmailMessage {
+  id        String      @id @default(uuid())
+  to        String
+  subject   String
+  body      String
+  /// Which template produced it: quote_request_received, quote_request_internal, …
+  template  String
+  /// The request or booking it belongs to, for the audit trail. Deliberately loose: this
+  /// table outlives whatever it refers to.
+  contextRef String?    @map("context_ref")
+  status    EmailStatus @default(queued)
+  /// 'console' until a real provider is configured.
+  transport String
+  error     String?
+  sentAt    DateTime?   @map("sent_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([status, createdAt])
+  @@index([contextRef])
+  @@map("email_messages")
+}
+
 enum QuotationStatus {
   draft
   sent

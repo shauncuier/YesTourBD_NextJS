@@ -10,6 +10,8 @@ import {
   validateQuotation,
   type LineItemInput,
 } from '@/lib/quotation';
+import { sendEmail } from '@/lib/email/send';
+import { quotationSent } from '@/lib/email/templates';
 
 export type QuotationState =
   | { status: 'idle' }
@@ -56,7 +58,7 @@ export async function sendQuotation(
 
   const request = await prisma.quoteRequest.findUnique({
     where: { ref },
-    select: { id: true, status: true },
+    select: { id: true, status: true, name: true, email: true },
   });
   if (!request) return { status: 'error', message: 'That request no longer exists.' };
 
@@ -111,6 +113,26 @@ export async function sendQuotation(
       },
     }),
   ]);
+
+  // The customer's copy. A failure here is recorded, not thrown: the quotation exists
+  // either way, and a coordinator can see in the outbox that it did not go out.
+  await sendEmail({
+    to: request.email,
+    contextRef: ref,
+    template: quotationSent({
+      ref,
+      name: request.name,
+      lines: totals.lines,
+      subtotal: totals.subtotal,
+      discount: totals.discount,
+      total: totals.total,
+      depositPercent: totals.depositPercent,
+      depositAmount: totals.depositAmount,
+      balance: totals.balance,
+      validUntil: new Date(`${draft.validUntil}T00:00:00+06:00`),
+      notes: draft.notes || null,
+    }),
+  });
 
   revalidatePath(`/admin/requests/${ref}`);
   revalidatePath('/admin/requests');

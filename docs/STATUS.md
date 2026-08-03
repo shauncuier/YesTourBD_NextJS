@@ -71,8 +71,9 @@ reference/name/phone, and an overdue flag against the two-working-hour SLA; and 
 opens onto a detail page where it can be claimed, moved through the status pipeline,
 annotated, and **quoted** — an itemised quotation with a deposit split and an expiry date,
 recorded with who sent it. All of it sits behind an append-only history of who did what. The
-one thing missing from that loop is delivery: the customer cannot yet read the quotation,
-because that needs the email provider in M1.3. Every other screen is still unbuilt —
+one thing missing from that loop is **delivery**: acknowledgements, desk notifications and
+quotation emails are all written and recorded in `email_messages`, but nothing leaves the
+building until an email provider key exists (M1.3). That is a config change, not a build. Every other screen is still unbuilt —
 the nav links say which milestone brings each one. The remaining admin screens
 (`DashboardScreen`, `BookingsScreen`, `RequestsScreen`, `ServicesScreen`) are in the remote
 Claude Design project and can be pulled with DesignSync as their milestones land.

@@ -63,6 +63,13 @@ engine binary, which is why `lib/db.ts` constructs the client the way it does.
 The schema is `prisma/schema.prisma`; `prisma/seed.ts` reads `lib/site-data.js`, so that
 array stays the single source of truth for the twelve services.
 
+## Email
+
+With no `RESEND_API_KEY` set, mail is not sent — it is written to the `email_messages` table
+and printed to the terminal. That keeps the copy, the triggering and the audit trail real
+before a provider exists. Set the key (and `EMAIL_FROM`, `DESK_EMAIL`) and the same messages
+start going out; nothing else changes.
+
 ## Staff panel
 
 `/admin` needs a staff account and `AUTH_SECRET` (both covered by `.env.example`):
