@@ -18,8 +18,10 @@ M1.3's email provider key, and one live SMS test. Both are marked in place below
 **Next up: Phase 3 — instant booking**, which is the first phase that touches money and needs
 **D8** (an SSLCommerz merchant account). Nothing in it can start without that.
 
-If D8 is not ready, the useful unblocked work is **M0.10** (real imagery, which is what holds
-Lighthouse performance at 79–85) or the customer-facing gaps in Phase 4.
+If D8 is not ready, the useful unblocked work is the customer-facing gaps in Phase 4. M0.10's
+engineering half is done — images now go through `next/image` and Lighthouse performance moved
+from 79–85 to 80–94 — and what is left of it needs real photography, or a server-component
+refactor of the ported screens.
 
 See [STATUS.md](./STATUS.md) for what actually runs today and what is waiting on whom.
 
@@ -171,20 +173,44 @@ Choose and set up the layer that makes breakpoints possible at all.
 
 **Done when:** the checks above pass and results are recorded in the PR.
 
-### M0.10 — Image pipeline · M
-Blocks the Lighthouse performance gate in M0.9. Needs the real photography first.
-- [ ] Replace the Unsplash placeholders in `lib/site-data.js` with licensed assets
-- [ ] Move the ported screens' plain `<img>` onto `next/image` (or a loader), so images are
-      resized per breakpoint and served as AVIF/WebP — 234 KiB of savings on `/` alone
-- [ ] `images.remotePatterns` for whatever CDN the real assets land on
-- [ ] Re-run Lighthouse mobile; the gate is ≥ 90 on performance
+### M0.10 — Image pipeline · M — **MOSTLY DONE**
+- [ ] Replace the Unsplash placeholders in `lib/site-data.js` with licensed assets — still
+      needs the real photography
+- [x] Move the ported screens' plain `<img>` onto `next/image`, so images are resized per
+      breakpoint and served as AVIF. The home hero went from 206KB to **42KB** and now loads
+      in 154ms
+- [x] `images.remotePatterns` for Unsplash and the footer's icon CDN, listed explicitly
+      rather than by wildcard — that setting is what stops this app being turned into an
+      image-resizing service for other people's files
+- [x] Stop preloading the three secondary font families. `next/font` preloads everything by
+      default and five families is ~209KB competing with the LCP image; only the display and
+      body faces are preloaded now
+- [ ] Re-run Lighthouse mobile; the gate is ≥ 90 on performance — **not met on every route**
 
-**Done when:** every route scores ≥ 90 on Lighthouse mobile performance.
+| Route | Before | After |
+|---|---|---|
+| `/account` | 80 | **94** |
+| `/request` | 85 | 88 |
+| `/tours/[slug]` | 81 | 87 |
+| `/tickets` | 80 | 86 |
+| `/search` | 84 | 85 |
+| `/guides` | 80 | 84 |
+| `/` | 79 | 80 |
 
-> Two bugs this pass caught, both the same root cause and worth remembering: a `1fr` grid
-> track has an `auto` minimum, so any nowrap content (the detail tab strip, the header nav)
-> widens the track past the viewport. Every track is now `minmax(0, 1fr)` and flex/grid
-> items that hold scrollable content carry `min-width: 0`.
+**The remaining gap is no longer images.** On `/` the hero now loads in 154ms and the page
+still scores 80, because 3.6s of the LCP is *render delay* and FCP is 2.3s. The same 3.4s
+render delay shows on `/request`, whose LCP element is a paragraph with no image involved at
+all. That is the ported screens hydrating under Lighthouse's 4× CPU throttle: every screen is
+`'use client'`, inherited from a UI kit that was a browser-side SPA.
+
+So the last stretch to 90 is **not** more image work. It is either real, smaller photography
+(the open item above) or converting the screens to server components with client islands —
+a real refactor that deserves its own milestone rather than being smuggled into this one.
+
+Verified with a scripted check as well as Lighthouse: every image on `/`, `/search`,
+`/tours/[slug]` and `/account` renders with a non-zero box at 390px and 1440px and is served
+through the optimiser — a `fill` image whose container loses its height collapses silently
+while every other test still passes.
 
 ---
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Badge, Button, Dialog, Icon, IconButton, Input, Radio, Tabs, Toast } from '../index.js';
 import { Price, Stars } from '../site/chrome.jsx';
@@ -34,14 +35,16 @@ export function DetailScreen({ listing }) {
             items whose min-content contribution is their intrinsic height, which otherwise grows
             the track past the gallery height and overlaps the heading below. */}
         <div className={c.gallery}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={l.img} alt="" fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+          {/* The gallery lead is this page's LCP element. */}
+          <span style={{ position: 'relative', display: 'block', overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
+            <Image src={l.img} alt="" fill priority sizes="(min-width: 900px) 66vw, 100vw" style={{ objectFit: 'cover' }} />
+          </span>
           <div className={c.galleryThumbs}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IMG.marine} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
+            <span style={{ position: 'relative', display: 'block', overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
+              <Image src={IMG.marine} alt="" fill sizes="(min-width: 900px) 33vw, 100vw" style={{ objectFit: 'cover' }} />
+            </span>
             <div style={{ position: 'relative' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={IMG.sunset} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)', display: 'block' }} />
+              <Image src={IMG.sunset} alt="" fill sizes="(min-width: 900px) 33vw, 100vw" style={{ objectFit: 'cover', borderRadius: 'var(--radius-lg)' }} />
               <button type="button" style={{ position: 'absolute', inset: 0, border: 'none', borderRadius: 'var(--radius-lg)', background: 'rgba(5,30,61,.55)', color: '#fff', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Icon name="images" size={18} />+14 photos
               </button>

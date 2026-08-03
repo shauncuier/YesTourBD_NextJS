@@ -81,7 +81,7 @@ Ordered by how much else depends on it.
 | Requirement | Notes |
 |---|---|
 | Real search + filters | The rail renders but is not wired; results are a fixed array of 6 |
-| Media storage | Every image is still a remote Unsplash URL. This is what holds Lighthouse performance at 79–85 (M0.10) |
+| Media storage | Every image is still a remote Unsplash URL, now served through `next/image` (AVIF, per-breakpoint sizing). Lighthouse performance is 80–94; `/`, `/guides` and `/search` remain under the 90 gate, and the cause is client-side hydration rather than bytes — see M0.10 |
 | Service landing pages | Twelve services, no per-service page — tiles link to `/search` or `/request` |
 | Blog / travel guides | `/guides` renders the home page as a stub |
 | Contact & support page | No route |
@@ -107,7 +107,7 @@ Nothing below is blocked on engineering.
 | **D4** | Sign-off on mobile layouts | They were decided in code; no artboards exist |
 | **D9** | Three brand tokens fail WCAG AA for small text | The only accessibility failure left. A Design project change, not a repo one |
 | **D2** | Whether hotel inventory exists today | `lib/site-data.js` still marks air, bus and ship `instant`, painting "Book now" on services that would be request-based |
-| — | **Real photography** | Lighthouse performance ≥ 90 (M0.10) |
+| — | **Real photography** | The last of M0.10. The image pipeline itself is done |
 
 Two housekeeping notes: the BulkSMSBD API key was pasted into a chat transcript, so rotate it
 when convenient; and `STAFF_PASSWORD` in `.env` must be at least 12 characters or

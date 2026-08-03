@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 const PADS = { none: 0, sm: 'var(--space-4)', md: 'var(--space-5)', lg: 'var(--space-6)' };
 
@@ -39,8 +40,13 @@ export function Card({
     >
       {image ? (
         <div style={{ position: 'relative', height: imageHeight, flex: '0 0 auto', overflow: 'hidden', background: 'var(--gray-200)' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={imageAlt} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hover && interactive ? 'scale(1.04)' : 'none', transition: 'transform var(--duration-slow) var(--ease-out)' }} />
+          <Image
+            src={image}
+            alt={imageAlt}
+            fill
+            sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw"
+            style={{ objectFit: 'cover', transform: hover && interactive ? 'scale(1.04)' : 'none', transition: 'transform var(--duration-slow) var(--ease-out)' }}
+          />
           {badge ? <div style={{ position: 'absolute', top: 'var(--space-3)', left: 'var(--space-3)' }}>{badge}</div> : null}
         </div>
       ) : null}

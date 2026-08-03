@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button, Icon } from '../index.js';
 import { ROUTES } from '../../lib/routes.js';
@@ -19,8 +20,7 @@ const NAV = [
 export function Logo({ height = 34, reverse = false }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-mark.png" alt="" style={{ height, width: height, objectFit: 'contain', borderRadius: 8, background: reverse ? 'rgba(255,255,255,.08)' : 'transparent' }} />
+      <Image src="/logo-mark.png" alt="" width={height} height={height} style={{ objectFit: 'contain', borderRadius: 8, background: reverse ? 'rgba(255,255,255,.08)' : 'transparent' }} />
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 18, letterSpacing: 'var(--tracking-tight)', color: reverse ? '#fff' : 'var(--navy-800)' }}>YesTour<span style={{ color: 'var(--teal-400)' }}>BD</span></span>
         <span style={{ fontFamily: 'var(--font-accent)', fontStyle: 'italic', fontSize: 10.5, letterSpacing: 'var(--tracking-wide)', color: reverse ? 'var(--navy-200)' : 'var(--color-text-muted)', marginTop: 3 }}>all-in-one travel marketplace</span>
@@ -130,8 +130,7 @@ function SocialLink({ label, slug }) {
         border: `1px solid ${hover || active ? 'transparent' : 'rgba(255,255,255,.18)'}`,
         transition: 'background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard)',
       }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`https://cdn.simpleicons.org/${slug}/ffffff`} alt="" style={{ width: 16, height: 16, display: 'block' }} />
+      <Image src={`https://cdn.simpleicons.org/${slug}/ffffff`} alt="" width={16} height={16} style={{ display: 'block' }} />
     </a>
   );
 }

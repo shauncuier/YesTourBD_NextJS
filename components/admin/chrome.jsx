@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Icon, IconButton, Input, Tooltip } from '../index.js';
 import { NAV_GROUPS } from './nav.js';
@@ -39,8 +40,7 @@ export function AdminSidebar({ staff, open, onClose, signOutAction }) {
   return (
     <aside className={c.sidebar} data-open={open ? 'true' : 'false'}>
       <div className={c.sidebarHead}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.png" alt="" style={{ width: 30, height: 30, objectFit: 'contain', borderRadius: 6 }} />
+        <Image src="/logo-mark.png" alt="" width={30} height={30} style={{ objectFit: 'contain', borderRadius: 6 }} />
         <div style={{ lineHeight: 1.15, flex: 1 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 15, color: '#fff' }}>YesTour<span style={{ color: 'var(--teal-400)' }}>BD</span></div>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 10.5, letterSpacing: 'var(--tracking-wide)', color: 'var(--navy-300)', textTransform: 'uppercase' }}>Admin panel</div>

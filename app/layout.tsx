@@ -5,6 +5,13 @@ import "./globals.css";
 // The design system flags these as substitutes for unsupplied brand fonts and loads them
 // from the Google CDN. next/font self-hosts the same four families — plus Noto Sans
 // Bengali, which is what actually renders ৳. See design-system/readme.md.
+//
+// Only the two families that set the page are preloaded. next/font preloads everything by
+// default, and five families is ~209KB of font competing with the LCP image on a throttled
+// connection — measurably the largest remaining cost after the images were fixed. The other
+// three still load, just without a preload link jumping the queue: Lora dresses two lines of
+// accent text, the mono face is for reference codes, and Bengali only has to be there by the
+// time a ৳ price is on screen.
 const poppins = Poppins({
   variable: "--font-poppins",
   weight: ["500", "600", "700", "800"],
@@ -21,18 +28,21 @@ const lora = Lora({
   variable: "--font-lora",
   style: ["normal", "italic"],
   subsets: ["latin"],
+  preload: false,
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
   weight: ["500", "600"],
   subsets: ["latin"],
+  preload: false,
 });
 
 const notoSansBengali = Noto_Sans_Bengali({
   variable: "--font-noto-bengali",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600"],
   subsets: ["bengali"],
+  preload: false,
 });
 
 export const metadata: Metadata = {

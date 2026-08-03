@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Badge, Button, Icon, IconButton, Input, Switch, Tabs, Tooltip } from '../index.js';
 import { useGo } from '../../lib/routes.js';
 import { BOOKINGS } from '../../lib/site-data.js';
@@ -18,8 +19,9 @@ function BookingRow({ b }) {
   const s = STATUS[b.status] || STATUS.confirmed;
   return (
     <div className={c.bookingRow}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={c.bookingThumb} src={b.img} alt="" loading="lazy" decoding="async" />
+      <span className={c.bookingThumb}>
+        <Image src={b.img} alt="" fill sizes="(min-width: 900px) 120px, 100vw" style={{ objectFit: 'cover' }} />
+      </span>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Badge tone={s.tone} dot>{s.label}</Badge>

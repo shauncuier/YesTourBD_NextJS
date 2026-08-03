@@ -293,6 +293,7 @@ The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where t
 - **`Input` / `Select` / `Checkbox`** accept `name` (and `Input` also `autoComplete` and `inputMode`), passed to the underlying element. The UI kit never submitted a form, so it had no way to name a field; `/request` posts real FormData.
 - **`Button`** accepts `name` and `value`, so a form can tell which button submitted it. Without it, the admin status buttons all posted an empty field and no request could change status.
 - **`Switch`** accepts `name` and renders a hidden checkbox carrying its state. The kit's switch is a `<span role="switch">`, which submits nothing — every notification preference was being silently dropped.
+- **Images are `next/image`, not the kit's `<img>`.** The kit was a browser SPA with no build step to optimise through. Ours re-encodes to AVIF and sizes per breakpoint, which took the home hero from 206KB to 42KB. Most use `fill`, so their container needs `position: relative` and a definite height — a filled image contributes no intrinsic size, and a container that loses its height collapses the image to nothing while every test still passes. `priority` on the two LCP images only.
 - **`Card`** marks its image `loading="lazy" decoding="async"`. Every card in this app is below the fold and the images are full-size remote JPEGs.
 - **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
 - `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.
@@ -307,7 +308,7 @@ The admin panel (`ui_kits/admin/`) was **not** ported; it is still only in the r
 - **`middleware` → `proxy`.** Use `proxy.ts` with an exported `proxy` function. The proxy runtime is `nodejs` only (no edge). Config flags renamed too: `skipMiddlewareUrlNormalize` → `skipProxyUrlNormalize`.
 - **Turbopack is the default bundler** for both `dev` and `build`. Turbopack config goes in `turbopack` at the top level of `next.config.ts`, not under `experimental`.
 - **`next lint` was removed.** `npm run lint` invokes `eslint` directly against `eslint.config.mjs` (flat config composing `eslint-config-next/core-web-vitals` + `/typescript`).
-- `next/legacy/image` and `images.domains` are deprecated; use `images.remotePatterns`. (The ported screens use plain `<img>` to match the design system's markup, so this hasn't come up yet.)
+- `next/legacy/image` and `images.domains` are deprecated; use `images.remotePatterns`. The ported screens now use `next/image` rather than the kit's plain `<img>` — see the port deviation below. Remote hosts are listed explicitly in `next.config.ts`; a wildcard would turn this app into an image-resizing service for anyone else's files.
 
 ## Do not upgrade TypeScript past 5.x yet
 

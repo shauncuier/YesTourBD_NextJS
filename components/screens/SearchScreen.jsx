@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Badge, Button, Checkbox, Icon, IconButton, Input, Select, Switch, Tabs, Tag, Tooltip } from '../index.js';
 import { Price, Stars } from '../site/chrome.jsx';
 import { ListingCard } from './ListingCard.jsx';
@@ -25,8 +26,7 @@ function ResultRow({ l, go }) {
     <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       className={c.resultRow} style={{ boxShadow: hover ? 'var(--shadow-md)' : 'var(--shadow-sm)' }}>
       <div className={c.resultMedia}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={l.img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <Image src={l.img} alt="" fill sizes="(min-width: 900px) 260px, 100vw" style={{ objectFit: 'cover' }} />
         <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6 }}>
           {l.offer ? <Badge tone="gold" variant="solid">{l.offer}</Badge> : <Badge tone="teal" variant="solid">Instant</Badge>}
         </div>

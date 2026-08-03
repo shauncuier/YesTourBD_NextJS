@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Badge, Button, Card, Icon, Input, Select, Tabs, Tag } from '../index.js';
 import { SectionHead, Stars } from '../site/chrome.jsx';
 import { ListingCard } from './ListingCard.jsx';
@@ -44,15 +45,18 @@ function Hero({ go }) {
   return (
     <section style={{ position: 'relative', paddingTop: 'var(--space-16)', paddingBottom: 'var(--space-12)' }}>
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {/* The hero image is the LCP element on every viewport, so it is fetched at high
-            priority and sized down for phones — the 1600px original is four times the pixels
-            a 390px screen can use. Both are attributes on the design system's own markup, not
-            a change of markup. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={IMG.hero} alt="" fetchPriority="high" decoding="async"
-          srcSet={`${IMG.hero.replace('w=1600', 'w=800')} 800w, ${IMG.hero} 1600w`}
+        {/* The LCP element on every viewport. next/image re-encodes it to AVIF and serves the
+            width the device actually needs, which is where the bulk of the mobile
+            performance score was going. `priority` because a lazily-loaded LCP image is the
+            one thing worse than a large one. */}
+        <Image
+          src={IMG.hero}
+          alt=""
+          fill
+          priority
           sizes="100vw"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          style={{ objectFit: 'cover' }}
+        />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(5,30,61,.82) 0%, rgba(5,30,61,.62) 45%, rgba(247,249,251,1) 100%)' }} />
       </div>
       <div className={s.container} style={{ position: 'relative' }}>
@@ -114,8 +118,9 @@ function OfferBand({ go }) {
             <Button variant="ghost" size="lg" style={{ color: '#fff', border: '1px solid rgba(255,255,255,.35)' }} onClick={() => go('request')}>Ask on WhatsApp</Button>
           </div>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={s.offerBandImage} src={IMG.sunset} alt="" loading="lazy" decoding="async" />
+        <span className={s.offerBandImage}>
+          <Image src={IMG.sunset} alt="" fill sizes="(min-width: 900px) 320px, 100vw" style={{ objectFit: 'cover' }} />
+        </span>
       </div>
     </section>
   );

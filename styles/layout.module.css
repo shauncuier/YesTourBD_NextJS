@@ -164,10 +164,14 @@
   gap: var(--space-6);
 }
 
+/* Wraps a next/image with `fill`, so it needs its own positioning context and an explicit
+   height — a filled image has no intrinsic size to give the box. */
 .offerBandImage {
+  position: relative;
+  display: block;
+  overflow: hidden;
   width: 100%;
   height: 180px;
-  object-fit: cover;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   flex: 0 0 auto;
