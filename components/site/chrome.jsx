@@ -43,6 +43,20 @@ export function SiteHeader() {
     setOpen(false);
   }
 
+  // Escape closes the panel and hands focus back to the toggle, which is the disclosure
+  // pattern's keyboard contract — without it the only way out is to tab through the whole nav.
+  const menuButtonRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setOpen(false);
+      if (menuButtonRef.current) menuButtonRef.current.focus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
   return (
     <header className={c.header}>
       <div className={`${layout.container} ${c.headerInner}`}>
@@ -65,6 +79,7 @@ export function SiteHeader() {
           </Link>
           <button
             type="button"
+            ref={menuButtonRef}
             className={c.menuButton}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
@@ -149,9 +164,9 @@ export function SiteFooter() {
 
 export function ContactDock() {
   return (
-    <div style={{ position: 'fixed', right: 20, bottom: 20, zIndex: 50, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <a href="#" onClick={(e) => e.preventDefault()} title="WhatsApp" style={{ width: 52, height: 52, borderRadius: 'var(--radius-full)', background: 'var(--teal-500)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-lg)' }}><Icon name="message-circle" size={24} /></a>
-      <a href="#" onClick={(e) => e.preventDefault()} title="Call" style={{ width: 52, height: 52, borderRadius: 'var(--radius-full)', background: 'var(--navy-800)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-lg)' }}><Icon name="phone" size={22} /></a>
+    <div style={{ position: 'fixed', right: 'var(--dock-offset)', bottom: 'var(--dock-offset)', zIndex: 50, display: 'flex', flexDirection: 'column', gap: 'var(--dock-gap)' }}>
+      <a href="#" onClick={(e) => e.preventDefault()} title="WhatsApp" aria-label="Chat on WhatsApp" style={{ width: 'var(--dock-button)', height: 'var(--dock-button)', borderRadius: 'var(--radius-full)', background: 'var(--teal-500)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-lg)' }}><Icon name="message-circle" size={24} /></a>
+      <a href="#" onClick={(e) => e.preventDefault()} title="Call" aria-label="Call us" style={{ width: 'var(--dock-button)', height: 'var(--dock-button)', borderRadius: 'var(--radius-full)', background: 'var(--navy-800)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-lg)' }}><Icon name="phone" size={22} /></a>
     </div>
   );
 }

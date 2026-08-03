@@ -14,6 +14,18 @@
   --font-mono: var(--font-ibm-plex-mono), var(--font-noto-bengali), 'Courier New', monospace;
 }
 
+/* Contact dock geometry. The dock is fixed in the bottom-right corner of every route, so it
+   is the one piece of chrome the page can never scroll out from under. The footer reserves
+   the same height at the end of the document — measured without it, the last row of footer
+   links was 21–47px of scroll short of clearing the dock at 360/390/768. Both components
+   read these, so the numbers live here rather than in either one. */
+:root {
+  --dock-button: 52px;
+  --dock-gap: 10px;
+  --dock-offset: 20px;
+  --dock-reserve: calc(var(--dock-button) * 2 + var(--dock-gap) + var(--dock-offset) * 2);
+}
+
 /* Base layer, matching the UI kit's own page chrome. */
 html,
 body {
