@@ -20,6 +20,25 @@ jobs:
       matrix:
         node: ['22', '24']
 
+    # The build prerenders `/` from the service catalogue, so CI needs a real database
+    # rather than a mock. Throwaway, one per job.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: yestourbd_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/yestourbd_ci?schema=public
+
     steps:
       - uses: actions/checkout@v5
 
@@ -28,7 +47,13 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
 
+      # postinstall runs `prisma generate`, so the client exists from here on.
       - run: npm ci
+
+      # Apply the committed migrations, then seed: the build reads the catalogue back out,
+      # which makes this a real check that migration + seed + query agree.
+      - run: npm run db:deploy
+      - run: npm run db:seed
 
       - run: npm run lint
 

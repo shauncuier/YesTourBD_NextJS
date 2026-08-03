@@ -1,0 +1,58 @@
+// Data model. The shape is sketched in docs/ARCHITECTURE.md#data-model-sketch; this file is
+// the authority. Only the tables M1.1 needs exist yet — the rest arrive with the milestones
+// that use them.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Every service is booked one of two ways, and the whole UI turns on which: instant is teal
+/// and says "Book now", request is navy and says "Request a quote".
+enum BookingMode {
+  instant
+  request
+}
+
+enum Role {
+  customer
+  staff
+  admin
+}
+
+/// Phone is the identity here — Bangladesh is a phone-first market and OTP is the planned
+/// primary sign-in (M2.1). Email is optional and secondary.
+model User {
+  id          String   @id @default(uuid())
+  phone       String   @unique
+  email       String?  @unique
+  name        String
+  nidPassport String?  @map("nid_passport")
+  role        Role     @default(customer)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+/// The twelve-service catalogue from the brief. `slug` carries the ids the front end has
+/// always used ("hotels", "houseboat"), so seeded rows line up with the existing UI.
+model Service {
+  id        String      @id @default(uuid())
+  slug      String      @unique
+  name      String
+  icon      String
+  mode      BookingMode
+  summary   String
+  sort      Int
+  active    Boolean     @default(true)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@index([active, sort])
+  @@map("services")
+}

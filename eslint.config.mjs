@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Synced from the Claude Design project — generated artifacts and reference sources,
     // not code this app compiles.
     "design-system/**",
+    // Emitted by `prisma generate` on every install; not source.
+    "lib/generated/**",
   ]),
 ]);
 

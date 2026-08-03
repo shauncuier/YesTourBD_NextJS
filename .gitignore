@@ -19,6 +19,9 @@
 /out/
 .turbo
 
+# prisma client, emitted by `prisma generate` (wired to postinstall)
+/lib/generated/
+
 # production
 /build
 /dist
@@ -84,3 +87,5 @@ graphify-out/
 /tmp
 /temp
 *.local
+
+/lib/generated/prisma

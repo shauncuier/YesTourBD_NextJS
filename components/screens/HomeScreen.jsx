@@ -85,13 +85,13 @@ function ServiceTile({ s }) {
   );
 }
 
-function ServiceGrid() {
+function ServiceGrid({ services }) {
   return (
     <section className={`${s.container} ${s.section}`}>
       <SectionHead eyebrow="Everything we do" title="Twelve services, two ways to book"
         action={<span style={{ display: 'flex', gap: 8 }}><Badge tone="teal" variant="solid">Instant</Badge><Badge tone="brand" variant="outline">On request</Badge></span>} />
       <div className={s.grid4}>
-        {SERVICES.map((s) => (
+        {services.map((s) => (
           <Link key={s.id} href={s.mode === 'instant' ? ROUTES.search : ROUTES.request} style={{ textDecoration: 'none' }}>
             <ServiceTile s={s} />
           </Link>
@@ -182,12 +182,14 @@ function TrustStrip() {
   );
 }
 
-export function HomeScreen() {
+// `services` comes from the database via app/page.tsx. It falls back to the hard-coded
+// catalogue so the screen still renders in tests and anywhere the data layer is not wired.
+export function HomeScreen({ services = SERVICES }) {
   const go = useGo();
   return (
     <div>
       <Hero go={go} />
-      <ServiceGrid />
+      <ServiceGrid services={services} />
       <section className={`${s.container} ${s.section}`}>
         <SectionHead eyebrow="Booked most this week" title="Popular right now" action={<Button variant="outline" size="sm" onClick={() => go('search')} iconRight={<Icon name="arrow-right" size={15} />}>See all</Button>} />
         <div className={s.grid3}>
