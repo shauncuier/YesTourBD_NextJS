@@ -27,6 +27,7 @@ engineering ones.
 | D6 | Hosting target | M1.1 |
 | D7 | SMS provider for OTP | M2.1 |
 | D8 | SSLCommerz merchant account | M3.5 |
+| D9 | Three brand tokens fail WCAG AA for small text and are the only accessibility failure left: `--color-text-muted` #7a8ca0 on white is 3.45:1, white on `--teal-500` #00988b is 3.58:1, `--teal-400` #28b1a1 on white is 2.65:1 (AA wants 4.5:1). Darkening them is a brand change and belongs in the Design project, not this repo — the tokens are synced from it | M0.9 |
 
 ---
 
@@ -77,11 +78,16 @@ Choose and set up the layer that makes breakpoints possible at all.
 
 **Done when:** one section reflows correctly at all breakpoints and the pattern is written down.
 
-### M0.4 — Global chrome responsive · M — **MOSTLY DONE**
+### M0.4 — Global chrome responsive · M — **DONE**
 - [x] Header: hamburger disclosure nav below 900px, phone number hidden below 1100px
       (the fixed contact dock carries it), closes on navigation
 - [x] Footer: 1 → 2 → 4 columns, payment row stacks
-- [ ] Contact dock: verify it does not cover primary CTAs on small screens — *not yet checked*
+- [x] Contact dock: verified it does not cover any control. Measured, not eyeballed — every
+      interactive element on all 7 routes at 360 / 390 / 768 / 1024 / 1440 was checked for
+      horizontal overlap with the dock's fixed rect, and for whether the remaining scroll can
+      lift it clear. It found the footer legal links short by 21–47px on every route and
+      width, so `.footerBar` now reserves `--dock-reserve` (the dock's height plus its
+      offset, declared once in `globals.css` and read by both). Re-measured: nothing covered.
 
 **Done when:** header, footer and dock are usable at 390px on every route.
 
@@ -112,10 +118,54 @@ Choose and set up the layer that makes breakpoints possible at all.
 - [x] Walk all 7 routes at 360 / 390 / 768 / 1024 / 1440
 - [x] No horizontal page scroll anywhere — verified by measuring `scrollWidth` vs
       `clientWidth` in a sized frame, not by eye
-- [ ] Keyboard and focus-ring pass — *not yet done*
-- [ ] Lighthouse mobile ≥ 90 on performance and accessibility — *not yet run*
+- [x] Keyboard and focus-ring pass. Four real defects, all now fixed and covered by
+      `test/keyboard.test.tsx`:
+      - the `/request` notes `<textarea>` suppressed the browser outline and drew nothing in
+        its place, so it had no visible focus at all;
+      - the mobile filter sheet could not be entered, dismissed or left by keyboard — it now
+        takes focus on open, closes on Escape, locks the page behind it and returns focus to
+        the button that opened it;
+      - `Dialog` promised `aria-modal` without implementing any of it — now traps Tab, takes
+        focus on open, restores it on close and locks the page behind it;
+      - the header disclosure nav had no Escape route back to its toggle.
+- [ ] Lighthouse mobile ≥ 90 on performance and accessibility — **accessibility passes,
+      performance does not.** Run against `next start` (production build), mobile preset,
+      390×844, all 7 routes:
+
+      | Route | Perf | A11y | Best practices | SEO |
+      |---|---|---|---|---|
+      | `/` | 79 | 96 | 100 | 100 |
+      | `/search` | 84 | 96 | 100 | 100 |
+      | `/tours/[slug]` | 82 | 96 | 100 | 100 |
+      | `/request` | 85 | 96 | 100 | 100 |
+      | `/account` | 80 | 96 | 100 | 100 |
+      | `/tickets` | 80 | 96 | 100 | 100 |
+      | `/guides` | 80 | 96 | 100 | 100 |
+
+      Accessibility started at 93 on `/account`: three `Switch`es had no accessible name,
+      because a `<label>` cannot name a `<span role="switch">`. Fixed with `aria-labelledby`;
+      every route is now 96. The only remaining failure is `color-contrast`, and it is not a
+      code defect — it is the token palette. See **D9** below.
+
+      Performance is 79–85 and the blocker is LCP (4.3–5.4s), not scripting (TBT ≤ 40ms,
+      CLS 0). Cheap wins are already applied — `fetchPriority` on the two LCP images, lazy
+      loading everything below the fold, and a preconnect to the image CDN — and moved the
+      score by ~1 point. What is left is inherent to the placeholder imagery: full-size JPEGs
+      served from a third-party CDN, 234 KiB of which Lighthouse attributes to missing modern
+      formats. Tracked as **M0.10**; it cannot be closed while the photographs are Unsplash
+      placeholders.
 
 **Done when:** the checks above pass and results are recorded in the PR.
+
+### M0.10 — Image pipeline · M
+Blocks the Lighthouse performance gate in M0.9. Needs the real photography first.
+- [ ] Replace the Unsplash placeholders in `lib/site-data.js` with licensed assets
+- [ ] Move the ported screens' plain `<img>` onto `next/image` (or a loader), so images are
+      resized per breakpoint and served as AVIF/WebP — 234 KiB of savings on `/` alone
+- [ ] `images.remotePatterns` for whatever CDN the real assets land on
+- [ ] Re-run Lighthouse mobile; the gate is ≥ 90 on performance
+
+**Done when:** every route scores ≥ 90 on Lighthouse mobile performance.
 
 > Two bugs this pass caught, both the same root cause and worth remembering: a `1fr` grid
 > track has an `auto` minimum, so any nowrap content (the detail tab strip, the header nav)

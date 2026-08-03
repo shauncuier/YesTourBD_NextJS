@@ -11,9 +11,12 @@ customer-facing screens are real and working. Everything behind them — data, a
 payments, admin — does not exist yet. No database, no API routes, no auth, no server state
 of any kind. All content is hard-coded in `lib/site-data.js`.
 
-Two gaps are structural rather than "not started yet", and they are called out in full
-below: **the site is desktop-only**, and **four of the six instant-booking services need
-integrations the business may not be able to operate**.
+Two gaps were structural rather than "not started yet", and they are called out in full
+below. The first — **the site is desktop-only** — was closed in Phase 0; the site is now
+responsive, keyboard-usable and free of horizontal scroll on every route, with two residual
+items (no mobile artboards, and three brand tokens below WCAG AA contrast) noted there. The
+second stands: **four of the six instant-booking services need integrations the business may
+not be able to operate**.
 
 ## Built
 
@@ -29,6 +32,8 @@ integrations the business may not be able to operate**.
 | Account page | Upcoming / past / requests tabs, booking rows, profile form, notification switches |
 | WhatsApp + call dock | Fixed bottom-right, present on every page |
 | SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |
+| Responsive layer | CSS Modules, mobile-first, breakpoints 640 / 900 / 1100 (`styles/layout.module.css`, `components/site/chrome.module.css`, `components/screens/screens.module.css`) |
+| Tests | Vitest + React Testing Library, 20 tests: component behaviour, one smoke test per screen, and the keyboard/focus contracts in `test/keyboard.test.tsx`. Not wired into CI — there is no CI |
 
 ## Not built
 
@@ -64,14 +69,30 @@ The entire admin panel — all eleven areas. The design system contains an admin
 ported; it is still only in the remote Claude Design project and can be pulled with
 DesignSync when the backend is ready to support it.
 
-## Structural gap 1 — the site is desktop-only
+## Structural gap 1 — the site is desktop-only — **CLOSED in Phase 0**
 
-**This is the largest single gap, and it contradicts the brief's first two feature bullets
+> **Resolved.** Approach (1) below was taken: layout moved to CSS Modules, mobile-first, with
+> breakpoints at 640 / 900 / 1100. All 7 routes reflow and none scrolls horizontally at 360px
+> — measured, per width, not eyeballed. The fixed contact dock no longer covers any control.
+> A keyboard pass fixed four real defects (focus ring, filter sheet, `Dialog`, header nav).
+> Lighthouse mobile: accessibility 96 on every route, performance 79–85 against the ≥ 90 gate
+> — the shortfall is placeholder imagery, tracked as M0.10 in MILESTONES.md.
+>
+> Two things the phase did **not** resolve. The mobile layouts were decided in code rather
+> than designed: there are still no mobile artboards, so decision **D4** stands and the
+> client has not signed off on what each screen becomes on a phone. And three brand tokens
+> fail WCAG AA for small text (**D9**) — the only accessibility failure left, and a Design
+> project change rather than a repo one.
+>
+> The rest of this section is the original finding, kept because it explains why the fix had
+> to be a mechanism change rather than an edit.
+
+**This was the largest single gap, and it contradicted the brief's first two feature bullets
 ("modern and responsive design", "mobile-first user experience") and its first development
 requirement ("fully responsive on mobile, tablet and desktop").**
 
-Verified by inspection: there are **zero `@media` queries** anywhere in `app/`,
-`components/` or `lib/`. Every layout grid hard-codes a desktop column count:
+Verified by inspection at the time: there were **zero `@media` queries** anywhere in `app/`,
+`components/` or `lib/`. Every layout grid hard-coded a desktop column count:
 
 - `repeat(4,1fr)` — service grid, trust strip, detail-page fact tiles
 - `repeat(3,1fr)` — listing grids, reviews, blog teasers, request-type picker

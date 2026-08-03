@@ -46,6 +46,12 @@ Shared primitives are in **`styles/layout.module.css`**: `.container`, `.contain
 | md | 900px | tablet |
 | lg | 1100px | small desktop |
 
+One exception to the "inline styles own everything but breakpoints" rule: the contact dock's
+geometry (`--dock-button` / `--dock-gap` / `--dock-offset` / `--dock-reserve`) lives in
+`app/globals.css`, because two components have to agree on it — the dock is fixed in the
+bottom-right corner and the footer reserves `--dock-reserve` so its last row can be scrolled
+clear of it. Change the dock's size there, not in `chrome.jsx`.
+
 Never reintroduce a hard-coded desktop grid (`repeat(4,1fr)`, `260px 1fr`) in an inline style — that is exactly the debt Phase 0 is paying off. Verify with a real reflow check, not a screenshot: no route may scroll horizontally at 360px.
 
 ## Git rules
@@ -91,6 +97,9 @@ The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where t
 - **`Icon`** reads from an explicit `REGISTRY` of lucide-react imports instead of a CDN `window.lucide` global, and renders via `React.createElement`. Same props. A glyph not in the registry renders nothing and warns in dev — add it to the registry.
 - **`Checkbox`** tracks its own state when uncontrolled. The original passed `checked` and `defaultChecked` to the same input and only rendered the tick from `checked`, so `defaultChecked` boxes never appeared ticked.
 - **`Input` / `Select` / `Switch` / `Checkbox`** fall back to `React.useId()` rather than the label text for element ids.
+- **`Switch`** names itself with `aria-labelledby` pointing at its label text. The original relied on the wrapping `<label htmlFor>`, which names nothing: `htmlFor` only applies to labelable form elements, and the control is a `<span role="switch">`. Lighthouse failed all three `/account` switches on `aria-toggle-field-name`.
+- **`Dialog`** implements what `aria-modal` claims: focus moves into the surface on open, Tab is trapped inside it, focus returns to whatever opened it on close, and the page behind stops scrolling. The original added the attribute and an Escape handler only. Browsers implement none of this for a `role="dialog"` div.
+- **`Card`** marks its image `loading="lazy" decoding="async"`. Every card in this app is below the fold and the images are full-size remote JPEGs.
 - **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
 - `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.
 
