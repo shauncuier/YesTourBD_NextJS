@@ -42,21 +42,72 @@ function BookingRow({ b }) {
   );
 }
 
-export function AccountScreen() {
+function RequestRow({ r, go }) {
+  return (
+    <div className={c.bookingRow} style={{ gridTemplateColumns: '1fr auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <Badge tone={r.statusTone} dot>{r.statusLabel}</Badge>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>{r.ref}</span>
+        </div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>{r.title}</div>
+        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="calendar" size={14} />Sent {r.submitted}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="users" size={14} />{r.paxBand}</span>
+        </div>
+      </div>
+      <div className={c.bookingActions}>
+        {r.totalLabel ? (
+          <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', color: 'var(--navy-900)' }}>{r.totalLabel}</strong>
+        ) : (
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>Quote pending</span>
+        )}
+        <Button size="sm" variant="outline" onClick={() => go(`/track`)}>View request</Button>
+      </div>
+    </div>
+  );
+}
+
+function Empty({ icon, title, blurb, action }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-16) 0', textAlign: 'center' }}>
+      <span style={{ color: 'var(--gray-300)' }}><Icon name={icon} size={40} /></span>
+      <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', color: 'var(--navy-900)' }}>{title}</strong>
+      <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', maxWidth: 340, lineHeight: 'var(--leading-normal)' }}>{blurb}</p>
+      {action}
+    </div>
+  );
+}
+
+/**
+ * `profile` and `requests` come from the signed-in customer's own rows. Bookings are still
+ * placeholder because there is nothing to book yet — instant booking and payment are Phase 3,
+ * so that tab says so rather than showing invented trips.
+ */
+export function AccountScreen({ profile = null, requests = null }) {
   const go = useGo();
-  const [tab, setTab] = React.useState('upcoming');
-  const upcoming = BOOKINGS.filter((b) => b.status !== 'request');
-  const requests = BOOKINGS.filter((b) => b.status === 'request');
-  const shown = tab === 'requests' ? requests : tab === 'past' ? [] : upcoming;
+  const [tab, setTab] = React.useState(requests ? 'requests' : 'upcoming');
+  const realRequests = requests ?? [];
+  const openRequests = realRequests.filter((r) => r.open);
+  const upcoming = requests ? [] : BOOKINGS.filter((b) => b.status !== 'request');
+  const shown = tab === 'requests' ? realRequests : tab === 'past' ? [] : upcoming;
 
   return (
     <div style={{ background: 'var(--color-bg-page)', minHeight: '100vh', paddingBottom: 'var(--space-12)' }}>
       <div className={c.accountHeader}>
         <div className={`${layout.container} ${c.accountIdentity}`}>
-          <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--teal-500)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)' }}>NJ</span>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', color: '#fff', letterSpacing: 'var(--tracking-tight)' }}>Nusrat Jahan</h1>
-            <div style={{ marginTop: 4, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--navy-200)' }}>nusrat@example.com · +880 1712-345678 · Member since 2024</div>
+          <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--teal-500)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)' }}>
+            {profile?.initials ?? 'NJ'}
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', color: '#fff', letterSpacing: 'var(--tracking-tight)' }}>
+              {profile?.name ?? 'Nusrat Jahan'}
+            </h1>
+            <div style={{ marginTop: 4, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--navy-200)' }}>
+              {profile
+                ? [profile.email, profile.phone, `Member since ${profile.memberSince}`].filter(Boolean).join(' · ')
+                : 'nusrat@example.com · +880 1712-345678 · Member since 2024'}
+            </div>
           </div>
           <Button variant="secondary" onClick={() => go('home')}>Book something new</Button>
         </div>
@@ -64,27 +115,58 @@ export function AccountScreen() {
 
       <div className={`${layout.container} ${c.accountLayout}`} style={{ marginTop: -32 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)' }}>
-          <Tabs items={[{ id: 'upcoming', label: 'Upcoming', count: upcoming.length }, { id: 'past', label: 'Past trips' }, { id: 'requests', label: 'Requests', count: requests.length }]} value={tab} onChange={setTab} style={{ overflowX: 'auto' }} />
-          {shown.length ? (
+          <Tabs
+            items={[
+              { id: 'upcoming', label: 'Upcoming', count: upcoming.length },
+              { id: 'past', label: 'Past trips' },
+              { id: 'requests', label: 'Requests', count: openRequests.length || realRequests.length },
+            ]}
+            value={tab}
+            onChange={setTab}
+            style={{ overflowX: 'auto' }}
+          />
+
+          {tab === 'requests' && requests ? (
+            realRequests.length ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                {realRequests.map((r) => <RequestRow key={r.ref} r={r} go={go} />)}
+              </div>
+            ) : (
+              <Empty
+                icon="message-square-quote"
+                title="No requests yet"
+                blurb="Corporate trips, group tours, visas and custom packages are quoted by a person. Ask for one and it will show up here."
+                action={<Button variant="outline" size="sm" onClick={() => go('request')}>Ask for a quote</Button>}
+              />
+            )
+          ) : shown.length ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
               {shown.map((b) => <BookingRow key={b.ref} b={b} />)}
             </div>
+          ) : tab === 'upcoming' ? (
+            <Empty
+              icon="luggage"
+              title="Nothing booked yet"
+              blurb="Instant booking is not switched on yet, so nothing can be confirmed here today. Requests you send are on the Requests tab."
+              action={<Button variant="outline" size="sm" onClick={() => go('request')}>Ask for a quote</Button>}
+            />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-16) 0', textAlign: 'center' }}>
-              <span style={{ color: 'var(--gray-300)' }}><Icon name="luggage" size={40} /></span>
-              <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', color: 'var(--navy-900)' }}>No past trips yet</strong>
-              <p style={{ margin: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', maxWidth: 320, lineHeight: 'var(--leading-normal)' }}>Once a trip is over it moves here with its invoice and photos.</p>
-              <Button variant="outline" size="sm" onClick={() => go('search')}>Browse tours</Button>
-            </div>
+            <Empty
+              icon="luggage"
+              title="No past trips yet"
+              blurb="Once a trip is over it moves here with its invoice and photos."
+              action={<Button variant="outline" size="sm" onClick={() => go('search')}>Browse tours</Button>}
+            />
           )}
         </div>
 
         <aside style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Traveller profile</strong>
-            <Input label="Full name" defaultValue="Nusrat Jahan" />
-            <Input label="NID / Passport" defaultValue="A0123456" helperText="Needed for ship and air tickets." />
-            <Button variant="outline" size="sm">Save changes</Button>
+            <Input label="Full name" defaultValue={profile?.name === 'Traveller' ? '' : profile?.name ?? 'Nusrat Jahan'} placeholder="Your name" />
+            <Input label="NID / Passport" defaultValue={profile ? '' : 'A0123456'} helperText="Needed for ship and air tickets." />
+            {/* Saving is M2.4, which also encrypts the identity fields at rest. */}
+            <Button variant="outline" size="sm" disabled={Boolean(profile)}>Save changes</Button>
           </div>
           <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
             <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Notifications</strong>

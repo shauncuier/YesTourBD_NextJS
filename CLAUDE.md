@@ -22,6 +22,17 @@ Tests run on **Vitest + React Testing Library** (`npm test`, `npm run test:watch
 
 `.github/workflows/ci.yml` runs lint, typecheck, test and build on every push to `main` and every pull request, on Node 22 and 24. Node 20.9 is the floor Next 16 sets.
 
+## Keep pure logic out of database modules
+
+A recurring trap: a rule worth unit-testing lives in a file that also imports `lib/db`, and
+the test then drags the Prisma client into jsdom and dies on `DATABASE_URL is not set`. The
+fix each time is the same — pure, import-free logic in its own module, the database code
+importing it:
+
+`lib/staff-roles.ts` · `lib/quote-queue-filters.ts` · `lib/otp-rules.ts` · `lib/sms/message.ts`
+
+Put new rules in that shape from the start rather than after the test fails.
+
 ## Database
 
 Postgres through **Prisma 7** (decision D5), deploying to Vercel with Neon (D6). `DATABASE_URL`

@@ -1,7 +1,9 @@
 import { randomInt } from 'node:crypto';
 import { hash, verify } from '@node-rs/argon2';
 import { prisma } from './db';
-import { otpMessage, sendSms } from './sms/send';
+import { linkRequestsByPhone } from './account';
+import { sendSms } from './sms/send';
+import { otpMessage } from './sms/message';
 import {
   CODE_LENGTH,
   MAX_ATTEMPTS,
@@ -102,6 +104,8 @@ export async function verifyOtp(params: { phone: string; code: string }): Promis
   const existing = await prisma.user.findUnique({ where: { phone: params.phone }, select: { id: true } });
   if (existing) {
     await prisma.user.update({ where: { id: existing.id }, data: { lastLoginAt: new Date() } });
+    // Requests made while signed out still belong to them.
+    await linkRequestsByPhone(existing.id, params.phone);
     return { ok: true, userId: existing.id };
   }
 
@@ -115,6 +119,10 @@ export async function verifyOtp(params: { phone: string; code: string }): Promis
     },
     select: { id: true },
   });
+
+  // Anything they asked for before this account existed is theirs — they have just proved
+  // they control the number it was submitted with.
+  await linkRequestsByPhone(created.id, params.phone);
 
   return { ok: true, userId: created.id };
 }

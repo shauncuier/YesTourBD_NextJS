@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AccountScreen } from "@/components/screens/AccountScreen.jsx";
 import { auth } from "@/auth";
+import { getAccountProfile, getAccountRequests } from "@/lib/account";
 
 export const metadata: Metadata = {
   title: "My bookings — YesTourBD",
@@ -16,7 +17,14 @@ export default async function Page() {
   // than on the home page.
   if (!session?.user) redirect("/signin?next=%2Faccount");
 
-  // The screen still renders placeholder data — wiring it to this customer's real requests
-  // is M2.3.
-  return <AccountScreen />;
+  // Scoped by user id, never by phone or a value from the URL: this is the one page where
+  // getting the scope wrong shows one customer another's trip.
+  const [profile, requests] = await Promise.all([
+    getAccountProfile(session.user.id),
+    getAccountRequests(session.user.id),
+  ]);
+
+  if (!profile) redirect("/signin?next=%2Faccount");
+
+  return <AccountScreen profile={profile} requests={requests} />;
 }

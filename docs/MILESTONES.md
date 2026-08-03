@@ -420,10 +420,24 @@ reused the same account rather than duplicating it.
 - [x] Protected routes and post-login redirect — `/account` sends a stranger to
       `/signin?next=/account` and lands them back where they meant to go
 
-### M2.3 — Account wired to real data · M
-- [ ] Requests tab from the DB
-- [ ] Empty states per the design system's copy rules
-- [ ] Link past requests to the account on sign-up by matching phone
+### M2.3 — Account wired to real data · M — **DONE**
+- [x] Requests tab from the DB, scoped by **user id** — never by phone or anything from a
+      URL. This is the one page where a scoping mistake shows one customer another's trip
+- [x] Empty states that say why, not just "nothing here". The bookings tab admits instant
+      booking is not switched on yet rather than implying the customer has simply not booked
+      anything; the requests tab explains what a request is and offers to start one
+- [x] Link past requests on sign-in by matching phone. Someone who asked for a quote in March
+      and signs in for the first time in June finds it waiting. Matching on the number they
+      have just proved they control claims nothing they had not already demonstrated
+
+Bookings stay placeholder because there is nothing to book — instant booking and payment are
+Phase 3 — and the profile form is inert until M2.4, which is where the identity fields get
+encrypted. Both say so on screen rather than looking broken.
+
+**Verified** in a browser: two requests were submitted anonymously from different numbers,
+then one number signed in for the first time — its request was waiting on the account, the
+other number's was not, the identity was the real customer rather than the design system's
+Nusrat Jahan, and the price column said "Quote pending" rather than inventing a figure.
 
 ### M2.4 — Profile · M
 - [ ] Edit name, email, NID/passport

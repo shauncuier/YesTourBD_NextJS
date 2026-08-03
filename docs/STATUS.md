@@ -30,7 +30,7 @@ not be able to operate**.
 | Detail page | Gallery, five content tabs, sticky booking panel, guest stepper, confirm dialog, success toast |
 | Request page | Five request types, three-step form, "what happens next" rail. **Submits for real**: validated server-side, rate-limited, persisted, and the toast shows the reference the database issued |
 | Request tracking | `/track` — a customer follows their request with its reference and the mobile they used, sees the itemised quotation, and accepts it or asks for changes. No account needed (M1.8) |
-| Account page | Upcoming / past / requests tabs, booking rows, profile form, notification switches |
+| Account page | Requests tab reads the signed-in customer's real rows (M2.3); upcoming/past bookings, the profile form and notification switches are still placeholder, and say so |
 | WhatsApp + call dock | Fixed bottom-right, present on every page |
 | SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |
 | Responsive layer | CSS Modules, mobile-first, breakpoints 640 / 900 / 1100 (`styles/layout.module.css`, `components/site/chrome.module.css`, `components/screens/screens.module.css`) |
@@ -47,7 +47,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 |---|---|
 | Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
 | API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
-| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. The account *screen* still renders placeholder data — wiring it to the customer's real requests is M2.3 |
+| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. `/account` shows the signed-in customer's own requests, including any sent before the account existed (matched by phone at sign-in). Bookings and the profile form are still placeholder — there is nothing to book until Phase 3, and profile editing is M2.4 |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
 | Media storage | Every image is a remote Unsplash URL |
 

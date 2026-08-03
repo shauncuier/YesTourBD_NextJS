@@ -32,17 +32,22 @@ function assertAccepted(payload: string) {
 
 async function deliver(transport: SmsTransport, to: string, body: string) {
   if (transport === 'bulksmsbd') {
-    // Endpoint defaults to https: the key travels in the query string, so plain http would
-    // put both it and the one-time code on the wire in clear.
-    const url = new URL(process.env.SMS_API_URL ?? DEFAULT_ENDPOINT);
-    url.searchParams.set('api_key', process.env.SMS_API_KEY as string);
-    url.searchParams.set('type', 'text');
-    // The gateway wants 8801XXXXXXXXX, while everything else here stores 01XXXXXXXXX.
-    url.searchParams.set('number', to.replace(/^0/, '880'));
-    url.searchParams.set('senderid', process.env.SMS_SENDER_ID ?? '');
-    url.searchParams.set('message', body);
+    // POST with the fields in the body, not the query string: a URL carrying the api key and
+    // a live one-time code ends up in proxy logs, browser history and error reports. And
+    // https by default, so neither crosses the wire in clear.
+    const form = new URLSearchParams({
+      api_key: process.env.SMS_API_KEY as string,
+      senderid: process.env.SMS_SENDER_ID ?? '',
+      // The gateway wants 8801XXXXXXXXX; everything else here stores 01XXXXXXXXX.
+      number: to.replace(/^0/, '880'),
+      message: body,
+    });
 
-    const response = await fetch(url, { method: 'POST' });
+    const response = await fetch(process.env.SMS_API_URL ?? DEFAULT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    });
     const payload = await response.text();
     if (!response.ok) throw new Error(`SMS gateway refused it: ${response.status} ${payload.slice(0, 200)}`);
     assertAccepted(payload);
@@ -86,7 +91,4 @@ export async function sendSms(params: {
   }
 }
 
-export function otpMessage(code: string): string {
-  // No link, and it says the one thing that matters: nobody legitimate will ask for this.
-  return `${code} is your YesTourBD sign-in code. It expires in 5 minutes. We will never ask you for it.`;
-}
+export { otpMessage } from './message';
