@@ -6,9 +6,16 @@ import { prisma } from '../db';
 
 export type SmsTransport = 'console' | 'bulksmsbd';
 
-/** The gateway is only used once a key exists; without one, messages print to the terminal. */
+/**
+ * The gateway is used in production once a key exists. In development it is not, even with a
+ * key present — a test run should never spend credits or put a message on a stranger's
+ * handset because a fake number happened to be valid. Set SMS_LIVE=true to override for a
+ * deliberate end-to-end check.
+ */
 function activeTransport(): SmsTransport {
-  return process.env.SMS_API_KEY ? 'bulksmsbd' : 'console';
+  if (!process.env.SMS_API_KEY) return 'console';
+  if (process.env.NODE_ENV === 'production' || process.env.SMS_LIVE === 'true') return 'bulksmsbd';
+  return 'console';
 }
 
 const DEFAULT_ENDPOINT = 'https://bulksmsbd.net/api/smsapi';

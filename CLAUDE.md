@@ -96,6 +96,11 @@ Three things not to undo:
   The console keeps it because that is the only way to read a code in development; a real
   gateway must never leave codes sitting in `sms_messages`.
 
+**Development never sends real SMS**, even with a key configured — codes print to the
+terminal instead. A test run must not be able to spend credits or reach a stranger's handset
+because a made-up number happened to be valid. `SMS_LIVE=true` overrides it for a deliberate
+end-to-end check.
+
 SMS goes through **BulkSMSBD**. It answers HTTP 200 whatever happened and puts the real
 verdict in `response_code` (202 is accepted), so the transport parses the body — checking the
 status alone would record every failure as delivered. Keys live in `.env`.
