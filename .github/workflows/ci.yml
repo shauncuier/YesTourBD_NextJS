@@ -38,6 +38,9 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/yestourbd_ci?schema=public
+      # Throwaway, for a build that never serves a request. The real one is a deployment
+      # secret and is not in this repo.
+      AUTH_SECRET: ci-only-not-a-real-secret-000000000000000
 
     steps:
       - uses: actions/checkout@v5

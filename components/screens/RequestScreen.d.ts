@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { QuoteRequestState } from '@/app/request/actions';
+import type { QuoteRequestState } from '@/app/(site)/request/actions';
 
 export interface RequestScreenProps {
   /**

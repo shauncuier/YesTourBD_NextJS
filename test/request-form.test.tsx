@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { RequestScreen } from '@/components/screens/RequestScreen.jsx';
-import type { QuoteRequestState } from '@/app/request/actions';
+import type { QuoteRequestState } from '@/app/(site)/request/actions';
 
 // The screen posts a FormData to a server action. These assert the wiring either side of
 // that boundary — that every field arrives under the key the validator reads, and that what

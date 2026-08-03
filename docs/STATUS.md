@@ -46,7 +46,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 |---|---|
 | Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
 | API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
-| Auth / user accounts | "Sign in" is a link to `/account`; the account page shows a hard-coded customer |
+| Auth / user accounts | **Staff only (M1.4).** Auth.js v5 credentials sign-in at `/admin/login`, argon2id, role-guarded `/admin`. Customer accounts are still fiction: "Sign in" links to `/account`, which shows a hard-coded customer |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
 | Media storage | Every image is a remote Unsplash URL |
 
@@ -65,10 +65,11 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 
 ### Admin
 
-The entire admin panel — all eleven areas. The design system contains an admin UI kit
-(`ui_kits/admin/`: dashboard, bookings, request queue, service catalogue) that was **not**
-ported; it is still only in the remote Claude Design project and can be pulled with
-DesignSync when the backend is ready to support it.
+**The shell and the sign-in exist (M1.4)**: staff can sign in at `/admin/login` and reach a
+guarded panel with the ported sidebar and top bar. Every screen behind it is still unbuilt —
+the nav links say which milestone brings each one. The remaining admin screens
+(`DashboardScreen`, `BookingsScreen`, `RequestsScreen`, `ServicesScreen`) are in the remote
+Claude Design project and can be pulled with DesignSync as their milestones land.
 
 ## Structural gap 1 — the site is desktop-only — **CLOSED in Phase 0**
 

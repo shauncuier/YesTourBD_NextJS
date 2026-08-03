@@ -16,5 +16,8 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     include: ['test/**/*.test.{ts,tsx,js,jsx}'],
     css: false,
+    // The form tests type field by field through userEvent against jsdom, which is slow
+    // enough to trip the 5s default on a loaded machine. The work is real, not a hang.
+    testTimeout: 20_000,
   },
 });

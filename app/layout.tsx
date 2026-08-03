@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Public_Sans, Lora, IBM_Plex_Mono, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
-import { SiteHeader, SiteFooter, ContactDock } from "@/components/site/chrome.jsx";
 
 // The design system flags these as substitutes for unsupplied brand fonts and loads them
 // from the Google CDN. next/font self-hosts the same four families — plus Noto Sans
@@ -60,12 +59,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
-      <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-        <ContactDock />
-      </body>
+      {/* Fonts, tokens and the document shell only. The customer header, footer and contact
+          dock belong to the (site) group — the admin panel has its own chrome and must not
+          render the marketing one around it. */}
+      <body>{children}</body>
     </html>
   );
 }

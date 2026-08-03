@@ -61,6 +61,10 @@ model User {
   name        String
   nidPassport String?  @map("nid_passport")
   role        Role     @default(customer)
+  /// Argon2id. Only staff have one — customers sign in by phone OTP (M2.1), which is why
+  /// this is nullable rather than required.
+  passwordHash String? @map("password_hash")
+  lastLoginAt  DateTime? @map("last_login_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

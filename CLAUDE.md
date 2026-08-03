@@ -39,6 +39,24 @@ Prisma 7 differs from what you probably remember:
   the dev server's module re-evaluation does not exhaust the connection limit.
 - `npx prisma dev` runs a local Postgres with no Docker, which is how this was developed.
 
+## Auth and /admin
+
+Staff sign in with email and password through **Auth.js v5** (`auth.ts`); customers will get
+phone OTP as a second provider on the same config (M2.1). Passwords are argon2id, sessions are
+JWTs, and `AUTH_SECRET` signs them.
+
+Two rules that are not optional:
+
+- **Every `/admin` entry point calls `requireStaff()` itself.** `proxy.ts` guards the route
+  tree, but a proxy is a convenience, not a boundary. A page without the call is a public
+  endpoint, and that must be visible as a missing line rather than an invisible assumption.
+- **No credentials in the repo.** Staff accounts come from `npm run staff:create`, which reads
+  `STAFF_EMAIL` / `STAFF_PASSWORD` from the environment. Never seed a password.
+
+Route layout matters here: `app/(site)/` carries the customer chrome, `app/admin/(panel)/`
+the guarded shell, and `app/admin/login/` sits outside the panel group so signing in does not
+redirect to itself. The root layout is fonts and `<html>` only.
+
 **Writes go through server actions**, one file per route (`app/request/actions.ts`). The
 pattern: parse `FormData` with the route's Zod schema in `lib/*`, check the rate limit, write,
 and return a discriminated union the screen renders — `sent` / `invalid` / `error`. Screens

@@ -1,0 +1,157 @@
+/* The admin kit was drawn at 1440 with a permanent 244px rail. Below 900px that rail becomes
+   an off-canvas drawer; above it, the original layout. Breakpoints are the project's
+   640 / 900 / 1100 (see CLAUDE.md) — no new ones. */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-page);
+}
+
+.sidebar {
+  width: 244px;
+  flex: 0 0 auto;
+  background: var(--navy-950);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Drawer below 900px: off-canvas, and out of the tab order until opened. */
+@media (max-width: 899.98px) {
+  .sidebar {
+    display: none;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 86vw);
+    z-index: 70;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar[data-open='true'] {
+    display: flex;
+  }
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.sidebarClose {
+  display: inline-flex;
+}
+
+.menuButton {
+  display: inline-flex;
+}
+
+@media (min-width: 900px) {
+  .sidebarClose,
+  .menuButton {
+    display: none;
+  }
+}
+
+.scrim {
+  display: none;
+}
+
+@media (max-width: 899.98px) {
+  .scrim[data-open='true'] {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(5, 30, 61, 0.55);
+  }
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (min-width: 900px) {
+  .topBar {
+    padding: var(--space-5) var(--space-8);
+    gap: var(--space-6);
+  }
+}
+
+.topTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--navy-900);
+  letter-spacing: var(--tracking-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .topTitle {
+    font-size: var(--text-xl);
+  }
+}
+
+/* The search field and the bell are the first things to go when the bar runs out of room. */
+.topSearch {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .topSearch {
+    display: block;
+    width: 260px;
+    flex: 0 1 260px;
+    min-width: 140px;
+  }
+}
+
+.topBell {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .topBell {
+    display: inline-flex;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .content {
+    padding: var(--space-8);
+    gap: var(--space-6);
+  }
+}

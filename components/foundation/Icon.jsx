@@ -9,6 +9,9 @@ import {
   MapPin, Menu, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
   Plus, Route, Sailboat, Search, ShieldCheck, Ship, SlidersHorizontal, Stamp, Star, Sun, Ticket, Users,
   Utensils, X, Zap,
+  // Admin panel (M1.4 onward).
+  Bell, ChartColumn, CreditCard, Image, Layers, LogOut, Newspaper, Percent, Shield,
+  TrendingDown, TrendingUp,
 } from 'lucide-react';
 
 // The design system's Icon reads Lucide off `window` from a CDN build. Here the set is
@@ -22,6 +25,8 @@ const REGISTRY = {
   MapPin, Menu, MessageCircle, MessageSquareQuote, Minus, Package, Phone, PhoneCall, Plane,
   Plus, Route, Sailboat, Search, ShieldCheck, Ship, SlidersHorizontal, Stamp, Star, Sun, Ticket, Users,
   Utensils, X, Zap,
+  Bell, ChartColumn, CreditCard, Image, Layers, LogOut, Newspaper, Percent, Shield,
+  TrendingDown, TrendingUp,
 };
 
 // Newer lucide builds renamed several icons; keep the familiar names working.

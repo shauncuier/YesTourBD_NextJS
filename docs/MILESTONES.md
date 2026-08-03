@@ -228,12 +228,32 @@ before stripping separators.
 
 **Done when:** submitting a request delivers both emails.
 
-### M1.4 — Staff auth and admin shell · M
-- [ ] Staff login
-- [ ] Role model and route guard on every `/admin` handler, not only the UI
-- [ ] Admin layout ported from the design system's `ui_kits/admin/`
+### M1.4 — Staff auth and admin shell · M — **DONE**
+- [x] Staff login. Auth.js v5 with a credentials provider, argon2id hashes, JWT sessions
+      lasting 8 hours. Accounts are created by `npm run staff:create` from environment
+      variables — a seeded default password is a published one
+- [x] Role model and route guard. `proxy.ts` (Next 16's middleware) turns anonymous `/admin`
+      traffic away, and `requireStaff()` runs again inside every admin page. The proxy is a
+      convenience; the per-entry-point check is the boundary, so an unguarded route is a
+      missing call rather than a silently public endpoint
+- [x] Admin layout ported from `ui_kits/admin/admin-chrome.jsx` — sidebar, top bar, `Panel`,
+      `StatCard`, table styles. Nav items are real routes, the staff footer shows who is
+      signed in, and the 244px rail becomes a drawer below 900px (the kit was drawn at 1440
+      and has no small layout)
+- [x] Unbuilt sections say so rather than 404 — the same choice the kit made for screens it
+      had no design for
 
 **Done when:** `/admin` is unreachable signed-out and renders the shell signed-in as staff.
+*Verified* in a browser against the built app: signed out, `/admin` and `/admin/requests`
+both redirect to the sign-in page with the intended path preserved and no admin markup in the
+response; a wrong password is refused; the right one lands on the panel; the drawer opens at
+390px with no horizontal scroll; signing out ends the session.
+
+Two real bugs came out of that pass. The customer header, footer and contact dock were
+rendering around the admin panel, because the root layout applied to every route — the public
+chrome now lives in an `app/(site)` group. And Auth.js rejects any Host it does not recognise
+outside Vercel, so a production build failed every request with `UntrustedHost` until
+`trustHost` was set; the guard failed closed, which is the right direction to fail.
 
 ### M1.5 — Admin request queue · M
 - [ ] List with status filter and sort

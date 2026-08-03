@@ -38,6 +38,7 @@ npm run dev                    # http://localhost:3000
 | `npm run db:deploy` | Apply committed migrations (CI, staging, production) |
 | `npm run db:seed` | Seed the service catalogue; idempotent |
 | `npm run db:studio` | Browse the database |
+| `npm run staff:create` | Create or reset a staff account from `STAFF_*` environment variables |
 
 ## Database
 
@@ -61,6 +62,19 @@ engine binary, which is why `lib/db.ts` constructs the client the way it does.
 The schema is `prisma/schema.prisma`; `prisma/seed.ts` reads `lib/site-data.js`, so that
 array stays the single source of truth for the twelve services.
 
+## Staff panel
+
+`/admin` needs a staff account and `AUTH_SECRET` (both covered by `.env.example`):
+
+```bash
+STAFF_EMAIL=you@yestourbd.com STAFF_PASSWORD='something long' \
+STAFF_NAME='Your Name' STAFF_PHONE=017XXXXXXXX npm run staff:create
+```
+
+Then sign in at `/admin/login`. Re-running with the same email resets that password, which is
+the recovery path until there is a real one. Nothing about staff credentials lives in the
+repo, and nothing should.
+
 ## Routes
 
 | Route | Screen |
@@ -71,6 +85,7 @@ array stays the single source of truth for the twelve services.
 | `/request` | Quote request form — validated, rate-limited and persisted, returning a real `REQ-XXXX` |
 | `/account` | Bookings, requests and profile |
 | `/tickets`, `/guides` | Aliases the UI kit never designed; they render Search and Home |
+| `/admin` | Staff panel — sign-in, guarded shell. The screens behind it arrive with M1.5 on |
 
 Every route is prerendered as static HTML.
 
