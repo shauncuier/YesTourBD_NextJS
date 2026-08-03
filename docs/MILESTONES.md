@@ -51,7 +51,8 @@ There is no test runner in the repo. Adding one after the backend exists means b
 - [x] One smoke test per screen: renders without throwing
 - [x] Port the design system's 15 `.d.ts` files — the components had no prop types, so
       `tsc --noEmit` failed the moment tests consumed them from `.tsx`
-- [ ] Wire into CI — *no CI configured yet*
+- [x] Wire into CI — `.github/workflows/ci.yml` runs lint, typecheck, test and build on
+      every push to `main` and every pull request, on Node 22 and 24
 
 **Done when:** `npm test` runs green in CI on a pull request.
 

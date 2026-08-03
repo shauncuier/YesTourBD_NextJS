@@ -33,7 +33,8 @@ not be able to operate**.
 | WhatsApp + call dock | Fixed bottom-right, present on every page |
 | SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |
 | Responsive layer | CSS Modules, mobile-first, breakpoints 640 / 900 / 1100 (`styles/layout.module.css`, `components/site/chrome.module.css`, `components/screens/screens.module.css`) |
-| Tests | Vitest + React Testing Library, 20 tests: component behaviour, one smoke test per screen, and the keyboard/focus contracts in `test/keyboard.test.tsx`. Not wired into CI — there is no CI |
+| Tests | Vitest + React Testing Library, 20 tests: component behaviour, one smoke test per screen, and the keyboard/focus contracts in `test/keyboard.test.tsx` |
+| CI | GitHub Actions: lint, typecheck, test and build on every push to `main` and every PR, on Node 22 and 24 |
 
 ## Not built
 
