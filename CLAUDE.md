@@ -51,6 +51,18 @@ X", the record has to be able to answer, and a status column alone cannot say wh
 why. Actor names are denormalised onto the event so history still reads correctly after
 someone leaves.
 
+## Customer tracking (`/track`)
+
+References are sequential, so **a reference is never sufficient authorisation**. `/track` asks
+for the reference plus the mobile the request was submitted with, answers identically whether
+the reference exists or not, rate-limits attempts per IP in the database, and on success sets
+a signed cookie scoped to that one reference (`lib/tracking.ts`). Every action re-verifies the
+cookie — a rendered page is not authorisation.
+
+Anything customer-facing shows less than the staff view: no owner, no internal notes, and the
+pipeline collapsed through `customerStatus()`. If you add a status, add its customer wording
+there too, or it leaks the internal vocabulary.
+
 ## Email
 
 `lib/email/send.ts` is the only seam to a provider. With no `RESEND_API_KEY` set the transport

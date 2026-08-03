@@ -358,12 +358,33 @@ with a ৳30,000 deposit, the request moved to `quoted`, the history named who s
 how much, and a revision appeared alongside the original with the original marked superseded.
 The customer cannot read it yet — that is the email.
 
-### M1.8 — Customer request tracking · M
-- [ ] Public status page reachable by reference
-- [ ] Accept / decline a quotation
-- [ ] Accepted quotation records intent to convert to a booking
+### M1.8 — Customer request tracking · M — **DONE**
+- [x] Public status page — reachable by reference **and the mobile it was submitted with**,
+      not by reference alone. See the security note below; this changed the design
+- [x] Accept, or ask for changes. "Decline" is the wrong verb for this business: a customer
+      who wants a cheaper hotel is not rejecting the quotation, they are negotiating, and the
+      request moves to `negotiating` with their message on the record
+- [x] Accepting marks the quotation accepted, moves the request to `accepted`, and writes the
+      event crediting the **customer** rather than whichever coordinator was signed in.
+      Converting that into a booking is Phase 3, where payment lives
 
-**Done when:** a customer can follow a request end to end without signing in.
+**A reference alone could not be the key.** `REQ-XXXX` comes from a sequence, so REQ-2262 is
+one keystroke from REQ-2261 — a URL-only status page would have handed anyone a stranger's
+phone number, itinerary and prices by counting. So: the lookup needs reference plus mobile,
+the answer is identical whether the reference exists or not, attempts are rate-limited per IP
+(10 per 15 minutes, counted in the database because serverless instances share no memory), and
+success sets a signed 30-day cookie **scoped to that one reference**. Every action re-checks
+it — a rendered page is not authorisation.
+
+The customer view deliberately shows less than the staff one: no owner, no internal notes, and
+the eight-status pipeline collapsed to five phrases a customer can act on. "Lost" is not a
+word to put in front of the person who asked.
+
+**Done when:** a customer can follow a request end to end without signing in. *Verified* in a
+browser: submitted, opened the status page cold and was turned away, refused with the wrong
+mobile, let in with the right one, saw the itemised quotation with its deposit split once
+staff sent it, accepted it, and staff saw `Quoted → Accepted` in the history credited to the
+customer. A neighbouring reference stayed shut throughout.
 
 ---
 

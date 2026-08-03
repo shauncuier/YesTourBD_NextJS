@@ -55,6 +55,7 @@ export async function submitQuoteRequest(
           name: input.name,
           destinations: input.destinations,
           contactPref: input.contactPref,
+          trackUrl: `${siteUrl()}/track`,
         }),
       }),
       sendEmail({

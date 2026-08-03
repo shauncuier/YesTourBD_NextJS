@@ -148,7 +148,7 @@ export function RequestScreen({ action = async () => IDLE }) {
         <div style={{ position: 'fixed', right: 20, bottom: 92, zIndex: 60 }}>
           <Toast tone="success" icon={<Icon name="check-circle" size={18} />} title={`Request sent — ${state.ref}`}
             message={`A coordinator will reply on ${CONTACT_LABEL[contact]} within two working hours.`}
-            action={<Button size="sm" variant="outline" onClick={() => go('account')}>Track request</Button>} />
+            action={<Button size="sm" variant="outline" onClick={() => go('/track')}>Track request</Button>} />
         </div>
       ) : null}
 

@@ -108,7 +108,8 @@ real twelve-service catalogue and is safe anywhere.
 | `/search` | Search results — filter rail, list / grid / map toggle, sort |
 | `/tours/[slug]` | Detail — gallery, content tabs, booking panel, confirm dialog |
 | `/request` | Quote request form — validated, rate-limited and persisted, returning a real `REQ-XXXX` |
-| `/account` | Bookings, requests and profile |
+| `/track` | Follow a request by reference + the mobile used; accept a quotation or ask for changes |
+| `/account` | Bookings, requests and profile — still hard-coded; real accounts are Phase 2 |
 | `/tickets`, `/guides` | Aliases the UI kit never designed; they render Search and Home |
 | `/admin` | Staff panel — sign-in, guarded shell. The screens behind it arrive with M1.5 on |
 

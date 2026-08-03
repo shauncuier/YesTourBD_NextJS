@@ -130,6 +130,19 @@ enum RequestEventType {
   quotation_sent
 }
 
+/// One row per tracking lookup, so the guessing rate can be limited without keeping counters
+/// in memory the way serverless cannot. The IP is hashed; the reference is kept so an actual
+/// enumeration attempt is visible afterwards.
+model TrackingAttempt {
+  id        String   @id @default(uuid())
+  ipHash    String   @map("ip_hash")
+  ref       String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ipHash, createdAt])
+  @@map("tracking_attempts")
+}
+
 enum EmailStatus {
   queued
   sent

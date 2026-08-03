@@ -29,6 +29,7 @@ not be able to operate**.
 | Search page | Navy search band, sticky filter rail, list / grid / map toggle, sort tabs, removable chips |
 | Detail page | Gallery, five content tabs, sticky booking panel, guest stepper, confirm dialog, success toast |
 | Request page | Five request types, three-step form, "what happens next" rail. **Submits for real**: validated server-side, rate-limited, persisted, and the toast shows the reference the database issued |
+| Request tracking | `/track` — a customer follows their request with its reference and the mobile they used, sees the itemised quotation, and accepts it or asks for changes. No account needed (M1.8) |
 | Account page | Upcoming / past / requests tabs, booking rows, profile form, notification switches |
 | WhatsApp + call dock | Fixed bottom-right, present on every page |
 | SEO basics | Per-route `<title>` and description; 15 routes prerendered as static HTML |

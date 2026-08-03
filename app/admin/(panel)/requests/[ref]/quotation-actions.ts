@@ -12,6 +12,7 @@ import {
 } from '@/lib/quotation';
 import { sendEmail } from '@/lib/email/send';
 import { quotationSent } from '@/lib/email/templates';
+import { siteUrl } from '@/lib/site-url';
 
 export type QuotationState =
   | { status: 'idle' }
@@ -131,6 +132,7 @@ export async function sendQuotation(
       balance: totals.balance,
       validUntil: new Date(`${draft.validUntil}T00:00:00+06:00`),
       notes: draft.notes || null,
+      trackUrl: `${siteUrl()}/track`,
     }),
   });
 

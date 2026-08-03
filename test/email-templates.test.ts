@@ -20,6 +20,7 @@ describe('customer acknowledgement', () => {
     name: 'Nusrat Jahan',
     destinations: 'Sylhet + Sreemangal',
     contactPref: 'whatsapp',
+    trackUrl: 'https://example.test/track',
   });
 
   it('leads with the reference, because that is what a customer quotes back', () => {
@@ -29,8 +30,8 @@ describe('customer acknowledgement', () => {
 
   it('names the channel the customer actually chose', () => {
     expect(mail.body).toContain('WhatsApp');
-    expect(quoteRequestReceived({ ref: 'x', name: 'n', destinations: 'd', contactPref: 'call' }).body).toContain('call you');
-    expect(quoteRequestReceived({ ref: 'x', name: 'n', destinations: 'd', contactPref: 'email' }).body).toContain('email you');
+    expect(quoteRequestReceived({ ref: 'x', name: 'n', destinations: 'd', contactPref: 'call', trackUrl: 'u' }).body).toContain('call you');
+    expect(quoteRequestReceived({ ref: 'x', name: 'n', destinations: 'd', contactPref: 'email', trackUrl: 'u' }).body).toContain('email you');
   });
 
   it('says the awkward part out loud: the desk closes', () => {
@@ -90,6 +91,7 @@ describe('quotation', () => {
     balance: 70000,
     validUntil: new Date('2026-04-15T00:00:00+06:00'),
     notes: 'Hotel can be swapped for Sayeman at ৳900 more per head.',
+    trackUrl: 'https://example.test/track',
   });
 
   it('itemises rather than sending one number', () => {

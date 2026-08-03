@@ -27,6 +27,7 @@ export function quoteRequestReceived(params: {
   name: string;
   destinations: string;
   contactPref: string;
+  trackUrl: string;
 }): EmailTemplate {
   const channel =
     params.contactPref === 'call' ? 'call you' : params.contactPref === 'email' ? 'email you' : 'message you on WhatsApp';
@@ -41,6 +42,8 @@ Thank you — your request for ${params.destinations} is with us, and its refere
 A coordinator will read it and ${channel} with a written, itemised quotation within two working hours. Our desk is open 9 AM to 10 PM, seven days, so a request sent late in the evening is answered the next morning.
 
 Nothing is booked and nothing is owed yet. The quotation comes first, and you can change anything in it.
+
+You can follow it any time at ${params.trackUrl} — your reference and this mobile number are all it needs.
 
 Quote ${params.ref} if you call us before then.${SIGNATURE}`,
   };
@@ -90,6 +93,7 @@ export function quotationSent(params: {
   balance: number;
   validUntil: Date;
   notes: string | null;
+  trackUrl: string;
 }): EmailTemplate {
   const lines = params.lines
     .map((line) => `  ${line.description} — ${line.quantity} × ${formatTaka(line.unitPrice)} = ${formatTaka(line.amount)}`)
@@ -112,6 +116,8 @@ ${lines}${discountLine}
 
 This price holds until ${dhakaDate(params.validUntil)}.
 ${params.notes?.trim() ? `\n${params.notes.trim()}\n` : ''}
+Accept it, or ask for changes, at ${params.trackUrl}. Accepting tells us to hold it; payment is arranged afterwards and nothing is taken there.
+
 Anything here can change — swap the hotel, move the dates, add or drop a line. Reply and say what you want different and we will send a revised quotation.${SIGNATURE}`,
   };
 }
