@@ -29,7 +29,8 @@ export function Logo({ height = 34, reverse = false }) {
   );
 }
 
-export function SiteHeader() {
+// `signedIn` comes from the server layout, which is the only place that can read a session.
+export function SiteHeader({ signedIn = false }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const isOn = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
@@ -74,9 +75,15 @@ export function SiteHeader() {
           <a href="tel:+8801000000000" className={c.phoneLink}>
             <Icon name="phone-call" size={16} />+880 1XXX-XXXXXX
           </a>
-          <Link href={ROUTES.account} style={{ textDecoration: 'none' }}>
-            <Button variant="outline" size="sm" style={{ whiteSpace: 'nowrap' }}>Sign in</Button>
-          </Link>
+          {signedIn ? (
+            <Link href={ROUTES.account} style={{ textDecoration: 'none' }}>
+              <Button variant="outline" size="sm" style={{ whiteSpace: 'nowrap' }}>My account</Button>
+            </Link>
+          ) : (
+            <Link href="/signin" style={{ textDecoration: 'none' }}>
+              <Button variant="outline" size="sm" style={{ whiteSpace: 'nowrap' }}>Sign in</Button>
+            </Link>
+          )}
           <button
             type="button"
             ref={menuButtonRef}

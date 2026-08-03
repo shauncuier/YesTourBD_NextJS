@@ -25,7 +25,7 @@ engineering ones.
 | D4 | Mobile layout behaviour for the five screens — needs design, no mobile artboards exist | M0.2 onward |
 | D5 | ~~ORM choice: Prisma or Drizzle~~ — **decided: Prisma**, for the migration ergonomics while the schema is still churning | M1.1 |
 | D6 | ~~Hosting target~~ — **decided: Vercel, with Neon for Postgres**; Neon's branching gives each preview deploy its own database | M1.1 |
-| D7 | SMS provider for OTP | M2.1 |
+| D7 | ~~SMS provider for OTP~~ — **decided: BulkSMSBD**, wired in `lib/sms/send.ts`; keys live in `.env`, never the repo | M2.1 |
 | D8 | SSLCommerz merchant account | M3.5 |
 | D9 | Three brand tokens fail WCAG AA for small text and are the only accessibility failure left: `--color-text-muted` #7a8ca0 on white is 3.45:1, white on `--teal-500` #00988b is 3.58:1, `--teal-400` #28b1a1 on white is 2.65:1 (AA wants 4.5:1). Darkening them is a brand change and belongs in the Design project, not this repo — the tokens are synced from it | M0.9 |
 
@@ -390,18 +390,35 @@ customer. A neighbouring reference stayed shut throughout.
 
 ## Phase 2 — Accounts
 
-### M2.1 — Phone OTP auth · L · needs D7
-- [ ] Auth.js configured
-- [ ] SMS provider integrated
-- [ ] OTP request, verify, resend, with rate limiting and expiry
-- [ ] Sessions
+### M2.1 — Phone OTP auth · L — **DONE**
+- [x] Auth.js configured — a second provider (`phone-otp`) on the same config as staff
+      sign-in, so customers and staff share session machinery and differ only in proof
+- [x] SMS provider integrated: **BulkSMSBD** (D7 answered). The gateway answers HTTP 200
+      whatever happened and puts the verdict in `response_code`, so the transport checks the
+      body — trusting the status alone would file "no balance" and "bad number" as delivered
+- [x] OTP request, verify, resend, with rate limiting and expiry
+- [x] Sessions
 
-**Done when:** a new phone number can sign up, sign out, and sign back in.
+The numbers, all in `lib/otp-rules.ts` and covered by tests: six digits, five-minute expiry,
+five wrong guesses before the challenge dies (1 in 200,000), 60-second resend cooldown, five
+codes per number per hour, twenty per IP per hour. Issuing a new code kills the previous one —
+two live codes for one number doubles an attacker's chances and helps nobody. Codes are stored
+only as argon2 hashes, so a database leak is not a pile of working sign-ins, and every failure
+gives the *same* message: distinguishing "wrong" from "expired" tells an attacker which half
+to fix.
 
-### M2.2 — Auth UI · M
-- [ ] Sign-in screen in design-system components
-- [ ] Header reflects signed-in state
-- [ ] Protected routes and post-login redirect
+**Done when:** a new phone number can sign up, sign out, and sign back in. *Verified* against
+the console transport: an unknown number received a code, a wrong code was refused without
+losing the code step, the right one created the account and signed in, and a second sign-in
+reused the same account rather than duplicating it.
+
+### M2.2 — Auth UI · M — **DONE**
+- [x] Sign-in screen in design-system components — two steps on one screen, number then code,
+      so a wrong code does not throw the customer back to the start and make them sit out the
+      resend cooldown
+- [x] Header reflects signed-in state ("Sign in" becomes "My account")
+- [x] Protected routes and post-login redirect — `/account` sends a stranger to
+      `/signin?next=/account` and lands them back where they meant to go
 
 ### M2.3 — Account wired to real data · M
 - [ ] Requests tab from the DB

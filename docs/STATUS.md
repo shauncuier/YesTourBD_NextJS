@@ -47,7 +47,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 |---|---|
 | Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
 | API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
-| Auth / user accounts | **Staff only (M1.4).** Auth.js v5 credentials sign-in at `/admin/login`, argon2id, role-guarded `/admin`. Customer accounts are still fiction: "Sign in" links to `/account`, which shows a hard-coded customer |
+| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. The account *screen* still renders placeholder data — wiring it to the customer's real requests is M2.3 |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
 | Media storage | Every image is a remote Unsplash URL |
 

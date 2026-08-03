@@ -51,6 +51,27 @@ X", the record has to be able to answer, and a status column alone cannot say wh
 why. Actor names are denormalised onto the event so history still reads correctly after
 someone leaves.
 
+## Customer sign-in (phone OTP)
+
+Customers sign in with a mobile number and a six-digit code — Auth.js's `phone-otp` provider,
+same session machinery as staff. The rules live in **`lib/otp-rules.ts`** and nowhere else:
+five-minute expiry, five wrong guesses, 60-second resend cooldown, five codes per number and
+twenty per IP per hour. Issuing a new code kills the previous one.
+
+Three things not to undo:
+
+- **Codes are stored as argon2 hashes**, never in clear. A leaked database must not be a pile
+  of working sign-ins.
+- **Every failure returns the same message.** Distinguishing "wrong code" from "expired" tells
+  an attacker which half to fix.
+- **`lib/sms/send.ts` redacts the message body** for anything but the local console transport.
+  The console keeps it because that is the only way to read a code in development; a real
+  gateway must never leave codes sitting in `sms_messages`.
+
+SMS goes through **BulkSMSBD**. It answers HTTP 200 whatever happened and puts the real
+verdict in `response_code` (202 is accepted), so the transport parses the body — checking the
+status alone would record every failure as delivered. Keys live in `.env`.
+
 ## Customer tracking (`/track`)
 
 References are sequential, so **a reference is never sufficient authorisation**. `/track` asks

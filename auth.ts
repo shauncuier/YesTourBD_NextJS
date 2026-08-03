@@ -5,6 +5,7 @@ import { hash, verify } from '@node-rs/argon2';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { isStaffRole } from '@/lib/staff-roles';
+import { verifyOtp } from '@/lib/otp';
 
 // Staff sign-in only. Customers will sign in by phone OTP (M2.1) — that is a second
 // provider on this same config, not a second auth system.
@@ -15,6 +16,11 @@ import { isStaffRole } from '@/lib/staff-roles';
 const credentialsSchema = z.object({
   email: z.email(),
   password: z.string().min(1),
+});
+
+const phoneOtpSchema = z.object({
+  phone: z.string().regex(/^01[3-9]\d{8}$/),
+  code: z.string().regex(/^\d{6}$/),
 });
 
 // Verifying against a throwaway hash when the account does not exist keeps a failed sign-in
@@ -60,6 +66,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user?.passwordHash || !passwordMatches || !isStaffRole(user.role)) return null;
 
         await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+
+        return { id: user.id, name: user.name, email: user.email, role: user.role };
+      },
+    }),
+
+    // Customers sign in with a phone number and a one-time code. Same session machinery as
+    // staff, different proof — which is why this is a second provider rather than a second
+    // auth system.
+    Credentials({
+      id: 'phone-otp',
+      name: 'Phone',
+      credentials: {
+        phone: { label: 'Mobile', type: 'tel' },
+        code: { label: 'Code', type: 'text' },
+      },
+      async authorize(raw) {
+        const parsed = phoneOtpSchema.safeParse(raw);
+        if (!parsed.success) return null;
+
+        const result = await verifyOtp({ phone: parsed.data.phone, code: parsed.data.code });
+        if (!result.ok) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { id: result.userId },
+          select: { id: true, name: true, email: true, role: true },
+        });
+        if (!user) return null;
 
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },

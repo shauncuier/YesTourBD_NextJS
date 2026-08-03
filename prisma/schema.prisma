@@ -130,6 +130,49 @@ enum RequestEventType {
   quotation_sent
 }
 
+/// A one-time code sent to a phone. The code itself is never stored — only an argon2 hash of
+/// it — so a database leak does not hand anyone a working sign-in.
+model OtpChallenge {
+  id        String    @id @default(uuid())
+  phone     String
+  codeHash  String    @map("code_hash")
+  expiresAt DateTime  @map("expires_at")
+  /// Wrong guesses against this challenge. Past the cap it is dead even if the code is right.
+  attempts  Int       @default(0)
+  /// Set the moment it is used, so one code can never sign in twice.
+  consumedAt DateTime? @map("consumed_at")
+  ipHash    String?   @map("ip_hash")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([phone, createdAt])
+  @@index([ipHash, createdAt])
+  @@map("otp_challenges")
+}
+
+enum SmsStatus {
+  queued
+  sent
+  failed
+}
+
+/// Sent messages, for the same reason email has an outbox: "did the code arrive?" should be
+/// answerable from our own records. The body of an OTP is redacted unless the transport is
+/// the local console one — see lib/sms/send.ts.
+model SmsMessage {
+  id        String    @id @default(uuid())
+  to        String
+  body      String
+  template  String
+  status    SmsStatus @default(queued)
+  transport String
+  error     String?
+  sentAt    DateTime? @map("sent_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([status, createdAt])
+  @@map("sms_messages")
+}
+
 /// One row per tracking lookup, so the guessing rate can be limited without keeping counters
 /// in memory the way serverless cannot. The IP is hashed; the reference is kept so an actual
 /// enumeration attempt is visible afterwards.

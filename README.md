@@ -63,6 +63,13 @@ engine binary, which is why `lib/db.ts` constructs the client the way it does.
 The schema is `prisma/schema.prisma`; `prisma/seed.ts` reads `lib/site-data.js`, so that
 array stays the single source of truth for the twelve services.
 
+## Customer sign-in
+
+Customers sign in at `/signin` with a mobile number and a six-digit code. With no `SMS_API_KEY`
+set the code is printed to the terminal and kept in `sms_messages`, so the whole flow works
+locally without spending SMS credits. Set the key and it goes through BulkSMSBD instead — at
+which point the code is no longer stored anywhere.
+
 ## Email
 
 With no `RESEND_API_KEY` set, mail is not sent — it is written to the `email_messages` table
