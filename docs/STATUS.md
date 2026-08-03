@@ -44,7 +44,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 
 | Requirement | Notes |
 |---|---|
-| Database + schema | No persistence layer at all |
+| Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
 | API layer | No route handlers, no server actions |
 | Auth / user accounts | "Sign in" is a link to `/account`; the account page shows a hard-coded customer |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |

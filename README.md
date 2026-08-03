@@ -4,10 +4,12 @@ All-in-one travel marketplace for Bangladesh — hotels, houseboats, ship and ai
 can confirm right now, plus corporate tours, custom packages and visa help handled by a
 coordinator.
 
-**Status: front-end only.** The design language, component library and five customer screens
-are real, responsive and tested. Everything behind them — database, API, accounts, payments,
-admin — does not exist yet, and all content is hard-coded in `lib/site-data.js`. See
-[docs/STATUS.md](docs/STATUS.md) before estimating anything.
+**Status: front end plus the first slice of a backend.** The design language, component
+library and five customer screens are real, responsive and tested. Postgres is now wired in
+and the home page reads its service catalogue from it; everything else — accounts, quote
+requests, payments, admin — does not exist yet, and the rest of the content is still
+hard-coded in `lib/site-data.js`. See [docs/STATUS.md](docs/STATUS.md) before estimating
+anything.
 
 ---
 
@@ -16,8 +18,11 @@ admin — does not exist yet, and all content is hard-coded in `lib/site-data.js
 Requires **Node ≥ 20.9** (Next 16's floor; CI runs 22 and 24).
 
 ```bash
-npm install
-npm run dev      # http://localhost:3000
+npm install                    # postinstall runs `prisma generate`
+cp .env.example .env           # then set DATABASE_URL (see Database below)
+npm run db:deploy              # apply migrations
+npm run db:seed                # insert the twelve services
+npm run dev                    # http://localhost:3000
 ```
 
 | Script | What it does |
@@ -28,8 +33,32 @@ npm run dev      # http://localhost:3000
 | `npm run lint` | ESLint, flat config |
 | `npm run typecheck` | `next typegen`, then `tsc --noEmit` |
 | `npm test` | Vitest once (`test:watch` to watch) |
+| `npm run db:migrate` | Create and apply a migration from schema changes |
+| `npm run db:deploy` | Apply committed migrations (CI, staging, production) |
+| `npm run db:seed` | Seed the service catalogue; idempotent |
+| `npm run db:studio` | Browse the database |
 
-There is no `.env` and nothing to configure — the app has no backend yet.
+## Database
+
+Postgres via **Prisma 7**. `DATABASE_URL` is the only variable, and `npm run build` needs it
+— the home page is prerendered from the service catalogue.
+
+Three ways to get one:
+
+```bash
+npx prisma dev            # local Postgres, no Docker; prints a connection string
+```
+
+…or a [Neon](https://neon.tech) project (what this deploys against — take the pooled
+connection string), or any Postgres you already run.
+
+Worth knowing if you have used older Prisma: configuration lives in `prisma.config.ts`, not
+`package.json`; the client is generated into `lib/generated/prisma` (git-ignored, rebuilt by
+`postinstall`); and queries go through the `@prisma/adapter-pg` driver adapter rather than an
+engine binary, which is why `lib/db.ts` constructs the client the way it does.
+
+The schema is `prisma/schema.prisma`; `prisma/seed.ts` reads `lib/site-data.js`, so that
+array stays the single source of truth for the twelve services.
 
 ## Routes
 

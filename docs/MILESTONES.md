@@ -23,8 +23,8 @@ engineering ones.
 | D2 | Confirm the v1 instant/request split proposed in ARCHITECTURE.md — especially whether hotel inventory exists today | M0.0, M3.x, M5.x |
 | D3 | Is "Pay 30% to hold, balance before departure" a real policy? | M1.8 |
 | D4 | Mobile layout behaviour for the five screens — needs design, no mobile artboards exist | M0.2 onward |
-| D5 | ORM choice: Prisma or Drizzle | M1.1 |
-| D6 | Hosting target | M1.1 |
+| D5 | ~~ORM choice: Prisma or Drizzle~~ — **decided: Prisma**, for the migration ergonomics while the schema is still churning | M1.1 |
+| D6 | ~~Hosting target~~ — **decided: Vercel, with Neon for Postgres**; Neon's branching gives each preview deploy its own database | M1.1 |
 | D7 | SMS provider for OTP | M2.1 |
 | D8 | SSLCommerz merchant account | M3.5 |
 | D9 | Three brand tokens fail WCAG AA for small text and are the only accessibility failure left: `--color-text-muted` #7a8ca0 on white is 3.45:1, white on `--teal-500` #00988b is 3.58:1, `--teal-400` #28b1a1 on white is 2.65:1 (AA wants 4.5:1). Darkening them is a brand change and belongs in the Design project, not this repo — the tokens are synced from it | M0.9 |
@@ -180,14 +180,23 @@ Blocks the Lighthouse performance gate in M0.9. Needs the real photography first
 Covers nine of twelve services with no payment gateway. The smallest genuinely useful
 product.
 
-### M1.1 — Database foundation · M · needs D5, D6
-- [ ] Provision PostgreSQL (dev + staging)
-- [ ] Install ORM, configure migrations
-- [ ] `User` and `Service` tables
-- [ ] Seed the twelve services from `lib/site-data.js`
-- [ ] Document local setup in README
+### M1.1 — Database foundation · M — **MOSTLY DONE**
+- [x] Postgres for development: `npx prisma dev` runs one locally with no Docker, and any
+      Neon or plain Postgres URL works instead. CI runs a `postgres:17` service container, so
+      migrations and the seed are exercised on every push
+- [ ] Staging database — needs a Neon project, which is an account action rather than a code
+      one. Put its pooled URL in `DATABASE_URL` and `npm run db:deploy`
+- [x] Prisma 7 installed and configured. Two things differ from older Prisma: configuration
+      lives in `prisma.config.ts` rather than `package.json`, and the client talks to Postgres
+      through the `@prisma/adapter-pg` driver adapter instead of an engine binary
+- [x] `User` and `Service` tables, migration `20260803095549_init` committed
+- [x] Seed the twelve services from `lib/site-data.js` — idempotent, upserts on slug, so
+      the array stays the single source of truth for the catalogue
+- [x] Document local setup in README
 
 **Done when:** a fresh clone can run migrations and seed, and `/` reads services from the DB.
+*Verified:* changing a service name in the database and rebuilding put that name in the
+prerendered `/` markup; restoring the seed took it back out.
 
 ### M1.2 — Quote request persistence · M
 - [ ] `QuoteRequest` schema and migration

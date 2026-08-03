@@ -22,6 +22,28 @@ Tests run on **Vitest + React Testing Library** (`npm test`, `npm run test:watch
 
 `.github/workflows/ci.yml` runs lint, typecheck, test and build on every push to `main` and every pull request, on Node 22 and 24. Node 20.9 is the floor Next 16 sets.
 
+## Database
+
+Postgres through **Prisma 7** (decision D5), deploying to Vercel with Neon (D6). `DATABASE_URL`
+is the only environment variable, and `npm run build` needs it — `/` is prerendered from the
+service catalogue.
+
+Prisma 7 differs from what you probably remember:
+
+- Configuration is in **`prisma.config.ts`**, not a `prisma` key in `package.json`. The seed
+  command lives under `migrations.seed` there.
+- The client is generated into **`lib/generated/prisma`** — git-ignored, rebuilt by
+  `postinstall`, ignored by ESLint. Import it through `lib/db.ts`, never directly.
+- Queries go through the **`@prisma/adapter-pg` driver adapter**; `new PrismaClient()` with no
+  adapter throws. `lib/db.ts` builds it and memoises the instance on `globalThis` in dev, so
+  the dev server's module re-evaluation does not exhaust the connection limit.
+- `npx prisma dev` runs a local Postgres with no Docker, which is how this was developed.
+
+`prisma/seed.ts` upserts the twelve services from `lib/site-data.js` on `slug`, so that array
+stays the source of truth for the catalogue and re-seeding never duplicates rows. Screens read
+data through `lib/*.ts` helpers (`lib/services.ts`), which map rows onto the shapes the ported
+components already consume — the components themselves stay unaware of the database.
+
 ## Stack
 
 Next.js 16.2.12 (App Router) · React 19.2.4 · TypeScript 5 (`strict`) · lucide-react.

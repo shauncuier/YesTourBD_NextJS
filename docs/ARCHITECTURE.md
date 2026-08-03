@@ -44,12 +44,12 @@ instant and the plan below absorbs it without restructuring.
 | App | Next.js 16 App Router (already here) | One deployable serves marketing, booking, account and admin. Server Components keep the public pages static and fast, which is the SEO and speed requirement. |
 | API | Route handlers + server actions in the same app | No separate API service to operate. Revisit if a mobile app is ever built. |
 | Database | PostgreSQL | Bookings and payments are relational and need real transactions. |
-| ORM | Prisma or Drizzle **[decide]** | Prisma for migration ergonomics; Drizzle for less runtime weight. Either is fine. |
+| ORM | **Prisma 7** (decided, D5) | Migration ergonomics while the schema churns. Note v7 configures from `prisma.config.ts` and requires the `@prisma/adapter-pg` driver adapter. |
 | Auth | Auth.js, phone-OTP primary | Bangladesh is a phone-first market. Email as secondary. |
 | Payments | SSLCommerz | One integration covers bKash, Nagad, and cards — which is exactly the set the design system's footer and checkout copy already promise. |
 | Media | S3-compatible object storage (e.g. Cloudflare R2) + `next/image` | Replaces the Unsplash placeholders; `next/image` gets the performance requirement mostly for free. |
 | Transactional messaging | Email for vouchers/quotations; SMS for OTP | WhatsApp is a human channel here, not automated. |
-| Hosting | **[decide]** | Vercel is the least-friction fit. Any Node host works. |
+| Hosting | **Vercel + Neon Postgres** (decided, D6) | Least-friction fit for Next 16, and Neon's branching gives each preview deploy its own database. |
 
 Admin lives at `/admin` inside the same app behind a role guard, reusing the same component
 library. The design system already contains an admin UI kit to port when the backend exists.
