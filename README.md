@@ -39,6 +39,7 @@ npm run dev                    # http://localhost:3000
 | `npm run db:seed` | Seed the service catalogue; idempotent |
 | `npm run db:studio` | Browse the database |
 | `npm run staff:create` | Create or reset a staff account from `STAFF_*` environment variables |
+| `npm run db:seed:dev` | Sample staff, customers and quote requests for local work (`-- --clean` removes them) |
 
 ## Database
 
@@ -72,8 +73,25 @@ STAFF_NAME='Your Name' STAFF_PHONE=017XXXXXXXX npm run staff:create
 ```
 
 Then sign in at `/admin/login`. Re-running with the same email resets that password, which is
-the recovery path until there is a real one. Nothing about staff credentials lives in the
-repo, and nothing should.
+the recovery path until there is a real one. Passwords must be at least 12 characters.
+Nothing about staff credentials lives in the repo, and nothing should.
+
+### Sample data
+
+For local work, `npm run db:seed:dev` adds three staff, five customers and seven quote
+requests spread across the pipeline — two of them deliberately old enough to show the overdue
+flag in the queue:
+
+```bash
+npm run db:seed:dev              # sign in as sadia@yestourbd.test / devpassword1234
+npm run db:seed:dev -- --clean   # removes everything it added
+DEV_PASSWORD='your own' npm run db:seed:dev
+```
+
+Every sample address ends in `.test` and every sample request is tagged, which is how
+`--clean` finds them again. The script refuses to run with `NODE_ENV=production` unless
+`ALLOW_DEV_SEED=true` says otherwise. It is separate from `npm run db:seed`, which seeds the
+real twelve-service catalogue and is safe anywhere.
 
 ## Routes
 
