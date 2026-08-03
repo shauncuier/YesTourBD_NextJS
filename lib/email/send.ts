@@ -1,3 +1,4 @@
+import { liveSendingAllowed } from '../deployment';
 import { prisma } from '../db';
 import type { EmailTemplate } from './templates';
 
@@ -11,9 +12,21 @@ import type { EmailTemplate } from './templates';
 
 export type Transport = 'console' | 'resend';
 
+/**
+ * The provider is used by the production deployment once a key exists, and by nothing else.
+ * A preview deploy carries `NODE_ENV=production` while being precisely where a test request
+ * gets filed against a made-up address, and mail sent from one reaches a real inbox and a
+ * real spam reputation. `EMAIL_LIVE` overrides it either way; see lib/deployment.ts.
+ */
 function activeTransport(): Transport {
-  return process.env.RESEND_API_KEY ? 'resend' : 'console';
+  if (!process.env.RESEND_API_KEY) return 'console';
+  return liveSendingAllowed(process.env.EMAIL_LIVE) ? 'resend' : 'console';
 }
+
+// A provider that accepts the connection and then stalls would hold the request open until
+// the platform kills it. Mail is sent after the row is committed, so a timeout costs the
+// message, never the customer's request.
+const SEND_TIMEOUT_MS = 10_000;
 
 async function deliver(transport: Transport, message: { to: string; subject: string; body: string }) {
   if (transport === 'resend') {
@@ -29,6 +42,7 @@ async function deliver(transport: Transport, message: { to: string; subject: str
         subject: message.subject,
         text: message.body,
       }),
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
     });
 
     if (!response.ok) {

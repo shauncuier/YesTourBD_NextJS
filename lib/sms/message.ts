@@ -11,3 +11,13 @@
 export function otpMessage(code: string): string {
   return `Your YesTourBD OTP is ${code}`;
 }
+
+/**
+ * A mobile number for a log line. Logs are read by more people, kept for longer and shipped
+ * further than the database is, so a delivery failure should not put a customer's full number
+ * in one: 01712345678 becomes 017••••5678.
+ */
+export function maskMobile(mobile: string): string {
+  if (mobile.length < 8) return '••••';
+  return `${mobile.slice(0, 3)}••••${mobile.slice(-4)}`;
+}

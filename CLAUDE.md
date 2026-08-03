@@ -96,10 +96,20 @@ Three things not to undo:
   The console keeps it because that is the only way to read a code in development; a real
   gateway must never leave codes sitting in `sms_messages`.
 
-**Development never sends real SMS**, even with a key configured — codes print to the
-terminal instead. A test run must not be able to spend credits or reach a stranger's handset
-because a made-up number happened to be valid. `SMS_LIVE=true` overrides it for a deliberate
-end-to-end check.
+**Only the production deployment sends real SMS**, even with a key configured — development
+and preview deploys print codes to the terminal instead. A test run must not be able to spend
+credits or reach a stranger's handset because a made-up number happened to be valid.
+`SMS_LIVE=true` overrides it for a deliberate end-to-end check; `SMS_LIVE=false` is the kill
+switch and wins everywhere, production included.
+
+The gate itself is **`lib/deployment.ts`**, shared with email, and it reads `VERCEL_ENV`
+rather than `NODE_ENV`. That distinction is the whole point: a preview build is also
+`NODE_ENV=production`, and a preview URL is exactly where invented numbers get typed in. Do
+not re-derive "are we in production?" anywhere else.
+
+Once a key exists the stored body is redacted **whatever transport was chosen** — a developer
+holding a real key reads the code off the terminal and does not need a working credential
+sitting in `sms_messages` as well.
 
 SMS goes through **BulkSMSBD**. It answers HTTP 200 whatever happened and puts the real
 verdict in `response_code` (202 is accepted), so the transport parses the body — checking the
@@ -122,6 +132,11 @@ there too, or it leaks the internal vocabulary.
 `lib/email/send.ts` is the only seam to a provider. With no `RESEND_API_KEY` set the transport
 is `console`: every message is still written to `email_messages` and logged, so copy and
 triggering are testable without an account. Adding a provider is a branch in `deliver()`.
+
+Delivery is gated the same way SMS is, through `lib/deployment.ts`: only the production
+deployment mails for real, `EMAIL_LIVE=true` forces it from elsewhere and `EMAIL_LIVE=false`
+stops it everywhere. A preview deploy reaching real inboxes costs a sender reputation that no
+amount of "it was only a test" gets back.
 
 Two rules:
 
