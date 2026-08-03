@@ -281,12 +281,34 @@ phone each found it; an unanswered request planted three days back showed the ov
 and the page does not scroll sideways at 390px, though the dense table scrolls inside its own
 panel.
 
-### M1.6 — Request detail and status machine · M
-- [ ] Detail view of everything the customer submitted
-- [ ] Transitions: submitted → reviewing → quoted → negotiating → accepted / lost / expired
-- [ ] Internal notes and an audit trail of who changed what
+### M1.6 — Request detail and status machine · M — **DONE**
+- [x] Detail view of everything the customer submitted — every field, the contact details as
+      tap-to-call and mailto links, the selected needs, and their own notes verbatim
+- [x] Transitions, as rules rather than prose. `lib/request-pipeline.ts` owns the allowed
+      moves and the server re-checks every one, so the buttons are what is *offered*, not
+      what is *permitted*
+- [x] Internal notes and an audit trail. `QuoteRequestEvent` is append-only: status changes,
+      assignments and notes, each with who did it and when. The status write and its history
+      row share a transaction — a status that changed with no event explaining it is worse
+      than no audit trail, because it looks complete
+- [x] Assignment: claim a request or hand it back, recorded like anything else. The queue
+      gained the Owner column the design system's list view always had
+
+Two deliberate choices about the pipeline: `quoted → reviewing` and `negotiating → quoted`
+are allowed, because a customer coming back with changes is the normal case; and `lost` and
+`expired` reopen to `reviewing` rather than forcing a duplicate request, which would split the
+history of the same conversation across two records. `booked` is final.
 
 **Done when:** a request can be walked through every transition and the history is visible.
+*Verified* in a browser: a request submitted through the public form was claimed, walked
+submitted → reviewing → quoted → negotiating → accepted → booked, and every step appeared in
+the history with the coordinator's name; a note was added and kept; `booked` then offered
+nothing further; and a forged transition posted straight at the server was rejected without
+changing the status.
+
+This pass found a real bug in a ported component: the design system's `Button` dropped `name`
+and `value`, so every status button submitted an empty field and the pipeline could not move
+at all. Fixed and covered by a test.
 
 ### M1.7 — Quotation builder · L · needs D3
 - [ ] `Quotation` schema with line items

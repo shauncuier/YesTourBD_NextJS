@@ -69,6 +69,8 @@ model User {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   quoteRequests QuoteRequest[]
+  assignedRequests QuoteRequest[] @relation("assignedStaff")
+  requestEvents QuoteRequestEvent[]
 
   @@map("users")
 }
@@ -99,7 +101,12 @@ model QuoteRequest {
   email       String?
   contactPref ContactPref @map("contact_pref")
 
-  status QuoteStatus @default(submitted)
+  status       QuoteStatus @default(submitted)
+  /// The coordinator who owns the reply. Null means nobody has claimed it.
+  assignedToId String?     @map("assigned_to_id")
+  assignedTo   User?       @relation("assignedStaff", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  events QuoteRequestEvent[]
 
   /// SHA-256 of the submitter's IP. Rate limiting needs to recognise a repeat sender
   /// without the database holding an address that identifies one.
@@ -110,7 +117,39 @@ model QuoteRequest {
   @@index([status, createdAt])
   @@index([ipHash, createdAt])
   @@index([phone, createdAt])
+  @@index([assignedToId, status])
   @@map("quote_requests")
+}
+
+enum RequestEventType {
+  status_changed
+  assigned
+  note
+}
+
+/// Append-only history: who did what to a request and when. Nothing here is ever updated or
+/// deleted — "the customer says they were told X" is answerable only if the record is
+/// complete, and a status column alone cannot say who moved it or why.
+model QuoteRequestEvent {
+  id        String           @id @default(uuid())
+  requestId String           @map("request_id")
+  request   QuoteRequest     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  type      RequestEventType
+  /// Null when the actor's account is later removed; the event itself survives.
+  actorId   String?          @map("actor_id")
+  actor     User?            @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  /// Denormalised so history still reads correctly after a staff member leaves.
+  actorName String           @map("actor_name")
+
+  fromStatus QuoteStatus? @map("from_status")
+  toStatus   QuoteStatus? @map("to_status")
+  /// Internal note, or the reason attached to a transition. Never shown to the customer.
+  body       String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([requestId, createdAt])
+  @@map("quote_request_events")
 }
 
 /// The twelve-service catalogue from the brief. `slug` carries the ids the front end has

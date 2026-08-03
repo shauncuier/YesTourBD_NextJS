@@ -15,5 +15,8 @@ export interface ButtonProps {
   onClick?: (e: React.MouseEvent) => void;
   children?: React.ReactNode;
   style?: React.CSSProperties;
+  /** Submitted with the form when this button is the one that submitted it. */
+  name?: string;
+  value?: string;
 }
 export function Button(props: ButtonProps): React.JSX.Element;

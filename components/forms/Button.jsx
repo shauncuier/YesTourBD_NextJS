@@ -46,7 +46,7 @@ function variantStyle(variant, { hover, active }) {
 /** Primary interactive control — CTAs, form submits, toolbar actions. */
 export function Button({
   variant = 'primary', size = 'md', disabled = false, fullWidth = false,
-  iconLeft, iconRight, type = 'button', onClick, children, style,
+  iconLeft, iconRight, type = 'button', onClick, children, style, name, value,
 }) {
   const [hover, setHover] = React.useState(false);
   const [active, setActive] = React.useState(false);
@@ -57,6 +57,8 @@ export function Button({
   return (
     <button
       type={type}
+      name={name}
+      value={value}
       disabled={disabled}
       onClick={onClick}
       onMouseEnter={() => setHover(true)}

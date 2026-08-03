@@ -15,6 +15,8 @@ export interface QueueTableRow {
   /** Preformatted desk-hours age, e.g. "3h 12m". */
   waiting: string;
   overdue: boolean;
+  /** Name of the coordinator who claimed it, or null when nobody has. */
+  assignee: string | null;
 }
 
 export function QueueTable(props: { rows: QueueTableRow[] }): React.JSX.Element;

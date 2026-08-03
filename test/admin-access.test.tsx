@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { initialsOf, isStaffRole } from '@/lib/staff-roles';
+import { Button } from '@/components/index.js';
 import { LoginForm } from '@/components/admin/LoginForm.jsx';
 import type { SignInState } from '@/app/admin/login/actions';
 
@@ -25,6 +26,30 @@ describe('staff initials', () => {
     expect(initialsOf('Rakib')).toBe('R');
     expect(initialsOf(null)).toBe('??');
     expect(initialsOf('')).toBe('??');
+  });
+});
+
+describe('submit buttons carry their value', () => {
+  it('posts the name and value of the button that submitted the form', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      submitted = Object.fromEntries(new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter));
+    });
+    let submitted: Record<string, unknown> = {};
+
+    render(
+      <form onSubmit={onSubmit}>
+        <Button type="submit" name="to" value="reviewing">Reviewing</Button>
+        <Button type="submit" name="to" value="lost">Lost</Button>
+      </form>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Lost' }));
+
+    // The design system's Button dropped name/value, so every status button submitted an
+    // empty `to` — the pipeline could not move at all. Guarding that here.
+    expect(submitted).toEqual({ to: 'lost' });
   });
 });
 

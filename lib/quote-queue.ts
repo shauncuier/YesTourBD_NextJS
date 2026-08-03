@@ -20,6 +20,7 @@ export type QueueRow = {
   nights: number | null;
   status: string;
   createdAt: Date;
+  assignee: string | null;
   sla: SlaState;
 };
 
@@ -56,13 +57,15 @@ export async function listQuoteRequests(
       select: {
         id: true, ref: true, name: true, phone: true, email: true, requestType: true,
         destinations: true, paxBand: true, startDate: true, nights: true, status: true, createdAt: true,
+        assignedTo: { select: { name: true } },
       },
     }),
     prisma.quoteRequest.count({ where }),
   ]);
 
-  const rows: QueueRow[] = requests.map((request) => ({
+  const rows: QueueRow[] = requests.map(({ assignedTo, ...request }) => ({
     ...request,
+    assignee: assignedTo?.name ?? null,
     sla: slaStateFor({ createdAt: request.createdAt, status: request.status, now }),
   }));
 

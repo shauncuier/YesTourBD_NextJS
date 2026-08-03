@@ -39,6 +39,18 @@ Prisma 7 differs from what you probably remember:
   the dev server's module re-evaluation does not exhaust the connection limit.
 - `npx prisma dev` runs a local Postgres with no Docker, which is how this was developed.
 
+## The request pipeline
+
+`lib/request-pipeline.ts` is the only place that says which status may follow which. Server
+actions call `checkTransition()` before writing, so what the UI offers and what the server
+permits cannot drift apart — a button is a suggestion, never an authorisation.
+
+Every change writes a `QuoteRequestEvent` in the **same transaction** as the change itself.
+The table is append-only: nothing edits or deletes history. When a customer says "I was told
+X", the record has to be able to answer, and a status column alone cannot say who moved it or
+why. Actor names are denormalised onto the event so history still reads correctly after
+someone leaves.
+
 ## The two-working-hour SLA
 
 The brief promises a reply within two working hours, and `lib/sla.ts` is the only place that
@@ -169,6 +181,7 @@ The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where t
 - **`Switch`** names itself with `aria-labelledby` pointing at its label text. The original relied on the wrapping `<label htmlFor>`, which names nothing: `htmlFor` only applies to labelable form elements, and the control is a `<span role="switch">`. Lighthouse failed all three `/account` switches on `aria-toggle-field-name`.
 - **`Dialog`** implements what `aria-modal` claims: focus moves into the surface on open, Tab is trapped inside it, focus returns to whatever opened it on close, and the page behind stops scrolling. The original added the attribute and an Escape handler only. Browsers implement none of this for a `role="dialog"` div.
 - **`Input` / `Select` / `Checkbox`** accept `name` (and `Input` also `autoComplete` and `inputMode`), passed to the underlying element. The UI kit never submitted a form, so it had no way to name a field; `/request` posts real FormData.
+- **`Button`** accepts `name` and `value`, so a form can tell which button submitted it. Without it, the admin status buttons all posted an empty field and no request could change status.
 - **`Card`** marks its image `loading="lazy" decoding="async"`. Every card in this app is below the fold and the images are full-size remote JPEGs.
 - **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
 - `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.

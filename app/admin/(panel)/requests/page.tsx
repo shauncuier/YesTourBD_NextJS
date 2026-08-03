@@ -33,6 +33,7 @@ export default async function AdminRequestsPage(props: PageProps<'/admin/request
     status: row.status,
     waiting: formatDuration(row.sla.workingMinutes),
     overdue: row.sla.overdue,
+    assignee: row.assignee,
   }));
 
   return (

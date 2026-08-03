@@ -65,10 +65,12 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 
 ### Admin
 
-**The shell, the sign-in and the request queue exist (M1.4, M1.5)**: staff can sign in at
-`/admin/login`, and `/admin/requests` lists real quote requests with status filters, search by
-reference/name/phone, and an overdue flag against the two-working-hour SLA. Opening a request,
-assigning it and sending a quotation are M1.6–M1.7. Every other screen is still unbuilt —
+**The shell, the sign-in, the queue and the pipeline exist (M1.4–M1.6)**: staff can sign in at
+`/admin/login`; `/admin/requests` lists real quote requests with status filters, search by
+reference/name/phone, and an overdue flag against the two-working-hour SLA; and each request
+opens onto a detail page where it can be claimed, moved through the status pipeline and
+annotated, with an append-only history of who did what. Building and sending an actual
+quotation is M1.7. Every other screen is still unbuilt —
 the nav links say which milestone brings each one. The remaining admin screens
 (`DashboardScreen`, `BookingsScreen`, `RequestsScreen`, `ServicesScreen`) are in the remote
 Claude Design project and can be pulled with DesignSync as their milestones land.

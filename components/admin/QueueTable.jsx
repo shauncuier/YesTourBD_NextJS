@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Badge, Icon } from '../index.js';
 import { TD, TH } from './chrome.jsx';
 import c from './admin.module.css';
@@ -27,7 +28,7 @@ const TYPE_LABEL = {
   car: 'Rent a car',
 };
 
-const HEADS = ['Ref', 'Customer', 'Type', 'Pax', 'Destination', 'When', 'Waiting', 'Status'];
+const HEADS = ['Ref', 'Customer', 'Type', 'Pax', 'Destination', 'When', 'Waiting', 'Owner', 'Status', ''];
 
 function formatWhen(startDate, nights) {
   if (!startDate) return '—';
@@ -72,7 +73,15 @@ export function QueueTable({ rows }) {
                 ) : null}
               </td>
               <td style={{ ...TD, whiteSpace: 'nowrap' }}>
+                {row.assignee ? row.assignee : <Badge tone="warning">Unassigned</Badge>}
+              </td>
+              <td style={{ ...TD, whiteSpace: 'nowrap' }}>
                 <Badge tone={STATUS_TONE[row.status] ?? 'neutral'} dot>{row.status}</Badge>
+              </td>
+              <td style={{ ...TD, whiteSpace: 'nowrap' }}>
+                <Link href={`/admin/requests/${encodeURIComponent(row.ref)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--color-link)', textDecoration: 'none' }}>
+                  Open<Icon name="chevron-right" size={15} />
+                </Link>
               </td>
             </tr>
           ))}
