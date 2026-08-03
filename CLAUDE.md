@@ -4,18 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+General engineering standards live in [SYSTEM_PROMPT.md](SYSTEM_PROMPT.md) — deliberately linked, not `@`-imported, so it stays out of every session's context. This file wins wherever the two disagree.
+
 ## Commands
 
 ```bash
-npm run dev     # dev server (Turbopack, http://localhost:3000)
-npm run build   # production build
-npm run start   # serve the production build
-npm run lint    # ESLint (flat config)
-npx tsc --noEmit  # typecheck; there is no npm script for it
-npx next typegen  # regenerate PageProps/LayoutProps/RouteContext type helpers
+npm run dev        # dev server (Turbopack, http://localhost:3000)
+npm run build      # production build
+npm run start      # serve the production build
+npm run lint       # ESLint (flat config)
+npm run typecheck  # next typegen, then tsc --noEmit
+npm test           # Vitest once; test:watch to watch
+npx next typegen   # regenerate PageProps/LayoutProps/RouteContext on their own
 ```
 
-No test runner is configured — there are no test files, no test script, and no testing dependency in `package.json`. If tests are needed, pick and install a runner first.
+Tests run on **Vitest + React Testing Library** (`npm test`, `npm run test:watch`), jsdom environment, config in `vitest.config.mts` and setup in `test/setup.ts` — which stubs `next/navigation` and `window.matchMedia`, neither of which exists outside an App Router tree or a real browser. `test/keyboard.test.tsx` holds the keyboard and focus contracts; break one and it fails.
+
+`.github/workflows/ci.yml` runs lint, typecheck, test and build on every push to `main` and every pull request, on Node 22 and 24. Node 20.9 is the floor Next 16 sets.
 
 ## Stack
 
