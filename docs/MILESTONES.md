@@ -439,12 +439,35 @@ then one number signed in for the first time — its request was waiting on the 
 other number's was not, the identity was the real customer rather than the design system's
 Nusrat Jahan, and the price column said "Quote pending" rather than inventing a figure.
 
-### M2.4 — Profile · M
-- [ ] Edit name, email, NID/passport
-- [ ] Encrypt NID/passport at rest; keep out of logs and analytics
-- [ ] Notification preferences persisted
+### M2.4 — Profile · M — **DONE**
+- [x] Edit name, email, NID/passport
+- [x] Encrypt NID/passport at rest, and keep it out of logs. AES-256-GCM in
+      `lib/field-crypto.ts`, stored as `v1.iv.tag.ciphertext` so a future key rotation can be
+      told apart from corruption
+- [x] Notification preferences persisted. Booking updates default on because they are
+      transactional; marketing defaults off, which is the only defensible default for
+      something nobody opted into
 
-**Done when:** profile edits survive a sign-out, and the identity fields are encrypted in the DB.
+**Why encryption rather than "the database is private":** an NID or passport number cannot be
+reissued the way a password can. A dump, a backup on a laptop, or a read-only replica must
+leak ciphertext, not identity documents. Consequences, deliberately accepted:
+
+- **A missing key fails the save** instead of quietly storing the document in clear
+- **A wrong key returns null**, never a guess — GCM authenticates, so tampering is detected
+- **Ciphertext differs every time**, so equal documents are not obvious from the column alone
+- **The plaintext never leaves the server.** The page shows `••••3456`; the form field comes
+  back empty and takes a new value to replace it
+- **Lose the key and those fields are gone.** Nothing else can recover them — noted in
+  `.env.example` next to the generator command
+
+**Done when:** profile edits survive a sign-out, and the identity fields are encrypted in the
+DB. *Verified* in a browser: name, email, document and both marketing switches were saved,
+the column was read directly and contained versioned ciphertext with no trace of the document,
+then a full sign-out and sign-in showed everything still there and the document still masked.
+
+This pass found the third form gap in the ported design system: `Switch` renders a
+`<span role="switch">` and submitted nothing at all, so every notification choice was silently
+lost. Same fix as `Button` and `Input` before it.
 
 ---
 

@@ -9,4 +9,7 @@ export interface SwitchProps {
   style?: React.CSSProperties;
   id?: string;
 }
-export function Switch(props: SwitchProps): React.JSX.Element;
+export function Switch(props: SwitchProps & {
+  /** Submits the switch's state as this key when it sits inside a form. */
+  name?: string;
+}): React.JSX.Element;

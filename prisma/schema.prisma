@@ -59,7 +59,17 @@ model User {
   phone       String   @unique
   email       String?  @unique
   name        String
+  /// AES-256-GCM ciphertext, never the document itself — see lib/field-crypto.ts. An identity
+  /// document cannot be reissued the way a password can, so a database dump must not contain
+  /// one.
   nidPassport String?  @map("nid_passport")
+
+  /// Notification preferences. Booking updates default on because they are transactional;
+  /// marketing defaults off, which is the only defensible default for something nobody asked
+  /// for.
+  notifyBookingUpdates Boolean @default(true) @map("notify_booking_updates")
+  notifyOffers         Boolean @default(false) @map("notify_offers")
+  notifyNewsletter     Boolean @default(false) @map("notify_newsletter")
   role        Role     @default(customer)
   /// Argon2id. Only staff have one — customers sign in by phone OTP (M2.1), which is why
   /// this is nullable rather than required.

@@ -62,6 +62,23 @@ X", the record has to be able to answer, and a status column alone cannot say wh
 why. Actor names are denormalised onto the event so history still reads correctly after
 someone leaves.
 
+## Identity documents
+
+NID and passport numbers are encrypted in the column with AES-256-GCM (`lib/field-crypto.ts`),
+keyed by `DATA_ENCRYPTION_KEY`. They cannot be reissued the way a password can, so a dump or a
+backup must leak ciphertext.
+
+Rules that go with that:
+
+- **Never log, echo or return the plaintext.** `getAccountProfile` decrypts and immediately
+  masks; only `••••3456` reaches the browser, and the form field comes back empty.
+- **A missing key fails the write.** Storing an identity document in clear because an env var
+  was forgotten is worse than an error the customer can retry.
+- **Losing the key loses the data.** There is no recovery path — say so before anyone rotates
+  it casually.
+
+Anything else identity-shaped added later belongs behind the same two functions.
+
 ## Customer sign-in (phone OTP)
 
 Customers sign in with a mobile number and a six-digit code — Auth.js's `phone-otp` provider,
@@ -255,6 +272,7 @@ The UI kit is a Babel-in-browser SPA that hangs everything off `window`. Where t
 - **`Dialog`** implements what `aria-modal` claims: focus moves into the surface on open, Tab is trapped inside it, focus returns to whatever opened it on close, and the page behind stops scrolling. The original added the attribute and an Escape handler only. Browsers implement none of this for a `role="dialog"` div.
 - **`Input` / `Select` / `Checkbox`** accept `name` (and `Input` also `autoComplete` and `inputMode`), passed to the underlying element. The UI kit never submitted a form, so it had no way to name a field; `/request` posts real FormData.
 - **`Button`** accepts `name` and `value`, so a form can tell which button submitted it. Without it, the admin status buttons all posted an empty field and no request could change status.
+- **`Switch`** accepts `name` and renders a hidden checkbox carrying its state. The kit's switch is a `<span role="switch">`, which submits nothing — every notification preference was being silently dropped.
 - **`Card`** marks its image `loading="lazy" decoding="async"`. Every card in this app is below the fold and the images are full-size remote JPEGs.
 - **`DetailScreen`'s gallery** declares `minmax(0, 1fr)` row tracks. Its `<img>`s are direct grid items, and a replaced element's min-content contribution would otherwise grow the row past the 340px gallery.
 - `/tickets` and `/guides` are aliases the UI kit itself never designed — they render `SearchScreen` and `HomeScreen` respectively. Replace when those screens exist.

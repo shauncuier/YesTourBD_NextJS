@@ -47,7 +47,7 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 |---|---|
 | Database + schema | **Started (M1.1).** Postgres via Prisma 7; `User` and `Service` tables migrated and the twelve services seeded; `/` reads the catalogue from the database. Every other table in the sketch is still unbuilt |
 | API layer | **Started (M1.2).** One server action: `/request` validates with Zod, rate-limits and persists a `QuoteRequest`. No route handlers yet |
-| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. `/account` shows the signed-in customer's own requests, including any sent before the account existed (matched by phone at sign-in). Bookings and the profile form are still placeholder — there is nothing to book until Phase 3, and profile editing is M2.4 |
+| Auth / user accounts | **Staff and customers (M1.4, M2.1–M2.2).** Staff sign in with email + password at `/admin/login`; customers with a mobile number and a six-digit code at `/signin`, via BulkSMSBD. Both argon2id, both role-guarded. `/account` shows the signed-in customer's own requests, including any sent before the account existed (matched by phone at sign-in). The profile is editable and persists — name, email, notification choices, and an NID/passport encrypted at rest (M2.4). Bookings are still placeholder: there is nothing to book until Phase 3 |
 | Payment integration | The confirm dialog's "Pay ৳6,520" sets a React state flag and nothing else |
 | Media storage | Every image is a remote Unsplash URL |
 

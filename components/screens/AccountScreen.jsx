@@ -79,12 +79,59 @@ function Empty({ icon, title, blurb, action }) {
   );
 }
 
+const PROFILE_IDLE = { status: 'idle' };
+
+function ProfileForm({ profile, action = async () => PROFILE_IDLE }) {
+  const [state, submit, pending] = React.useActionState(action, PROFILE_IDLE);
+  const errors = state.status === 'invalid' ? state.errors : {};
+
+  return (
+    <form action={submit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Traveller profile</strong>
+        <Input label="Full name" name="name" required defaultValue={profile.name === 'Traveller' ? '' : profile.name} placeholder="Your name" error={errors.name} />
+        <Input label="Email" name="email" type="email" defaultValue={profile.email ?? ''} placeholder="you@example.com" helperText="Where written quotations go." error={errors.email} />
+        <Input
+          label="NID / Passport"
+          name="nidPassport"
+          defaultValue=""
+          placeholder={profile.identityMask ?? 'Not on file'}
+          helperText={
+            profile.identityMask
+              ? `Ending ${profile.identityMask.slice(-4)} is on file, encrypted. Type a new one to replace it.`
+              : 'Needed for ship and air tickets. Stored encrypted.'
+          }
+          error={errors.nidPassport}
+        />
+      </div>
+
+      <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Notifications</strong>
+        <Switch label="Booking updates on WhatsApp" name="notifyBookingUpdates" defaultChecked={profile.notifications.bookingUpdates} />
+        <Switch label="Offers and promotions" name="notifyOffers" defaultChecked={profile.notifications.offers} />
+        <Switch label="Travel guide newsletter" name="notifyNewsletter" defaultChecked={profile.notifications.newsletter} />
+      </div>
+
+      {state.status === 'error' ? (
+        <div role="alert" style={{ padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', background: 'rgba(220,38,38,.06)', color: 'var(--color-danger)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>{state.message}</div>
+      ) : null}
+      {state.status === 'saved' ? (
+        <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', background: 'var(--teal-50)', color: 'var(--teal-700)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
+          <Icon name="check-circle" size={16} />Saved.
+        </div>
+      ) : null}
+
+      <div><Button type="submit" variant="outline" size="sm" disabled={pending}>{pending ? 'Saving…' : 'Save changes'}</Button></div>
+    </form>
+  );
+}
+
 /**
  * `profile` and `requests` come from the signed-in customer's own rows. Bookings are still
  * placeholder because there is nothing to book yet — instant booking and payment are Phase 3,
  * so that tab says so rather than showing invented trips.
  */
-export function AccountScreen({ profile = null, requests = null }) {
+export function AccountScreen({ profile = null, requests = null, saveAction = undefined }) {
   const go = useGo();
   const [tab, setTab] = React.useState(requests ? 'requests' : 'upcoming');
   const realRequests = requests ?? [];
@@ -161,19 +208,24 @@ export function AccountScreen({ profile = null, requests = null }) {
         </div>
 
         <aside style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Traveller profile</strong>
-            <Input label="Full name" defaultValue={profile?.name === 'Traveller' ? '' : profile?.name ?? 'Nusrat Jahan'} placeholder="Your name" />
-            <Input label="NID / Passport" defaultValue={profile ? '' : 'A0123456'} helperText="Needed for ship and air tickets." />
-            {/* Saving is M2.4, which also encrypts the identity fields at rest. */}
-            <Button variant="outline" size="sm" disabled={Boolean(profile)}>Save changes</Button>
-          </div>
-          <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-            <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Notifications</strong>
-            <Switch label="Booking updates on WhatsApp" defaultChecked />
-            <Switch label="Offers and promotions" />
-            <Switch label="Travel guide newsletter" defaultChecked />
-          </div>
+          {profile ? (
+            <ProfileForm profile={profile} action={saveAction} />
+          ) : (
+            <>
+              <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Traveller profile</strong>
+                <Input label="Full name" defaultValue="Nusrat Jahan" />
+                <Input label="NID / Passport" defaultValue="A0123456" helperText="Needed for ship and air tickets." />
+                <Button variant="outline" size="sm">Save changes</Button>
+              </div>
+              <div style={{ padding: 'var(--space-5)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                <strong style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-base)', color: 'var(--navy-900)' }}>Notifications</strong>
+                <Switch label="Booking updates on WhatsApp" defaultChecked />
+                <Switch label="Offers and promotions" />
+                <Switch label="Travel guide newsletter" defaultChecked />
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </div>

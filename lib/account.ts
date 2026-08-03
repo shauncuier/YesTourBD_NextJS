@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import { decryptField, maskIdentity } from './field-crypto';
 import { formatTaka } from './quotation';
 import { customerStatus } from './tracking';
 
@@ -90,12 +91,22 @@ export type AccountProfile = {
   email: string | null;
   memberSince: string;
   initials: string;
+  /** Only ever the last four digits — the document itself never reaches the browser. */
+  identityMask: string | null;
+  notifications: {
+    bookingUpdates: boolean;
+    offers: boolean;
+    newsletter: boolean;
+  };
 };
 
 export async function getAccountProfile(userId: string): Promise<AccountProfile | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true, phone: true, email: true, createdAt: true },
+    select: {
+      name: true, phone: true, email: true, createdAt: true, nidPassport: true,
+      notifyBookingUpdates: true, notifyOffers: true, notifyNewsletter: true,
+    },
   });
   if (!user) return null;
 
@@ -113,5 +124,13 @@ export async function getAccountProfile(userId: string): Promise<AccountProfile 
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase() ?? '')
       .join(''),
+    // Decrypted here and immediately masked: the page needs to show that a document is on
+    // file, not what it says. The plaintext never leaves this function.
+    identityMask: maskIdentity(decryptField(user.nidPassport)),
+    notifications: {
+      bookingUpdates: user.notifyBookingUpdates,
+      offers: user.notifyOffers,
+      newsletter: user.notifyNewsletter,
+    },
   };
 }

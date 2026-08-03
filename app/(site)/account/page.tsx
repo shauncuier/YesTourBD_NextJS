@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AccountScreen } from "@/components/screens/AccountScreen.jsx";
 import { auth } from "@/auth";
 import { getAccountProfile, getAccountRequests } from "@/lib/account";
+import { saveProfile } from "./actions";
 
 export const metadata: Metadata = {
   title: "My bookings — YesTourBD",
@@ -26,5 +27,5 @@ export default async function Page() {
 
   if (!profile) redirect("/signin?next=%2Faccount");
 
-  return <AccountScreen profile={profile} requests={requests} />;
+  return <AccountScreen profile={profile} requests={requests} saveAction={saveProfile} />;
 }

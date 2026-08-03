@@ -3,7 +3,7 @@
 import React from 'react';
 
 /** On/off toggle — instant preferences, notification settings, availability flags. */
-export function Switch({ checked, defaultChecked, onChange, disabled = false, label, style, id }) {
+export function Switch({ checked, defaultChecked, onChange, disabled = false, label, style, id, name }) {
   const [internal, setInternal] = React.useState(defaultChecked || false);
   const isControlled = checked !== undefined;
   const isOn = isControlled ? checked : internal;
@@ -21,6 +21,9 @@ export function Switch({ checked, defaultChecked, onChange, disabled = false, la
   };
   return (
     <label htmlFor={switchId} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, fontFamily: 'var(--font-body)', ...style }}>
+      {/* The switch itself is a <span role="switch">, which submits nothing. When the switch
+          is in a form, a hidden checkbox carries its state so the server sees the choice. */}
+      {name ? <input type="checkbox" name={name} checked={isOn} readOnly hidden /> : null}
       <span
         id={switchId} role="switch" aria-checked={isOn} aria-disabled={disabled || undefined}
         aria-labelledby={label ? labelId : undefined} tabIndex={disabled ? -1 : 0}
