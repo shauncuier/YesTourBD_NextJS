@@ -61,11 +61,17 @@ next-env.d.ts
 *~
 
 # AI / agent tooling — local developer setup, not project source.
-# .claude/settings.json is the exception: it carries the git guard rails and the
-# commit-attribution setting, so it is shared deliberately.
+# Two deliberate exceptions, both shared because they are about this project rather than
+# one developer's machine: settings.json carries the git guard rails and the
+# commit-attribution setting, and skills/yestourbd-design is the brand skill synced from
+# the Claude Design project. Personally-installed skills (graphify, etc.) stay ignored.
+# Un-ignoring a nested path needs the parent directory un-ignored first, hence the pairs.
 .claude/*
 !.claude/settings.json
 .claude/settings.local.json
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/yestourbd-design/
 .agents/
 .codex/
 .cursor/
