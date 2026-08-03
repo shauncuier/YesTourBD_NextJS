@@ -10,6 +10,10 @@ export function Switch({ checked, defaultChecked, onChange, disabled = false, la
   const [focus, setFocus] = React.useState(false);
   const reactId = React.useId();
   const switchId = id || reactId;
+  // `htmlFor` only names labelable form elements, and this switch is a <span role="switch">
+  // — so the wrapping <label> gives it no accessible name at all. Point at the label text
+  // explicitly instead.
+  const labelId = `${switchId}-label`;
   const toggle = () => {
     if (disabled) return;
     if (!isControlled) setInternal(!isOn);
@@ -18,7 +22,8 @@ export function Switch({ checked, defaultChecked, onChange, disabled = false, la
   return (
     <label htmlFor={switchId} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, fontFamily: 'var(--font-body)', ...style }}>
       <span
-        id={switchId} role="switch" aria-checked={isOn} tabIndex={disabled ? -1 : 0}
+        id={switchId} role="switch" aria-checked={isOn} aria-disabled={disabled || undefined}
+        aria-labelledby={label ? labelId : undefined} tabIndex={disabled ? -1 : 0}
         onClick={toggle} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
         onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
         style={{
@@ -32,7 +37,7 @@ export function Switch({ checked, defaultChecked, onChange, disabled = false, la
           background: '#fff', boxShadow: 'var(--shadow-sm)', transition: `left var(--duration-fast) var(--ease-standard)`,
         }} />
       </span>
-      {label && <span style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-primary)' }}>{label}</span>}
+      {label && <span id={labelId} style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-primary)' }}>{label}</span>}
     </label>
   );
 }

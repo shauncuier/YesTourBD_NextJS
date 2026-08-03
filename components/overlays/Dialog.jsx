@@ -5,12 +5,41 @@ import React from 'react';
 const WIDTHS = { sm: 400, md: 520, lg: 720 };
 
 /** Modal surface — booking confirmation, quotation forms, destructive confirms. */
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export function Dialog({ open = false, title, description, size = 'md', showClose = true, onClose, footer, children, style }) {
+  const surfaceRef = React.useRef(null);
+
+  // Escape closes, Tab is trapped inside the surface, focus enters on open and returns to
+  // whatever opened it on close, and the page behind stops scrolling. `aria-modal` alone
+  // promises all of this to a screen reader; the browser does not implement any of it.
   React.useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape' && onClose) onClose(); };
+    const opener = document.activeElement;
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') { if (onClose) onClose(); return; }
+      if (e.key !== 'Tab' || !surfaceRef.current) return;
+      const items = Array.from(surfaceRef.current.querySelectorAll(FOCUSABLE)).filter((el) => !el.disabled);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const inside = surfaceRef.current.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const target = surfaceRef.current && (surfaceRef.current.querySelector(FOCUSABLE) || surfaceRef.current);
+    if (target) target.focus();
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+      if (opener && typeof opener.focus === 'function') opener.focus();
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -25,8 +54,10 @@ export function Dialog({ open = false, title, description, size = 'md', showClos
       }}
     >
       <div
+        ref={surfaceRef}
         role="dialog"
         aria-modal="true"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%', maxWidth: WIDTHS[size] || WIDTHS.md, maxHeight: '86vh', overflow: 'auto',

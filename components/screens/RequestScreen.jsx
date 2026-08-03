@@ -19,6 +19,10 @@ export function RequestScreen() {
   const [type, setType] = React.useState('corporate');
   const [sent, setSent] = React.useState(false);
   const [contact, setContact] = React.useState('whatsapp');
+  // The notes field is a bare <textarea> rather than a design-system component, so it has to
+  // carry Input's focus treatment itself — it suppresses the UA outline and would otherwise
+  // show a keyboard user nothing at all.
+  const [notesFocus, setNotesFocus] = React.useState(false);
 
   return (
     <div style={{ background: 'var(--color-bg-page)', paddingBottom: 'var(--space-12)' }}>
@@ -62,7 +66,9 @@ export function RequestScreen() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label htmlFor="request-notes" style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--gray-700)' }}>Anything else we should plan around?</label>
-              <textarea id="request-notes" rows={4} placeholder="Transport from Dhaka, one vegetarian meal per day, conference room for 40 on the second morning…" style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--color-text-primary)', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', outline: 'none', resize: 'vertical', background: 'var(--color-bg-surface)' }} />
+              <textarea id="request-notes" rows={4} placeholder="Transport from Dhaka, one vegetarian meal per day, conference room for 40 on the second morning…"
+                onFocus={() => setNotesFocus(true)} onBlur={() => setNotesFocus(false)}
+                style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--color-text-primary)', padding: '10px 12px', border: `1px solid ${notesFocus ? 'var(--teal-500)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-md)', outline: 'none', boxShadow: notesFocus ? 'var(--shadow-focus)' : 'none', transition: 'all var(--duration-fast) var(--ease-standard)', resize: 'vertical', background: 'var(--color-bg-surface)' }} />
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {['Need transport', 'Need hotel', 'Need meals', 'Need event setup', 'Need guide'].map((x) => <Tag key={x} label={x} onClick={() => {}} />)}

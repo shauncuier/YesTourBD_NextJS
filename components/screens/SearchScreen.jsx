@@ -26,7 +26,7 @@ function ResultRow({ l, go }) {
       className={c.resultRow} style={{ boxShadow: hover ? 'var(--shadow-md)' : 'var(--shadow-sm)' }}>
       <div className={c.resultMedia}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <img src={l.img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6 }}>
           {l.offer ? <Badge tone="gold" variant="solid">{l.offer}</Badge> : <Badge tone="teal" variant="solid">Instant</Badge>}
         </div>
@@ -68,6 +68,37 @@ export function SearchScreen() {
   const [chips, setChips] = React.useState(["Cox's Bazar", '12–14 Mar', '2 adults']);
   const listings = LISTINGS;
 
+  // Below 900px the rail is a full-screen sheet. A sheet a keyboard cannot enter, leave or
+  // dismiss is not usable, so on open focus moves into it, Escape closes it, the page behind
+  // stops scrolling, and focus returns to the button that opened it. Above 900px the rail is
+  // an ordinary sidebar and none of this applies.
+  const railRef = React.useRef(null);
+  const filterToggleRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!filtersOpen) return undefined;
+    const sheet = window.matchMedia('(max-width: 899.98px)');
+    if (!sheet.matches) return undefined;
+
+    const first = railRef.current && railRef.current.querySelector('button, [href], input, select, textarea');
+    if (first) first.focus();
+    const toggleWrapper = filterToggleRef.current;
+
+    const onKey = (e) => { if (e.key === 'Escape') setFiltersOpen(false); };
+    const onWidthChange = (e) => { if (!e.matches) setFiltersOpen(false); };
+    window.addEventListener('keydown', onKey);
+    sheet.addEventListener('change', onWidthChange);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      sheet.removeEventListener('change', onWidthChange);
+      document.body.style.overflow = previousOverflow;
+      const toggle = toggleWrapper && toggleWrapper.querySelector('button');
+      if (toggle) toggle.focus();
+    };
+  }, [filtersOpen]);
+
   return (
     <div style={{ background: 'var(--color-bg-page)', minHeight: '100vh' }}>
       <div className={c.searchBand}>
@@ -83,7 +114,7 @@ export function SearchScreen() {
       </div>
 
       <div className={`${layout.container} ${c.searchLayout}`}>
-        <aside className={c.filterRail} data-open={filtersOpen}>
+        <aside ref={railRef} className={c.filterRail} data-open={filtersOpen} aria-label="Filters">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-md)', fontWeight: 'var(--weight-semibold)', color: 'var(--navy-900)' }}>Filters</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -123,7 +154,7 @@ export function SearchScreen() {
               <div style={{ marginTop: 4, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>{listings.length} results · prices include VAT</div>
             </div>
             <div className={c.resultsControls}>
-              <span className={c.filterToggle}>
+              <span ref={filterToggleRef} className={c.filterToggle}>
                 <Button variant="outline" size="sm" iconLeft={<Icon name="sliders-horizontal" size={16} />} onClick={() => setFiltersOpen(true)}>Filters</Button>
               </span>
               <Tabs variant="pill" items={[{ id: 'popular', label: 'Popular' }, { id: 'price', label: 'Price' }, { id: 'rating', label: 'Rating' }]} value={sort} onChange={setSort} />
