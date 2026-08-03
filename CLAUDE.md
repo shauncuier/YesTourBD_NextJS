@@ -39,6 +39,18 @@ Prisma 7 differs from what you probably remember:
   the dev server's module re-evaluation does not exhaust the connection limit.
 - `npx prisma dev` runs a local Postgres with no Docker, which is how this was developed.
 
+## The two-working-hour SLA
+
+The brief promises a reply within two working hours, and `lib/sla.ts` is the only place that
+says what a working hour is: **09:00–22:00 Asia/Dhaka, seven days**, matching the desk hours
+the site advertises. Dhaka is treated as a fixed UTC+6 — Bangladesh has not observed DST since
+2009. The clock runs only while a request is `submitted` or `reviewing`; once it is answered
+it stops.
+
+This is an assumption the client has not confirmed (see M1.5 in MILESTONES). Change the two
+constants there and everything downstream follows — never re-derive working hours in a
+component or a query.
+
 ## Auth and /admin
 
 Staff sign in with email and password through **Auth.js v5** (`auth.ts`); customers will get

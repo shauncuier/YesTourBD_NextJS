@@ -140,6 +140,43 @@
   }
 }
 
+/* Queue filter bar: stacked on a phone, one row from 900px. */
+.queueFilters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 900px) {
+  .queueFilters {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.queueSearch {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.queueSelect {
+  flex: 0 1 190px;
+  min-width: 0;
+}
+
+/* A dense table cannot reflow into a phone, so it scrolls inside its own panel — the one
+   place horizontal scrolling is the right answer. The page still must not. */
+.tableScroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.queueTable {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
 .content {
   flex: 1;
   min-width: 0;

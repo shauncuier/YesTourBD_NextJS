@@ -65,8 +65,10 @@ Nothing in this section is started. Ordered roughly by how much else depends on 
 
 ### Admin
 
-**The shell and the sign-in exist (M1.4)**: staff can sign in at `/admin/login` and reach a
-guarded panel with the ported sidebar and top bar. Every screen behind it is still unbuilt —
+**The shell, the sign-in and the request queue exist (M1.4, M1.5)**: staff can sign in at
+`/admin/login`, and `/admin/requests` lists real quote requests with status filters, search by
+reference/name/phone, and an overdue flag against the two-working-hour SLA. Opening a request,
+assigning it and sending a quotation are M1.6–M1.7. Every other screen is still unbuilt —
 the nav links say which milestone brings each one. The remaining admin screens
 (`DashboardScreen`, `BookingsScreen`, `RequestsScreen`, `ServicesScreen`) are in the remote
 Claude Design project and can be pulled with DesignSync as their milestones land.

@@ -255,12 +255,31 @@ chrome now lives in an `app/(site)` group. And Auth.js rejects any Host it does 
 outside Vercel, so a production build failed every request with `UntrustedHost` until
 `trustHost` was set; the guard failed closed, which is the right direction to fail.
 
-### M1.5 — Admin request queue · M
-- [ ] List with status filter and sort
-- [ ] Age column and an overdue indicator against the two-working-hour SLA
-- [ ] Search by reference, name or phone
+### M1.5 — Admin request queue · M — **DONE**
+- [x] List with status filter and sort, ported from the design system's
+      `ui_kits/admin/RequestsScreen.jsx` list view. Filters live in the URL, so "everything
+      overdue, oldest first" is a link a coordinator can bookmark or send to a colleague
+- [x] Age column and an overdue indicator against the two-working-hour SLA
+- [x] Search by reference, name or phone. Phone is matched with separators stripped, because
+      the stored form has none
+
+**The SLA needed a definition, and this is an assumption.** "Two working hours" is only
+enforceable once working hours exist, so the clock counts **09:00–22:00 Asia/Dhaka, seven
+days** — the corporate desk hours the site itself advertises. A request arriving at 21:50 is
+therefore one working hour old at 09:50 the next morning, not twelve. It is all in `lib/sla.ts`
+and covered by tests including the overnight and multi-day cases; if the client says the
+window is different, change it there and nowhere else. No weekend exclusion, because the desk
+does not take one.
+
+The clock also stops once the customer has been answered: a request only counts as overdue
+while it is still `submitted` or `reviewing`.
 
 **Done when:** a submitted request appears in the queue within a page refresh, flagged if overdue.
+*Verified* end to end in a browser: a request submitted through the public form appeared in the
+staff queue with its reference, name, phone and waiting time; searching by reference and by
+phone each found it; an unanswered request planted three days back showed the overdue flag;
+and the page does not scroll sideways at 390px, though the dense table scrolls inside its own
+panel.
 
 ### M1.6 — Request detail and status machine · M
 - [ ] Detail view of everything the customer submitted
