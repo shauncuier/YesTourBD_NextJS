@@ -5,8 +5,11 @@ import { auth } from '@/auth';
 import { requestCode, verifyCode } from './actions';
 
 export const metadata: Metadata = {
-  title: 'Sign in — YesTourBD',
+  title: 'Sign in',
   description: 'Sign in with your mobile number. We send a six-digit code; there is no password.',
+  // A sign-in form is not a search result. It also takes a `?next=` parameter, which would
+  // otherwise put a page in the index for every destination anyone ever linked to.
+  robots: { index: false, follow: false },
 };
 
 export const dynamic = 'force-dynamic';

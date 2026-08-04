@@ -3,8 +3,9 @@ import { TrackLookup } from '@/components/screens/TrackLookup.jsx';
 import { lookupRequest } from './actions';
 
 export const metadata: Metadata = {
-  title: 'Follow your request — YesTourBD',
+  title: 'Follow your request',
   description: 'Check the status of a quote request with its reference and the mobile number you used.',
+  alternates: { canonical: '/track' },
 };
 
 export default function TrackPage() {

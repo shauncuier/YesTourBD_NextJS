@@ -6,7 +6,7 @@ import { getAccountProfile, getAccountRequests } from "@/lib/account";
 import { saveProfile } from "./actions";
 
 export const metadata: Metadata = {
-  title: "My bookings — YesTourBD",
+  title: "My bookings",
   robots: { index: false, follow: false },
 };
 

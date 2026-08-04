@@ -3,9 +3,10 @@ import { RequestScreen } from "@/components/screens/RequestScreen.jsx";
 import { submitQuoteRequest } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Request a quote — YesTourBD",
+  title: "Request a quote",
   description:
     "Corporate tours, group tours, events, visa assistance and custom packages. Tell us the trip and a coordinator replies within two working hours.",
+  alternates: { canonical: "/request" },
 };
 
 export default function Page() {

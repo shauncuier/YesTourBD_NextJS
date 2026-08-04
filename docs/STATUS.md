@@ -62,6 +62,7 @@ separate debugging sessions were lost to this.
 | Email | Three templates (acknowledgement, desk notification, quotation), every attempt recorded in `email_messages`. **Not delivered** — no provider key |
 | SMS | BulkSMSBD wired, `Your YesTourBD OTP is …` per the gateway's required format, recorded in `sms_messages` |
 | Encryption at rest | AES-256-GCM for identity documents (`lib/field-crypto.ts`) |
+| Search-engine metadata | Generated `robots.txt` and `sitemap.xml`, a self-referencing canonical on every route, Open Graph and Twitter cards, and JSON-LD for the business and each listing. Only the production deployment is crawlable; preview serves `Disallow: /` and `noindex`. **Needs the real domain** — see below |
 | CI | lint, typecheck, test, build on Node 22 and 24 with a real Postgres |
 
 ## Not built
@@ -84,7 +85,7 @@ Ordered by how much else depends on it.
 | Real search + filters | The rail renders but is not wired; results are a fixed array of 6 |
 | Media storage | Every image is still a remote Unsplash URL, now served through `next/image` (AVIF, per-breakpoint sizing). Lighthouse performance is 80–94; `/`, `/guides` and `/search` remain under the 90 gate, and the cause is client-side hydration rather than bytes — see M0.10 |
 | Service landing pages | Twelve services, no per-service page — tiles link to `/search` or `/request` |
-| Blog / travel guides | `/guides` renders the home page as a stub |
+| Blog / travel guides | `/guides` renders the home page as a stub. It now canonicalises to `/` and is kept out of the sitemap, so it is not competing with the home page while it waits for M4.3 |
 | Photo gallery | The detail page's "+14 photos" button is inert |
 | Reviews, offers | Hard-coded; no submission path, no promo engine |
 
@@ -108,6 +109,7 @@ Nothing below is blocked on engineering.
 | **D9** | Three brand tokens fail WCAG AA for small text | The only accessibility failure left. A Design project change, not a repo one |
 | **D2** | Whether hotel inventory exists today | `lib/site-data.js` still marks air, bus and ship `instant`, painting "Book now" on services that would be request-based |
 | — | **Real photography** | The last of M0.10. The image pipeline itself is done |
+| — | **The production domain** | Set `NEXT_PUBLIC_SITE_URL`, or deploy to the production Vercel project, which supplies it. Every canonical and sitemap URL follows from it; until then they all read `http://localhost:3000` and the sitemap cannot be submitted to Search Console |
 
 Two housekeeping notes: the BulkSMSBD API key was pasted into a chat transcript, so rotate it
 when convenient; and `STAFF_PASSWORD` in `.env` must be at least 12 characters or

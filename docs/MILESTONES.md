@@ -10,7 +10,7 @@ one developer already familiar with the repo. They are estimates, not commitment
 A milestone is finished when its Done-when check passes on a deployed preview, not on a
 laptop.
 
-## Where things stand — 4 Aug 2026
+## Where things stand — 5 Aug 2026
 
 **Phases 0, 1 and 2 are done**, except for two things that need credentials rather than code:
 M1.3's email provider key, and one live SMS test. Both are marked in place below.
@@ -21,7 +21,12 @@ M1.3's email provider key, and one live SMS test. Both are marked in place below
 If D8 is not ready, the useful unblocked work is the customer-facing gaps in Phase 4. M0.10's
 engineering half is done — images now go through `next/image` and Lighthouse performance moved
 from 79–85 to 80–94 — and what is left of it needs real photography, or a server-component
-refactor of the ported screens.
+refactor of the ported screens. **M4.1** (contact page) and **M4.8** (SEO pass) are done.
+
+**M4.8 needs one thing from you: the real domain.** Set `NEXT_PUBLIC_SITE_URL` — or just
+deploy to the production Vercel project, which supplies it — and every canonical, sitemap
+entry and Open Graph URL follows. Until then they all say `http://localhost:3000`, which is
+correct behaviour rather than a bug, but it does mean the sitemap cannot be submitted yet.
 
 See [STATUS.md](./STATUS.md) for what actually runs today and what is waiting on whom.
 
@@ -665,13 +670,38 @@ Two defects came out of the verification, both now fixed:
 - [ ] Moderation queue
 - [ ] Real ratings replace the hard-coded ones
 
-### M4.8 — SEO pass · M
-- [ ] `sitemap.xml`, `robots.txt`
-- [ ] JSON-LD: Organization, Product/Offer, Article, BreadcrumbList
-- [ ] OG images per route
-- [ ] Canonicals, and metadata on every route
+### M4.8 — SEO pass · M — **DONE**, except the two items that need pages that do not exist yet
+- [x] `sitemap.xml` and `robots.txt`, both generated (`app/sitemap.ts`, `app/robots.ts`)
+- [x] JSON-LD: Organization (home) and Product/Offer + BreadcrumbList (listings)
+- [ ] JSON-LD: Article — nothing to describe until the blog exists (**M4.3**)
+- [x] OG images: a generated brand card as the site-wide fallback, overridden per listing by
+      the listing photograph, which is always the better card
+- [x] Canonical, title, description and Open Graph on every route
 
-**Done when:** Search Console accepts the sitemap and rich results validate.
+`lib/seo.ts` owns all of it — pure, no database import, so `test/seo.test.ts` runs in jsdom.
+
+Four judgement calls worth keeping:
+
+- **The canonical origin is `VERCEL_PROJECT_PRODUCTION_URL`, never `VERCEL_URL`.** The latter
+  is the per-deployment hostname, so a preview build would canonicalise to itself and offer
+  Google a staging copy of the whole site to index against the real one.
+- **Only the production deployment is crawlable at all**, gated through the same
+  `lib/deployment.ts` as email and SMS. A preview serves `Disallow: /` *and* `noindex` in the
+  page — belt and braces, because a directly-linked preview URL is read before robots.txt is.
+- **No `aggregateRating`.** The star ratings are placeholders from `lib/site-data.js`. On
+  screen that reads as sample content; in structured data it is a claim to Google that we
+  collected reviews we have not. It goes in with **M4.7**, not before.
+- **`/tickets` and `/guides` canonicalise to the pages they duplicate** (`/search` and `/`)
+  and are left out of the sitemap. They render the same screens; two URLs serving one page
+  compete with each other. They rejoin when M4.3 gives them screens of their own.
+
+**Done when:** Search Console accepts the sitemap and rich results validate — **still
+outstanding**, and it cannot be checked until the site is on a real domain. What has been
+verified locally, against a production-mode build in a browser (47 checks,
+`scratchpad/qa/seo.mjs`): every indexable route has exactly one self-referencing canonical,
+the brand appears once per title, every URL in the sitemap returns 200, the sitemap and
+robots.txt do not contradict each other, the OG card renders as an 86KB PNG, and `/account`,
+`/signin` and `/track/[ref]` are all kept out.
 
 ---
 

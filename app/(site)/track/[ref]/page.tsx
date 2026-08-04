@@ -8,7 +8,7 @@ import { customerStatus, trackingCookieName, verifyTrackingToken } from '@/lib/t
 import { acceptQuotation, requestChanges } from './actions';
 
 export const metadata: Metadata = {
-  title: 'Your request — YesTourBD',
+  title: 'Your request',
   robots: { index: false, follow: false },
 };
 

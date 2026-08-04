@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Public_Sans, Lora, IBM_Plex_Mono, Noto_Sans_Bengali } from "next/font/google";
+import { indexingAllowed, SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 // The design system flags these as substitutes for unsupplied brand fonts and loads them
@@ -46,9 +47,36 @@ const notoSansBengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: "YesTourBD — all-in-one travel marketplace",
-  description:
-    "Hotels, houseboats, ship and air tickets you can confirm right now — plus corporate tours, packages and visa help handled by a real person.",
+  // Every relative URL below — canonicals, Open Graph images — resolves against this. Without
+  // it a relative `alternates.canonical` is a build error, and an absolute one hard-codes the
+  // domain into fifteen files. See lib/seo.ts for why it is not VERCEL_URL.
+  metadataBase: new URL(siteUrl()),
+  title: {
+    default: `${SITE_NAME} — all-in-one travel marketplace`,
+    // Pages set a bare title; the brand is appended once, here, rather than in every file.
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "en_GB",
+    title: `${SITE_NAME} — all-in-one travel marketplace`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — all-in-one travel marketplace`,
+    description: SITE_DESCRIPTION,
+  },
+  // The belt to robots.txt's braces. A preview deployment that is linked to directly, or
+  // reached before robots.txt is fetched, still carries `noindex` in the page itself.
+  robots: indexingAllowed()
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
 };
 
 export default function RootLayout({

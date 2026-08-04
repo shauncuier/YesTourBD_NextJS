@@ -151,6 +151,27 @@ rules apply there too — sentence case, no emoji, ৳ with comma grouping, day-
 `test/email-templates.test.ts` asserts them, because nobody reviews an email the way they
 review a screen.
 
+## What crawlers are told
+
+`lib/seo.ts` is the only place that decides. It has no database import, so its rules are unit-
+testable — same shape as `lib/otp-rules.ts`. `app/robots.ts` and `app/sitemap.ts` are thin.
+
+- **The canonical origin is `NEXT_PUBLIC_SITE_URL`, then `VERCEL_PROJECT_PRODUCTION_URL`.**
+  Never `VERCEL_URL` — that is the per-deployment hostname, so a preview build would
+  canonicalise to itself and hand Google a staging copy of the site to index against the real
+  one. `metadataBase` in `app/layout.tsx` is set from it once; pages give relative canonicals.
+- **Only the production deployment is indexable**, gated through the same `lib/deployment.ts`
+  as email and SMS. Preview serves `Disallow: /` *and* a page-level `noindex` — a directly
+  linked preview URL is read before robots.txt is fetched.
+- **Structured data must not claim what we cannot show.** No `aggregateRating` while the
+  ratings in `lib/site-data.js` are placeholders, and a `request`-mode service is `PreOrder`,
+  never `InStock` — it has no checkout to send anyone to.
+- **A route that duplicates another canonicalises to it and stays out of the sitemap.**
+  `/tickets` and `/guides` render `/search` and `/` today. Listing a URL in the sitemap while
+  pointing its canonical elsewhere asks the crawler two opposite questions.
+- Titles are set bare; `app/layout.tsx`'s `title.template` appends the brand once. Do not
+  write `— YesTourBD` into a page's title.
+
 ## Money
 
 Whole taka, held as **integers**. No floats anywhere near a number a customer will be asked to
