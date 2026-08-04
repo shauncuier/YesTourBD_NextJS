@@ -212,6 +212,33 @@ Verified with a scripted check as well as Lighthouse: every image on `/`, `/sear
 through the optimiser — a `fill` image whose container loses its height collapses silently
 while every other test still passes.
 
+#### Static vs dynamic rendering — measured, and settled
+
+M2.2 put `await auth()` in the shared `app/(site)/layout.tsx` so the header can show a
+signed-in state. That makes every route under `(site)` `ƒ` dynamic: `/` stopped being static
+and `/tours/[slug]` stopped being SSG. It looked like it undercut the work above, so it was
+measured rather than argued about — the session read was removed, both arms were built and
+scored with the same Lighthouse harness:
+
+| Route | Static layout | Dynamic layout (kept) |
+|---|---|---|
+| `/` | 81 | 81 |
+| `/search` | 85 | 85 |
+| `/request` | 88 | 88 |
+| `/tours/[slug]` | 87 | 85 |
+| `/tickets` | 86 | 84 |
+| `/guides` | 85 | 82 |
+
+Going static is worth **0–3 points, and nothing at all on `/`** — the page the question was
+about. That is consistent with the paragraph above: the cost is client-component hydration
+under a 4× CPU throttle, and prerendering HTML that then waits on the same JS bundle does not
+move it. Prerendering is not the lever; the server-component refactor is.
+
+**Decision: keep the session read.** A permanently signed-out header is a visible bug, and
+`SessionProvider` on the client would have traded server render time for more of exactly the
+JS that is the actual bottleneck. Revisit only after the screens are server components, when
+static rendering would have something left to win.
+
 ---
 
 ## Phase 1 — Request-based booking, end to end
