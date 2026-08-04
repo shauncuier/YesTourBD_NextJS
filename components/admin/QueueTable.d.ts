@@ -6,8 +6,8 @@ export interface QueueTableRow {
   name: string;
   phone: string;
   requestType: string;
-  paxBand: string;
-  destinations: string;
+  paxBand: string | null;
+  destinations: string | null;
   /** ISO date string, or null when the customer gave no start date. */
   startDate: string | null;
   nights: number | null;

@@ -13,7 +13,7 @@ export type AccountRequestView = {
   statusLabel: string;
   statusTone: 'success' | 'warning' | 'teal' | 'brand' | 'danger' | 'neutral' | 'gold';
   submitted: string;
-  paxBand: string;
+  paxBand: string | null;
   totalLabel: string | null;
   open: boolean;
 };
@@ -74,7 +74,8 @@ export async function getAccountRequests(userId: string): Promise<AccountRequest
     const total = request.quotations[0]?.total ?? null;
     return {
       ref: request.ref,
-      title: request.destinations,
+      // A support enquiry has no destination to name it by.
+      title: request.destinations ?? 'Support enquiry',
       statusLabel: customerStatus(request.status).label,
       statusTone: TONE[request.status] ?? 'neutral',
       submitted: dhakaDate(request.createdAt),

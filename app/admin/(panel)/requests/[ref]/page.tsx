@@ -28,6 +28,7 @@ const STATUS_TONE: Record<string, 'neutral' | 'brand' | 'teal' | 'success' | 'wa
 };
 
 const TYPE_LABEL: Record<string, string> = {
+  support: 'Support enquiry',
   corporate: 'Corporate tour or event',
   group: 'Group / student tour',
   visa: 'Visa assistance',
@@ -105,8 +106,8 @@ export default async function RequestDetailPage(props: PageProps<'/admin/request
         <Panel title={`${TYPE_LABEL[request.requestType] ?? request.requestType} — ${request.name}`}>
           <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: 'var(--space-3)' }}>
-              <Fact label="Travellers" value={request.paxBand} />
-              <Fact label="Destination" value={request.destinations} />
+              <Fact label="Travellers" value={request.paxBand ?? '—'} />
+              <Fact label="Destination" value={request.destinations ?? 'Not a trip — a support enquiry'} />
               <Fact label="Start" value={request.startDate ? request.startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Dhaka' }) : 'Not given'} />
               <Fact label="Nights" value={request.nights ?? 'Not given'} />
               <Fact label="Budget" value={request.budgetBand ?? 'Not given'} />

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
     // else's files.
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
+      // The footer glyphs. They are served `unoptimized` because they are SVG and
+      // next/image will not process SVG without dangerouslyAllowSVG — a flag that exists
+      // because a third-party SVG can carry script. The host is still listed so the loader
+      // permits the URL at all.
       { protocol: "https", hostname: "cdn.simpleicons.org" },
     ],
     // AVIF first — roughly half the bytes of the JPEGs Lighthouse was complaining about, and

@@ -51,6 +51,7 @@ separate debugging sessions were lost to this.
 | Detail page | Gallery, tabs, booking panel, confirm dialog — all still placeholder data |
 | Request page | Submits for real: Zod validation server-side, rate-limited, persisted, `REQ-XXXX` from a Postgres sequence |
 | Request tracking | `/track` — reference **plus** the mobile used; shows the itemised quotation; accept or ask for changes. No account needed |
+| Contact & support | `/contact` — methods, hours, and a form that files into the **same** request queue with its own reference and SLA. No map: there is no real address yet |
 | Customer sign-in | `/signin` — phone + six-digit code (Auth.js `phone-otp`), argon2-hashed codes, expiry, attempt cap, resend cooldown, per-phone and per-IP limits |
 | Account | Requests tab reads the customer's own rows, including ones sent before the account existed; profile editable (name, email, notification choices, NID/passport **encrypted at rest**). Bookings remain placeholder and say why |
 | Staff sign-in | `/admin/login` — email + password, argon2id, 8-hour JWT sessions. Accounts via `npm run staff:create`; no credentials in the repo |
@@ -84,7 +85,6 @@ Ordered by how much else depends on it.
 | Media storage | Every image is still a remote Unsplash URL, now served through `next/image` (AVIF, per-breakpoint sizing). Lighthouse performance is 80–94; `/`, `/guides` and `/search` remain under the 90 gate, and the cause is client-side hydration rather than bytes — see M0.10 |
 | Service landing pages | Twelve services, no per-service page — tiles link to `/search` or `/request` |
 | Blog / travel guides | `/guides` renders the home page as a stub |
-| Contact & support page | No route |
 | Photo gallery | The detail page's "+14 photos" button is inert |
 | Reviews, offers | Hard-coded; no submission path, no promo engine |
 

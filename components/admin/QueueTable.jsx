@@ -21,6 +21,7 @@ const STATUS_TONE = {
 };
 
 const TYPE_LABEL = {
+  support: 'Support',
   corporate: 'Corporate',
   group: 'Group / student',
   visa: 'Visa',
@@ -60,8 +61,8 @@ export function QueueTable({ rows }) {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-regular)', color: 'var(--color-text-muted)' }}>{row.phone}</div>
               </td>
               <td style={{ ...TD, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>{TYPE_LABEL[row.requestType] ?? row.requestType}</td>
-              <td style={{ ...TD, whiteSpace: 'nowrap' }}>{row.paxBand}</td>
-              <td style={{ ...TD, color: 'var(--color-text-secondary)' }}>{row.destinations}</td>
+              <td style={{ ...TD, whiteSpace: 'nowrap' }}>{row.paxBand ?? '—'}</td>
+              <td style={{ ...TD, color: 'var(--color-text-secondary)' }}>{row.destinations ?? 'Support enquiry'}</td>
               <td style={{ ...TD, whiteSpace: 'nowrap' }}>{formatWhen(row.startDate, row.nights)}</td>
               <td style={{ ...TD, whiteSpace: 'nowrap' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: row.overdue ? 'var(--color-danger)' : 'inherit', fontWeight: row.overdue ? 'var(--weight-semibold)' : 'var(--weight-regular)' }}>

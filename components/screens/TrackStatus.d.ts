@@ -5,8 +5,8 @@ type Action = (previous: DecisionState, formData: FormData) => Promise<DecisionS
 
 export interface TrackRequestView {
   ref: string;
-  destinations: string;
-  paxBand: string;
+  destinations: string | null;
+  paxBand: string | null;
   submitted: string;
   statusLabel: string;
   statusBlurb: string;

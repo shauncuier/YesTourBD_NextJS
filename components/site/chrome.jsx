@@ -130,16 +130,31 @@ function SocialLink({ label, slug }) {
         border: `1px solid ${hover || active ? 'transparent' : 'rgba(255,255,255,.18)'}`,
         transition: 'background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard)',
       }}>
-      <Image src={`https://cdn.simpleicons.org/${slug}/ffffff`} alt="" width={16} height={16} style={{ display: 'block' }} />
+      {/* `unoptimized`: these are SVGs, and next/image will not process SVG without
+          dangerouslyAllowSVG — which exists because an SVG from a third party can carry
+          script. There is nothing to optimise in a 300-byte glyph anyway. */}
+      <Image src={`https://cdn.simpleicons.org/${slug}/ffffff`} alt="" width={16} height={16} unoptimized style={{ display: 'block' }} />
     </a>
   );
 }
+
+// Footer links that have a real route go to it; the rest stay inert until their milestone
+// builds them, rather than pretending with a dead href.
+const FOOTER_ROUTES = {
+  'Contact & support': '/contact',
+  'Travel guides': '/guides',
+};
 
 export function SiteFooter() {
   const col = (title, items) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: '#fff', letterSpacing: 'var(--tracking-wide)' }}>{title}</div>
-      {items.map((i) => <a key={i} href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: 'var(--text-sm)', color: 'var(--navy-200)', textDecoration: 'none', fontFamily: 'var(--font-body)' }}>{i}</a>)}
+      {items.map((i) => {
+        const style = { fontSize: 'var(--text-sm)', color: 'var(--navy-200)', textDecoration: 'none', fontFamily: 'var(--font-body)' };
+        return FOOTER_ROUTES[i]
+          ? <Link key={i} href={FOOTER_ROUTES[i]} style={style}>{i}</Link>
+          : <a key={i} href="#" onClick={(e) => e.preventDefault()} style={style}>{i}</a>;
+      })}
     </div>
   );
   return (

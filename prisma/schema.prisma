@@ -31,6 +31,10 @@ enum RequestType {
   visa
   package
   car
+  /// A question rather than a trip. Support enquiries land in the same queue on purpose: a
+  /// second inbox is a second thing to forget to watch, and the SLA, the history and the
+  /// assignment all already work here.
+  support
 }
 
 enum ContactPref {
@@ -98,8 +102,9 @@ model QuoteRequest {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   requestType  RequestType @map("request_type")
-  destinations String
-  paxBand      String      @map("pax_band")
+  /// Null for a support enquiry, which is about a booking or a policy rather than a place.
+  destinations String?
+  paxBand      String?     @map("pax_band")
   startDate    DateTime?   @map("start_date") @db.Date
   nights       Int?
   budgetBand   String?     @map("budget_band")

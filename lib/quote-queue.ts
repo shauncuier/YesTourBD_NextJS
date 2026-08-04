@@ -14,8 +14,9 @@ export type QueueRow = {
   phone: string;
   email: string | null;
   requestType: string;
-  destinations: string;
-  paxBand: string;
+  /** Null for a support enquiry, which is a question rather than a trip. */
+  destinations: string | null;
+  paxBand: string | null;
   startDate: Date | null;
   nights: number | null;
   status: string;

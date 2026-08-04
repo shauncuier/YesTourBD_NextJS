@@ -573,8 +573,39 @@ First phase that touches money.
 
 ## Phase 4 — Content and SEO
 
-### M4.1 — Contact & support page · S
-- [ ] Route, contact methods, hours, map, support form into the request pipeline
+### M4.1 — Contact & support page · S — **DONE**
+- [x] `/contact`, linked from the footer where the brief puts it
+- [x] Contact methods and hours, stated honestly: the desk closes, and a message sent at
+      midnight is answered the next morning rather than implied to be instant
+- [ ] Map — no real address exists to put on one. Nothing invented; add it with the address
+- [x] Support form **into the request pipeline**, not a second inbox
+
+A support enquiry becomes an ordinary row in the request queue, with `requestType: support`.
+That was the whole design question here, and the alternative — a separate contact table with
+its own screen — would have meant a second queue for staff to forget to watch, a second SLA
+to implement and a second audit trail. Instead an enquiry gets a `REQ-XXXX`, the
+two-working-hour clock, assignment and history for free.
+
+The cost is that `destinations` and `paxBand` are now nullable, because a question about a
+refund has neither. Every read path says so in words rather than showing a blank: the queue
+shows "Support enquiry" where a destination would be.
+
+**Verified** end to end: submitted from `/contact`, refused when the message was too short to
+act on, issued its own reference, appeared in the staff queue labelled as support, and opened
+onto a detail page carrying the topic, the customer's own reference and a running SLA clock.
+
+Two defects came out of the verification, both now fixed:
+
+- **A failed submission wiped the form.** React 19 resets an uncontrolled form once its
+  action returns, so mistyping a phone number lost the message the customer had just written
+  — on a phone, that is the end of the enquiry. The server now hands the values back. A
+  `<select>` needed remounting to take them, because a form reset restores it from its option
+  attributes rather than from a prop.
+- **The footer's social icons had been broken since the `next/image` change**, because
+  next/image refuses SVG without `dangerouslyAllowSVG` — a flag that exists because a
+  third-party SVG can carry script. They are `unoptimized` instead. The image check now fails
+  on `naturalWidth === 0`; a broken image still lays out at its declared size, which is why
+  nothing noticed.
 
 ### M4.2 — Service landing pages · L
 - [ ] `/services/[slug]` for all twelve
